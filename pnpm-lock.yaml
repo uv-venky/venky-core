@@ -110,6 +110,9 @@ importers:
       flubber:
         specifier: 0.4.2
         version: 0.4.2
+      fs-extra:
+        specifier: 11.3.5
+        version: 11.3.5
       handlebars:
         specifier: 4.7.9
         version: 4.7.9
@@ -206,6 +209,9 @@ importers:
       react-resizable-panels:
         specifier: 4.11.2
         version: 4.11.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      react-scan:
+        specifier: 0.5.6
+        version: 0.5.6(esbuild@0.28.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(rollup@4.60.2)
       react-window:
         specifier: 2.2.7
         version: 2.2.7(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -381,9 +387,6 @@ importers:
       framer-motion:
         specifier: 12.40.0
         version: 12.40.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      fs-extra:
-        specifier: 11.3.5
-        version: 11.3.5
       glob:
         specifier: 13.0.6
         version: 13.0.6
@@ -426,9 +429,6 @@ importers:
       react-dom:
         specifier: 19.2.6
         version: 19.2.6(react@19.2.6)
-      react-scan:
-        specifier: 0.5.6
-        version: 0.5.6(esbuild@0.28.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(rollup@4.60.2)
       recharts:
         specifier: 2.15.4
         version: 2.15.4(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
