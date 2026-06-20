@@ -7,6 +7,12 @@ for Venky applications.
 **Out of scope (removed from this fork):** chat, workflows, command center, KB
 video, SSO, Google auth, mobile auth, and AI features.
 
+## Consumer guide
+
+**[CONSUMER.md](./CONSUMER.md)** — step-by-step guide for building a Next.js app
+that installs venky-core from GitHub (dependencies, pnpm, migrations, API routes,
+proxy, troubleshooting).
+
 ## Installation
 
 Published as `venky-core` from [uv-venky/venky-core](https://github.com/uv-venky/venky-core).

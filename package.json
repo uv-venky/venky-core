@@ -361,6 +361,7 @@
     "dist",
     "migrations",
     "tsconfig.json",
-    "README.md"
+    "README.md",
+    "CONSUMER.md"
   ]
 }
