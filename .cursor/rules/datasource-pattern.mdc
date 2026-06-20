@@ -1,0 +1,588 @@
+---
+description: Pattern for creating DataSource definitions
+globs: src/lib/server/ds/defs/**/*.ts
+alwaysApply: false
+---
+
+# DataSource Pattern
+
+DataSources define the schema and access control for database tables.
+
+## Directory Structure
+
+```
+src/lib/server/ds/defs/
+├── defaults.ts           # DefaultDataSource, DefaultAttribute, DefaultAccess
+├── index.ts              # getAllDataSources(), getDataSource()
+└── module/               # Group by module
+    ├── EntityDS.ts       # DataSource definition
+    └── index.ts          # Module exports
+```
+
+## Basic DataSource Definition
+
+```typescript
+/* Copyright (c) 2024-present Venky Corp. */
+
+import type { DataSource } from 'venky-core/common';
+import { DefaultAttribute, DefaultDataSource, DefaultFullAccess, DefaultReadOnlyAccess } from 'venky-core/ds';
+import type { Entity } from '@/lib/common/ds/types/module/Entity';
+import { PREFIX } from '@/lib/server/constants';
+
+export const EntityDataSource: DataSource<Entity> = {
+  ...DefaultDataSource,
+  id: 'Entity',
+  tableName: `${PREFIX}entity`,
+  description: 'Entity description',
+  attributes: [
+    // Primary key
+    {
+      ...DefaultAttribute,
+      code: 'id',
+      name: 'ID',
+      type: 'Text',
+      column: 'id',
+      maxLength: 40,
+      primary: true,
+      defaultValue: 'ULID',  // Auto-generate ULID
+      optional: false,
+    },
+    // Text field
+    {
+      ...DefaultAttribute,
+      code: 'name',
+      name: 'Name',
+      type: 'Text',
+      column: 'name',
+      maxLength: 120,
+      optional: false,
+    },
+    // Optional text field
+    {
+      ...DefaultAttribute,
+      code: 'description',
+      name: 'Description',
+      type: 'Text',
+      column: 'description',
+      maxLength: 500,
+      // optional: true is default
+    },
+    // Number field
+    {
+      ...DefaultAttribute,
+      code: 'amount',
+      name: 'Amount',
+      type: 'Number',
+      column: 'amount',
+      allowDecimals: true,
+    },
+    // Date field
+    {
+      ...DefaultAttribute,
+      code: 'createdAt',
+      name: 'Created At',
+      type: 'Date',
+      column: 'created_at',
+      optional: false,
+    },
+    // Boolean field
+    {
+      ...DefaultAttribute,
+      code: 'isActive',
+      name: 'Is Active',
+      type: 'Boolean',
+      column: 'is_active',
+      optional: false,
+    },
+    // Foreign key reference
+    {
+      ...DefaultAttribute,
+      code: 'userId',
+      name: 'User ID',
+      type: 'Text',
+      column: 'user_id',
+      maxLength: 40,
+      ref: 'Users',  // Reference to Users DataSource
+      refTableName: 'uv_users',
+    },
+    // Audit fields (standard)
+    {
+      ...DefaultAttribute,
+      code: 'createdBy',
+      name: 'Created By',
+      type: 'Text',
+      column: 'created_by',
+      maxLength: 128,
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'updatedAt',
+      name: 'Updated At',
+      type: 'Date',
+      column: 'updated_at',
+    },
+    {
+      ...DefaultAttribute,
+      code: 'updatedBy',
+      name: 'Updated By',
+      type: 'Text',
+      column: 'updated_by',
+      maxLength: 128,
+    },
+  ],
+  access: [
+    {
+      ...DefaultReadOnlyAccess,
+      roleCode: 'viewer',
+    },
+    {
+      ...DefaultFullAccess,
+      roleCode: 'editor',
+    },
+    {
+      ...DefaultFullAccess,
+      roleCode: 'admin',
+    },
+  ],
+};
+```
+
+## Attribute Types
+
+| Type | Description | Additional Properties |
+|------|-------------|----------------------|
+| `Text` | String values | `maxLength` |
+| `Number` | Numeric values | `allowDecimals` |
+| `Date` | Date/datetime | - |
+| `Boolean` | True/false | - |
+
+## Joined/Reference Attributes
+
+### New Format (Recommended): Centralized Joins Array
+
+The recommended approach is to define joins in a centralized `joins` array. This provides better clarity, maintainability, and explicit dependency management:
+
+```typescript
+export const ProjectDS: DataSource<Project> = {
+  ...DefaultDataSource,
+  id: 'Project',
+  tableName: 'projects',
+  // Define all joins in one place
+  joins: [
+    {
+      alias: 'cust',
+      tableName: 'customers',
+      joinType: 'INNER',
+      on: 'cust.customer_id = x.customer_id',
+    },
+    {
+      alias: 'custType',
+      tableName: 'customer_types',
+      joinType: 'LEFT',
+      on: 'custType.id = cust.type_id',
+      dependsOn: 'cust',  // Explicit dependency for nested joins
+    },
+    {
+      alias: 'pm',
+      tableName: 'users',
+      joinType: 'LEFT',
+      on: 'pm.user_name = x.project_manager',
+    },
+  ],
+  attributes: [
+    // Reference attribute - FK column in main table
+    {
+      ...DefaultAttribute,
+      code: 'customerId',
+      name: 'Customer Id',
+      type: 'Reference',
+      column: 'customer_id',  // FK column in main table
+      joinAlias: 'cust',      // Reference to join definition
+    },
+    // Calculated field from joined table
+    {
+      ...DefaultAttribute,
+      code: 'customerName',
+      name: 'Customer Name',
+      type: 'Text',
+      column: 'cust.customer_name',
+      joinAlias: 'cust',
+      calculated: true,  // MUST be calculated (read-only from joined table)
+    },
+    // Nested join Reference attribute
+    {
+      ...DefaultAttribute,
+      code: 'customerTypeId',
+      name: 'Customer Type Id',
+      type: 'Reference',
+      column: 'cust.type_id',  // FK column from joined table
+      joinAlias: 'custType',
+      calculated: true,  // MUST be calculated (column from joined table)
+    },
+    // Calculated field from nested join
+    {
+      ...DefaultAttribute,
+      code: 'customerTypeName',
+      name: 'Customer Type Name',
+      type: 'Text',
+      column: 'custType.name',
+      maxLength: 100,
+      optional: true,
+      joinAlias: 'custType',
+      calculated: true,
+    },
+  ],
+};
+```
+
+**New format benefits:**
+- All joins visible in one place
+- Explicit `dependsOn` field for nested joins (no regex parsing)
+- Better type safety and validation
+- Easier to understand join hierarchy
+- Single source of truth for join definitions
+
+**Important rules:**
+- If `column` contains a dot (references a joined table like `'cust.type_id'`), it MUST be `calculated: true`
+- Reference attributes with columns from main table are NOT calculated (can be inserted/updated)
+- Reference attributes with columns from joined tables MUST be calculated (read-only)
+- Use `joinAlias` to reference join definitions (not `refAlias`)
+
+### Old Format (Backward Compatible): Attribute-Based Joins
+
+The old format is still supported for backward compatibility, but only supports simple joins to the main table:
+
+```typescript
+// 1. Change the FK field to Reference type
+{
+  ...DefaultAttribute,
+  code: 'customerId',
+  name: 'Customer Id',
+  type: 'Reference',
+  column: 'customer_id',
+  optional: false,
+  ref: { type: 'UUID' },
+  refAlias: 'cust',
+  refTableName: 'wk_customers',
+  refWhereClause: 'cust.customer_id = x.customer_id',
+  refEquiJoin: true,  // true for INNER JOIN, false for LEFT JOIN
+},
+
+// 2. Add calculated attribute for the joined field
+{
+  ...DefaultAttribute,
+  code: 'customerName',
+  name: 'Customer Name',
+  type: 'Text',
+  column: 'cust.customer_name',
+  maxLength: 240,
+  optional: true,
+  refAlias: 'cust',
+  calculated: true,
+},
+```
+
+**Old format limitations:**
+- Only supports simple joins to main table (`x`)
+- Nested joins are NOT supported - use new `joins` array format instead
+- If nested join is detected, an error will direct you to use the new format
+
+**Migration:** To use nested joins, migrate to the new `joins` array format.
+
+## Calculated Attributes
+
+Use SQL-based calculations for derived fields. Set `calculated: true` and put the SQL expression in `column`:
+
+```typescript
+{
+  ...DefaultAttribute,
+  code: 'totalAmount',
+  name: 'Total Amount',
+  type: 'Number',
+  allowDecimals: true,
+  calculated: true,
+  column: 'quantity * unit_price',  // SQL expression goes in column
+},
+{
+  ...DefaultAttribute,
+  code: 'fullName',
+  name: 'Full Name',
+  type: 'Text',
+  calculated: true,
+  column: "CONCAT(first_name, ' ', last_name)",
+},
+{
+  ...DefaultAttribute,
+  code: 'daysSinceCreated',
+  name: 'Days Since Created',
+  type: 'Number',
+  calculated: true,
+  column: "EXTRACT(DAY FROM NOW() - created_at)",
+},
+```
+
+**Notes**:
+- `calculated: true` marks the field as computed
+- `column` contains the SQL expression (not a column name)
+- Calculated fields are read-only (cannot be inserted/updated)
+- SQL expression runs on database side for efficiency
+- Use column names (snake_case) in the SQL, not attribute codes (camelCase)
+
+## Access Roles
+
+```typescript
+// Read-only access
+{
+  ...DefaultReadOnlyAccess,  // query: true, export: true
+  roleCode: 'viewer',
+}
+
+// Full access
+{
+  ...DefaultFullAccess,  // query, insert, update, delete, audit, export: true
+  roleCode: 'admin',
+}
+
+// Custom access
+{
+  roleCode: 'editor',
+  query: true,
+  insert: true,
+  update: true,
+  delete: false,  // Cannot delete
+  audit: true,
+  export: true,
+}
+```
+
+## Type Definition
+
+Create matching TypeScript type in `src/lib/common/ds/types/module/Entity.ts`:
+
+```typescript
+/* Copyright (c) 2024-present Venky Corp. */
+
+export interface Entity {
+  id: string;
+  name: string;
+  description?: string;
+  amount?: number;
+  createdAt: string;
+  isActive: boolean;
+  userId?: string;
+  createdBy: string;
+  updatedAt?: string;
+  updatedBy?: string;
+}
+```
+
+## Hooks
+
+DataSources support lifecycle hooks for query modification, validation, and side effects.
+
+### Query Hooks
+
+```typescript
+export const EntityDataSource: DataSource<Entity> = {
+  ...DefaultDataSource,
+  // ... attributes and access ...
+
+  // Modify query object before execution
+  preQuery: async ({ query, session, client }) => {
+    // Add user-specific filter for non-admins
+    if (!session.user.roles.includes('admin')) {
+      query.filters = [...(query.filters || []), { userId: { is: session.user.id } }];
+    }
+    return query;
+  },
+
+  // Advanced: Modify SQL query directly (use sparingly)
+  preQuery2: ({ query, sql, params, session, client }) => {
+    const planId = query.match?.planId;
+    if (planId) {
+      params.push(planId);
+      sql = sql.replace('WHERE', `WHERE plan_id = $${params.length} AND`);
+    }
+    return { sql, params };
+  },
+
+  // Process query results before returning
+  postQuery: async ({ query, rows, session, client }) => {
+    // Add computed fields, filter sensitive data, etc.
+    return rows.map(row => ({
+      ...row,
+      displayName: `${row.firstName} ${row.lastName}`,
+    }));
+  },
+};
+```
+
+### Insert/Update/Delete Hooks
+
+```typescript
+import { UserError } from 'venky-core/common';
+
+export const EntityDataSource: DataSource<Entity> = {
+  ...DefaultDataSource,
+
+  // Validate and modify before insert
+  // Note: Audit columns (createdAt, createdBy) are set automatically by the framework
+  beforeInsert: async ({ rows, session, client }) => {
+    for (const row of rows) {
+      if (!row.name?.trim()) {
+        throw new UserError('Name is required');
+      }
+      // Set defaults that aren't handled by DataSource defaultValue
+      if (!row.status) {
+        row.status = 'draft';
+      }
+    }
+    return {
+      rows,
+      // skipDML: true  // Optional: skip actual insert (for custom handling)
+    };
+  },
+
+  // Post-process after insert
+  afterInsert: async ({ rows, session, client }) => {
+    // Send notifications, create related records, etc.
+    // Runs within same transaction
+    return rows;
+  },
+
+  // Validate and modify before update
+  // Note: Audit columns (updatedAt, updatedBy) are set automatically by the framework
+  beforeUpdate: async ({ rows, session, client }) => {
+    for (const row of rows) {
+      // Example: set publishedAt when status changes to published
+      if (row.status === 'published' && !row.publishedAt) {
+        row.publishedAt = new Date().toISOString();
+      }
+    }
+    return { rows };
+  },
+
+  // Post-process after update
+  afterUpdate: async ({ rows, session, client }) => {
+    // Audit logging, cache invalidation, etc.
+    return rows;
+  },
+
+  // Validate before delete
+  beforeDelete: async ({ rows, session, client }) => {
+    // Check if delete is allowed
+    for (const row of rows) {
+      if (row.isProtected) {
+        throw new UserError('Cannot delete protected records');
+      }
+    }
+    return rows;
+  },
+
+  // Post-process after delete - cascade delete related records
+  afterDelete: async ({ rows, session, client }) => {
+    // Cleanup related data, notifications, etc.
+    return rows;
+  },
+
+  // Validate single row (called during validation)
+  validateOne: async ({ row, session, client }) => {
+    // Custom validation logic
+    return row;
+  },
+};
+```
+
+### Hook Reference
+
+| Hook | When | Returns |
+|------|------|---------|
+| `preQuery` | Before query execution | Modified `Query<T>` |
+| `preQuery2` | After preQuery, before SQL execution | `{ sql, params }` |
+| `postQuery` | After query results | Modified `DBRow<T>[]` |
+| `beforeInsert` | Before insert | `{ rows, skipDML? }` |
+| `afterInsert` | After insert | `DBRow<T>[]` |
+| `beforeUpdate` | Before update | `{ rows, skipDML? }` |
+| `afterUpdate` | After update | `DBRow<T>[]` |
+| `beforeDelete` | Before delete | `DBRow<T>[]` |
+| `afterDelete` | After delete | `DBRow<T>[]` |
+| `validateOne` | Row validation | `Row<T>` |
+
+### Cascade Delete Pattern (afterDelete)
+
+Use `afterDelete` to cascade delete related records:
+
+```typescript
+import type { DataSource, DBRow } from 'venky-core/common';
+import { UserError } from 'venky-core/common';
+import { DefaultAttribute, DefaultDataSource, DefaultFullAccess } from 'venky-core/ds';
+import type { PgPoolClient } from 'venky-core/server';
+import type { Session } from 'venky-core/auth';
+import type { Project } from '@/lib/common/ds/types/module/Project';
+
+export const ProjectDS: DataSource<Project> = {
+  ...DefaultDataSource,
+  // ... attributes and access ...
+
+  async afterDelete(props: {
+    rows: DBRow<Project>[];
+    session: Session;
+    client: PgPoolClient;
+  }): Promise<DBRow<Project>[]> {
+    const { client, rows } = props;
+
+    if (rows.length === 0) {
+      return rows;
+    }
+
+    // Prevent bulk delete (optional safety check)
+    if (rows.length > 1) {
+      throw new UserError('Bulk deletion is not supported. Please delete one at a time.');
+    }
+
+    const projectId = rows[0].projectId;
+    if (!projectId) {
+      return rows;
+    }
+
+    // Cascade delete related records
+    await client.query(`DELETE FROM project_tasks WHERE project_id = $1`, [projectId]);
+    await client.query(`DELETE FROM project_roles WHERE project_id = $1`, [projectId]);
+
+    return rows;
+  },
+};
+```
+
+**Important notes for `afterDelete`:**
+- Use `DBRow<T>` (not `Row<T>`) for the rows type
+- Import `Session` from `venky-core/auth` (not `venky-core/server`)
+- Add explicit return type `Promise<DBRow<T>[]>`
+- Runs within the same transaction as the delete
+- Consider adding bulk delete prevention for safety
+
+### Hook Context
+
+- `session` - Current user session with roles, user info
+- `client` - Database transaction client (same transaction as main operation)
+- Throwing `UserError` shows message to user and rolls back transaction
+- Throwing other errors logs to server and shows generic error to user
+- `skipDML: true` in beforeInsert/beforeUpdate skips the actual DML (for custom handling)
+
+## Registration
+
+Add to module index and main index:
+
+```typescript
+// src/lib/server/ds/defs/module/index.ts
+export { EntityDataSource } from './EntityDS';
+
+// src/lib/server/ds/defs/index.ts
+import { EntityDataSource } from './module';
+
+const allDataSources = {
+  // ... existing
+  Entity: EntityDataSource,
+};
+```

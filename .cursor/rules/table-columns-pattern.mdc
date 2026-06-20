@@ -1,0 +1,175 @@
+---
+description: Pattern for creating table column definitions with useRowValue
+globs: src/**/use-table-columns.tsx, src/**/useTableColumns.tsx
+alwaysApply: false
+---
+
+# Table Columns Pattern
+
+## Critical: Understanding row.original vs useRowValue
+
+**IMPORTANT**: In our table implementation, `row.original` only contains the row `id`, NOT the full data object.
+
+### Why This Happens
+
+The `useTable` hook creates a minimal data array with just IDs for performance:
+
+```typescript
+// From useTable.tsx - this is what row.original contains
+const rows = useMemo(
+  () => rowIds.map((id) => ({ id })) as T[],
+  [rowIds],
+);
+```
+
+The actual data is stored in the valtio store and must be accessed using `useRowValue`.
+
+### ❌ WRONG - Do NOT access data via row.original
+
+```typescript
+// This will NOT work - row.original only has { id: "..." }
+cell: ({ row }) => {
+  const name = row.original.name; // undefined!
+  return <span>{name}</span>;
+}
+```
+
+### ✅ CORRECT - Use useRowValue hook
+
+Create wrapper components that use `useRowValue` to fetch data from the store:
+
+```typescript
+import { useRowValue } from 'venky-core/client';
+
+// Cell wrapper component that fetches data from store
+function NameCell({ store, rowId }: { store: Store<DataType>; rowId: string }) {
+  const name = useRowValue(store, rowId, 'name');
+  if (name == null) {
+    return <span className="text-muted-foreground text-xs">-</span>;
+  }
+  return <span>{name}</span>;
+}
+
+// Use in column definition
+{
+  accessorKey: 'name',
+  header: (props) => <HeaderCell {...props} type="Text" store={store} accessorKey="name" title="Name" />,
+  cell: ({ row }) => <NameCell store={store} rowId={row.id} />,
+}
+```
+
+### ✅ ALTERNATIVE - Use TableCell component
+
+For simple text/number/date cells, use the built-in `TableCell` component:
+
+```typescript
+import { TableCell } from 'venky-core/ui';
+
+{
+  accessorKey: 'name',
+  header: (props) => <HeaderCell {...props} type="Text" store={store} accessorKey="name" title="Name" />,
+  cell: (props) => <TableCell type="Text" attributeCode="name" {...props} />,
+}
+```
+
+## Complete Table Columns Hook Example
+
+```typescript
+'use client';
+
+import { Badge, HeaderCell, TableCell } from 'venky-core/ui';
+import { useRowValue } from 'venky-core/client';
+import type { DataType } from '@/lib/common/ds/types/module/DataType';
+import type { Store } from 'venky-core/common';
+import type { AccessorKeyColumnDef } from '@tanstack/react-table';
+import { useMemo } from 'react';
+
+// Custom cell component for complex rendering
+function StatusCell({ store, rowId }: { store: Store<DataType>; rowId: string }) {
+  const status = useRowValue(store, rowId, 'status');
+  if (status == null) {
+    return <span className="text-muted-foreground text-xs">-</span>;
+  }
+  return (
+    <Badge variant={status === 'active' ? 'default' : 'secondary'}>
+      {status}
+    </Badge>
+  );
+}
+
+export default function useTableColumns(store: Store<DataType>): AccessorKeyColumnDef<DataType>[] {
+  return useMemo(() => {
+    return [
+      // Simple text cell using TableCell component
+      {
+        accessorKey: 'name',
+        meta: { label: 'Name' },
+        size: 200,
+        header: (props) => <HeaderCell {...props} type="Text" store={store} accessorKey="name" title="Name" />,
+        cell: (props) => <TableCell type="Text" attributeCode="name" {...props} />,
+      },
+      // Custom cell with useRowValue
+      {
+        accessorKey: 'status',
+        meta: { label: 'Status' },
+        size: 100,
+        header: (props) => <HeaderCell {...props} type="Text" store={store} accessorKey="status" title="Status" />,
+        cell: ({ row }) => <StatusCell store={store} rowId={row.id} />,
+      },
+      // Date cell
+      {
+        accessorKey: 'createdAt',
+        meta: { label: 'Created' },
+        size: 150,
+        header: (props) => <HeaderCell {...props} type="Date" store={store} accessorKey="createdAt" title="Created" />,
+        cell: (props) => <TableCell type="Date" attributeCode="createdAt" {...props} />,
+      },
+    ];
+  }, [store]);
+}
+```
+
+## Key Points
+
+1. **row.id** - Use `row.id` to get the row identifier
+2. **useRowValue(store, rowId, attributeCode)** - Fetch actual data from the store
+3. **Always create wrapper components** for custom cell renderers that need data
+4. **TableCell component** handles data fetching internally - use for simple cases
+5. **HeaderCell component** works with accessorKey for sorting/filtering
+6. **Wrap column definitions in useMemo** with store as dependency
+
+## Styled Cell Components (Recommended)
+
+Use pre-built styled cells from `venky-core/ui` for professional-looking tables:
+
+```typescript
+import {
+  EntityNameCell,    // Name with icon + click
+  StatusBadgeCell,   // Status with auto-colors
+  CodeCell,          // Monospace (IDs, codes)
+  BadgeOutlineCell,  // Short values (currency)
+  NumericWithUnitsCell, // Number + unit
+  PercentageCell,    // Percentage values
+  CompoundCell,      // Primary + secondary text
+} from 'venky-core/ui';
+
+// Usage
+cell: (props) => <EntityNameCell attributeCode="name" preset="customer" useTableOnEdit {...props} />
+cell: (props) => <StatusBadgeCell attributeCode="status" {...props} />
+cell: (props) => <CodeCell attributeCode="taxId" {...props} />
+```
+
+**Entity presets**: `customer`, `user`, `project`, `vendor`, `document`, `task`
+
+## Available Hooks for Cell Components
+
+```typescript
+import {
+  useRowValue,           // Get a single field value
+  useRowAtId,            // Get entire row object
+  useIsRowSelected,      // Check if row is selected
+  useIsRowAttributeDirty // Check if field was modified
+} from 'venky-core/client';
+```
+
+> **Full Reference**: See `venky-ui-patterns` skill → `table-columns-reference.md` for complete styled cell documentation and custom cell patterns.

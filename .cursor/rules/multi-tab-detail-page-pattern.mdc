@@ -1,0 +1,501 @@
+---
+description: Multi-tab detail page design pattern
+globs: src/app/**/edit/**/*.tsx, src/app/**/detail/**/*.tsx
+alwaysApply: false
+---
+
+# Multi-Tab Detail Page Design Pattern
+
+This document describes the design pattern for implementing detail/edit pages with multiple tabs, centralized store management, and URL-persisted tab state.
+
+## Architecture Overview
+
+This pattern implements a detail/edit page with:
+- **URL-based tab state** (persists in URL, survives refresh)
+- **Centralized store management** (main entity store passed down through component tree)
+- **Lazy-loaded tab data** (tabs query their own related data via stores)
+- **Loading states** (handled at page level, not in tabs)
+- **Component composition** (page → page-inner → page-content → tabs)
+
+## Component Structure
+
+```
+page.tsx (Client Component)
+├── Creates main store
+├── Queries store on route param change
+├── Handles loading/error states
+└── Renders PageShell + DetailPage
+
+page-inner.tsx (Wrapper Component)
+├── Receives store + row as props
+├── Adds context providers (if needed)
+└── Renders DetailContent
+
+page-content.tsx (Layout Component)
+├── Receives store + row as props
+├── Creates related stores (shifts, holidays, etc.)
+├── Queries related stores in useEffect
+├── Manages tab state (URL-synced)
+├── Renders Header
+├── Renders Tabs structure
+└── Renders individual TabsContent components
+
+tabs/*.tsx (Tab Components)
+├── Receive store + row + derived data as props
+├── May create their own stores for tab-specific data
+├── Use store for mutations
+└── Render tab-specific UI
+```
+
+## 1. Store Creation & Initialization
+
+### Main Entity Store
+
+**Location**: `page.tsx` (top-level component)
+
+**Pattern**:
+```typescript
+// Main entity store - created once at page level
+const store = useEntityStore();
+
+// Related entity stores - created at page level for shared use (optional)
+const relatedStore = useRelatedEntityStore('related-entity-alias');
+```
+
+**Key Points**:
+- Main store uses `limit: 1` (single record)
+- Main store has `autoQuery: false` (manual query trigger)
+- Related stores can have unique aliases to avoid conflicts
+- Store is created via custom hook
+
+### Store Hook Pattern
+
+**File**: `hooks/use-store.ts`
+
+```typescript
+export function useEntityStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-page',
+    alias: 'entity-edit',
+    limit: 1,
+    autoQuery: false,
+  });
+}
+```
+
+**Requirements**:
+- `limit: 1` for single record pages
+- `autoQuery: false` to control when query happens
+- Unique `alias` to prevent store conflicts
+- Type parameter matches entity type
+
+## 2. Store Querying Strategy
+
+### When to Query
+
+Query happens in `useEffect` when route param changes.
+
+**Pattern** (`page.tsx`):
+```typescript
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const store = useEntityStore();
+  const { id } = use(params); // Next.js 15+ async params
+
+  useEffect(() => {
+    store.executeQuery({
+      query: {
+        data: {
+          entityId: id, // Query by primary key/identifier
+        },
+      },
+      force: true, // Force re-query even if data exists
+    });
+    // Reset related stores when main entity changes
+    relatedStore.setSmartSearchFilters([]);
+  }, [id, store, relatedStore]);
+  
+  // ... rest of component
+}
+```
+
+**Key Points**:
+- Query triggered by route param (`id`) change
+- Uses `force: true` to ensure fresh data
+- Related stores are reset/cleared when main entity changes
+- Query happens before render, loading state shown during query
+- Use `use()` hook for Next.js 15+ async params
+
+## 3. Store Passing Pattern
+
+### Flow Through Component Tree
+
+**Level 1: Page → Page-Inner** (`page.tsx`):
+```typescript
+<DetailPage 
+  entity={row} 
+  entityStore={store}
+  onStatusChange={handleStatusChange} 
+/>
+```
+
+**Level 2: Page-Inner → Page-Content** (`page-inner.tsx`):
+```typescript
+export function DetailPage({
+  entity,
+  entityStore,
+  onStatusChange,
+}: {
+  entity: DBRow<Entity>;
+  entityStore: Store<Entity>;
+  onStatusChange: (newStatus: Status) => void;
+}) {
+  return (
+    <ContextProvider>
+      <DetailContent
+        entity={entity}
+        entityStore={entityStore}
+        onStatusChange={onStatusChange}
+      />
+    </ContextProvider>
+  );
+}
+```
+
+**Level 3: Page-Content → Tabs** (`page-content.tsx`):
+```typescript
+<TabsContent value="details" className="flex-1">
+  <DetailsTab
+    entity={entity}
+    entityStore={entityStore}
+  />
+</TabsContent>
+```
+
+**Key Points**:
+- Store is passed as prop (not recreated in child components)
+- Store type: `Store<EntityType>`
+- Row data also passed separately for immediate access
+- Both store and row passed for flexibility (store for mutations, row for reads)
+- Never recreate the store in child components
+
+## 4. Tab State Management
+
+### URL-Synced Tab State
+
+**Pattern**: Use `useURLStringState` hook for URL-persisted tab state.
+
+**Implementation** (`page-content.tsx`):
+```typescript
+import { useURLStringState } from 'venky-core/ui';
+
+export function DetailContent({ ... }) {
+  const [activeTab, setActiveTab] = useURLStringState('tab', 'details');
+  
+  return (
+    <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col">
+      <TabsList>
+        <TabsTrigger value="details">Details</TabsTrigger>
+        <TabsTrigger value="schedule">Schedule</TabsTrigger>
+        <TabsTrigger value="documents">Documents</TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="details">
+        <DetailsTab {...props} />
+      </TabsContent>
+      {/* ... other tabs */}
+    </Tabs>
+  );
+}
+```
+
+**Key Points**:
+- Tab state persists in URL (`?tab=details`)
+- Default tab: `'details'` (or your preferred default)
+- State survives page refresh
+- `defaultValue={activeTab}` syncs Tabs component with URL state
+- `onValueChange={setActiveTab}` updates URL when tab changes
+
+### Performance: Conditional Tab Rendering
+
+For tabs with heavy content, consider only rendering the active tab:
+
+```typescript
+<Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+  <TabsList>
+    <TabsTrigger value="details">Details</TabsTrigger>
+    <TabsTrigger value="documents">Documents</TabsTrigger>
+  </TabsList>
+  
+  {/* Only render active tab content */}
+  {activeTab === 'details' && (
+    <TabsContent value="details" forceMount>
+      <DetailsTab {...props} />
+    </TabsContent>
+  )}
+  {activeTab === 'documents' && (
+    <TabsContent value="documents" forceMount>
+      <DocumentsTab {...props} />
+    </TabsContent>
+  )}
+</Tabs>
+```
+
+**Trade-offs**:
+- ✅ Better performance for heavy tabs (unmounts inactive tabs)
+- ❌ Tab state resets when switching (use with caution)
+- Default approach (always render) is fine for most cases
+
+## 5. Tab Data Querying Patterns
+
+Tabs query their own data using separate stores. Three common patterns:
+
+### Pattern A: Store Created in Page-Content, Queried in useEffect, Passed to Tabs
+
+**Use Case**: Data needed by a specific tab, queried when main entity loads.
+
+```typescript
+export function DetailContent({ entity, entityStore }) {
+  const relatedStore = useRelatedEntityStore('related-schedule');
+  const relatedItems = useDBRows(relatedStore);
+
+  useEffect(() => {
+    if (entity.entityId) {
+      relatedStore.executeQuery({
+        query: {
+          data: {
+            entityId: entity.entityId,
+          },
+        },
+      });
+    }
+  }, [entity.entityId, relatedStore]);
+
+  return (
+    <TabsContent value="schedule">
+      <ScheduleTab entity={entity} relatedItems={relatedItems} />
+    </TabsContent>
+  );
+}
+```
+
+### Pattern B: Store Created in Tab Component, Queried on Demand
+
+**Use Case**: Data only needed when tab is opened or specific action occurs.
+
+```typescript
+export function Header({ entity, entityStore }) {
+  const [showCombobox, setShowCombobox] = useState(false);
+  const userListStore = useUserListStore({ 
+    limit: 1000000, 
+    alias: 'user-list' 
+  });
+
+  useEffect(() => {
+    if (showCombobox === true) {
+      userListStore.executeQuery({
+        query: {
+          filter: [{ role: { like: '%coordinator%' } }],
+        },
+      });
+    }
+  }, [userListStore, showCombobox]);
+
+  const users = useRows(userListStore);
+  // ... render UI
+}
+```
+
+### Pattern C: Store Created in Page-Content, Used by Multiple Tabs
+
+**Use Case**: Data needed by multiple tabs or shared across tabs.
+
+```typescript
+export function DetailContent({ entity, entityStore }) {
+  const sharedStore = useSharedDataStore({
+    alias: 'sharedData',
+    autoQuery: false,
+  });
+
+  useEffect(() => {
+    sharedStore.executeQuery({
+      query: {
+        filter: [{ key: { is: entity.key as string } }],
+      },
+    });
+  }, [sharedStore, entity.key]);
+
+  const sharedData = useRows(sharedStore);
+  const processedData = useMemo(
+    () => sharedData.map((row) => row.value).filter(Boolean),
+    [sharedData],
+  );
+
+  return (
+    <>
+      <TabsContent value="tab1">
+        <Tab1 entity={entity} sharedData={processedData} />
+      </TabsContent>
+      <TabsContent value="tab2">
+        <Tab2 entity={entity} sharedData={processedData} />
+      </TabsContent>
+    </>
+  );
+}
+```
+
+## 6. Loading & Error State Management
+
+### Pattern: Loading and Errors Handled at Page Level
+
+```typescript
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
+  const store = useEntityStore();
+  const { id } = use(params);
+  
+  useEffect(() => {
+    store.executeQuery({
+      query: { data: { entityId: id } },
+      force: true,
+    });
+  }, [id, store]);
+  
+  const isLoading = useIsStoreLoading(store);
+  const hasError = useStoreError(store);
+  const row = useCurrentRow(store) as DBRow<Entity>;
+
+  // Define status change handler
+  const handleStatusChange = (newStatus: Status) => {
+    if (!row) return;
+    const rowId = row._id ?? row._cid ?? row.entityId;
+    store.updateRow(rowId, { status: newStatus });
+    store.save({ feedback: 'Status updated successfully.' });
+  };
+
+  return (
+    <PageShell title={`Entity: ${id}`} enableShareUrl>
+      {isLoading || row?.entityId !== id ? (
+        <div className="flex h-full items-center justify-center">
+          <Loader2 className="size-10 animate-spin" />
+        </div>
+      ) : hasError ? (
+        <div className="flex h-full items-center justify-center">
+          <p className="text-destructive">Failed to load entity. Please try again.</p>
+        </div>
+      ) : !row ? (
+        <div className="flex h-full items-center justify-center">
+          <p>Entity not found</p>
+        </div>
+      ) : (
+        <DetailPage 
+          entity={row} 
+          entityStore={store} 
+          onStatusChange={handleStatusChange} 
+        />
+      )}
+    </PageShell>
+  );
+}
+```
+
+**Key Points**:
+- Check both `isLoading` and data validity (`row?.id !== paramId`)
+- Check `hasError` for failed queries
+- Show loading spinner during initial fetch
+- Show error message if query fails
+- Show "not found" if query completes but no data
+- Only render content when data is ready
+- Tabs don't handle their own loading states (data is pre-loaded)
+
+## 7. Store Mutations in Tabs
+
+### Pattern: Update via Store Methods
+
+```typescript
+export function DetailsTab({ entity, entityStore }) {
+  const rowId = entity._id ?? entity._cid ?? entity.entityId;
+  
+  const handleUpdate = () => {
+    // UI updates immediately (optimistic update)
+    entityStore.updateRow(rowId, {
+      fieldName: newValue,
+    });
+    // Save persists to server
+    entityStore.save({ feedback: 'Successfully updated.' });
+  };
+  
+  // ... render UI
+}
+```
+
+**Key Points**:
+- Use `updateRow(id, { field: value })` to modify specific fields
+- Use `setValue(field, value)` for simple updates
+- Call `save({ feedback })` to persist changes
+- **Optimistic updates**: UI updates immediately via `updateRow()`, save happens async
+- Provide user feedback via `feedback` parameter
+- Store automatically updates UI after save
+- Handle errors appropriately
+
+### Unsaved Changes Warning
+
+Track dirty state to warn users before navigation:
+
+```typescript
+export function DetailsTab({ entity, entityStore }) {
+  const isDirty = useIsStoreDirty(entityStore);
+  
+  // Use beforeunload to warn about unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+  
+  // ... render UI with save button
+  return (
+    <Button onClick={handleSave} disabled={!isDirty}>
+      Save Changes
+    </Button>
+  );
+}
+```
+
+## 8. Implementation Checklist
+
+When implementing this pattern for a new entity:
+
+- [ ] **Create main entity store hook** with `limit: 1`, `autoQuery: false`
+- [ ] **Create page component** that queries store on route param change
+- [ ] **Implement loading state check** (`isLoading || row?.id !== paramId`)
+- [ ] **Implement error state check** (`useStoreError(store)`)
+- [ ] **Pass store and row** to child components as props
+- [ ] **Create page-inner component** (wrapper, optional context providers)
+- [ ] **Create page-content component** with tab state management
+- [ ] **Use `useURLStringState('tab', 'defaultTab')`** for tab state
+- [ ] **Create related stores** in page-content for shared tab data
+- [ ] **Query related stores** in `useEffect` when main entity data available
+- [ ] **Pass derived data** (from related stores) to tabs as props
+- [ ] **Use `store.updateRow()` + `store.save()`** for mutations
+- [ ] **Type all store props** as `Store<EntityType>`
+- [ ] **Handle errors** appropriately in mutation handlers
+- [ ] **Track dirty state** with `useIsStoreDirty()` for unsaved changes warning
+- [ ] **Consider conditional tab rendering** for heavy tabs (if needed)
+
+## 9. Key Design Principles
+
+1. **Single Source of Truth**: Main entity store created once at page level
+2. **Prop Drilling**: Store passed down through component tree (not recreated)
+3. **Separation of Concerns**: Each tab manages its own related data
+4. **Lazy Loading**: Related data queried only when needed
+5. **URL Persistence**: Tab state in URL for shareability
+6. **Loading Gates**: Content only renders when data is ready
+7. **Store Aliases**: Unique aliases prevent store conflicts
+8. **Type Safety**: TypeScript types for stores and rows throughout
+9. **Error Handling**: Proper error handling in mutations
+10. **User Feedback**: Provide feedback messages on save operations

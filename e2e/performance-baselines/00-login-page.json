@@ -1,0 +1,12 @@
+{
+  "totalCount": 0,
+  "firstQueryAt": 0,
+  "lastQueryAt": 0,
+  "elapsedMs": 516,
+  "sources": [],
+  "loadTime": 848,
+  "domReadyTime": 697,
+  "firstContentfulPaint": 760,
+  "timestamp": "2026-01-15T21:43:43.122Z",
+  "pagePath": "/login"
+}

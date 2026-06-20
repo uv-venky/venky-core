@@ -1,0 +1,391 @@
+{
+  "name": "venky-core",
+  "version": "1.0.0",
+  "description": "Venky Core - Shared components, utilities, and types for Venky applications",
+  "type": "module",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uv-venky/venky-core.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "packageManager": "pnpm@11.5.3",
+  "engines": {
+    "node": ">=24.13.0"
+  },
+  "main": "./dist/venky-exports/core/ui/index.js",
+  "types": "./dist/venky-exports/core/ui/index.d.ts",
+  "bin": {
+    "venky-codegen-action-params": "./dist/venky-exports/core/codegen/bin.js"
+  },
+  "scripts": {
+    "build": "rimraf dist && cross-env NODE_OPTIONS='--max-old-space-size=8192' tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && node scripts/copy-static.mjs",
+    "build:watch": "pnpm build && cross-env NODE_OPTIONS='--max-old-space-size=8192' tsc -p tsconfig.build.json --watch --preserveWatchOutput & tsc-alias -p tsconfig.build.json --watch",
+    "check:unused": "knip",
+    "check:server-routes-boundary": "node scripts/check-server-routes-boundary.mjs",
+    "check:node-security": "node scripts/check-node-security.js",
+    "clean": "rimraf .next",
+    "format": "biome format --write",
+    "build:next": "next build",
+    "debug": "next dev --inspect",
+    "dev": "next dev",
+    "format:check": "biome format",
+    "lint": "biome lint .",
+    "lint:all": "pnpm lint && pnpm lint:react-hooks",
+    "lint:fix": "biome lint --write --unsafe",
+    "lint:react-hooks": "eslint src --ext .ts,.tsx",
+    "ncu": "ncu",
+    "ncu:overrides": "node scripts/update-overrides.js",
+    "ncu:overrides:update": "node scripts/update-overrides.js --update",
+    "prepare": "husky",
+    "prepublishOnly": "pnpm build",
+    "start": "next start",
+    "sync-deps": "node scripts/sync-deps.js",
+    "sync-deps:fix": "node scripts/sync-deps.js --sync",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:visual": "playwright test visual-regression",
+    "test:visual:report": "playwright show-report",
+    "test:visual:update": "playwright test visual-regression --update-snapshots && pnpm format",
+    "check:data-ui-client-boundary": "node scripts/check-data-ui-client-boundary.mjs",
+    "typecheck": "tsgo --noEmit",
+    "codegen:action-params": "tsx scripts/codegen-action-param-schemas.ts",
+    "codegen:action-params:check": "tsx scripts/codegen-action-param-schemas.ts && git diff --exit-code -- src/lib/server/actions/param-schemas.generated.ts",
+    "migrate": "tsx scripts/migrate run",
+    "migrate:add": "tsx scripts/migrate add",
+    "go": "node scripts/publish-go.mjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ecs": "3.1054.0",
+    "@aws-sdk/client-s3": "3.1054.0",
+    "@aws-sdk/s3-presigned-post": "3.1054.0",
+    "@aws-sdk/s3-request-presigner": "3.1054.0",
+    "@codemirror/lang-python": "6.2.1",
+    "@codemirror/state": "6.6.0",
+    "@codemirror/theme-one-dark": "6.1.3",
+    "@codemirror/view": "6.43.0",
+    "@dnd-kit/core": "6.3.1",
+    "@dnd-kit/sortable": "10.0.0",
+    "@dnd-kit/utilities": "3.2.2",
+    "@floating-ui/dom": "1.7.6",
+    "@icons-pack/react-simple-icons": "13.13.0",
+    "@monaco-editor/react": "4.7.0",
+    "@radix-ui/react-use-controllable-state": "1.2.2",
+    "@rrweb/record": "2.0.0-alpha.20",
+    "@rrweb/replay": "2.0.0-alpha.20",
+    "@rrweb/types": "2.0.0-alpha.20",
+    "@tanstack/react-table": "8.21.3",
+    "@tiptap/extension-gapcursor": "3.20.5",
+    "@tiptap/extension-highlight": "3.20.5",
+    "@tiptap/extension-link": "3.20.5",
+    "@tiptap/extension-text-align": "3.20.5",
+    "@tiptap/extension-underline": "3.20.5",
+    "@tiptap/react": "3.20.5",
+    "@tiptap/starter-kit": "3.20.5",
+    "@xyflow/react": "12.10.2",
+    "archiver": "^8.0.0",
+    "bcrypt-ts": "8.0.1",
+    "cmdk": "1.1.1",
+    "cron-parser": "5.5.0",
+    "cronstrue": "3.14.0",
+    "csv-stringify": "6.7.0",
+    "date-fns": "4.3.0",
+    "diff-match-patch": "1.0.5",
+    "dom-to-image": "2.6.0",
+    "embla-carousel-react": "8.6.0",
+    "emoji-picker-react": "4.19.1",
+    "exceljs": "4.4.0",
+    "fast-deep-equal": "3.1.3",
+    "fast-json-stable-stringify": "2.1.0",
+    "flubber": "0.4.2",
+    "handlebars": "4.7.9",
+    "html-to-image": "1.11.13",
+    "immutable": "5.1.5",
+    "input-otp": "1.4.2",
+    "js-yaml": "4.1.1",
+    "jsonwebtoken": "9.0.3",
+    "lodash-es": "4.18.1",
+    "mammoth": "1.12.0",
+    "mime-types": "3.0.2",
+    "monaco-editor": "0.55.1",
+    "ms": "2.1.3",
+    "mysql2": "3.22.4",
+    "nanoid": "5.1.11",
+    "next-themes": "0.4.6",
+    "node-sql-parser": "5.4.0",
+    "nodemailer": "7.0.12",
+    "orderedmap": "2.1.1",
+    "papaparse": "5.5.3",
+    "pdf-lib": "1.17.1",
+    "pg": "8.21.0",
+    "pg-query-stream": "4.15.0",
+    "postgres": "3.4.9",
+    "pptxgenjs": "4.0.1",
+    "prosemirror-example-setup": "1.2.3",
+    "prosemirror-inputrules": "1.5.1",
+    "prosemirror-markdown": "1.13.4",
+    "prosemirror-model": "1.25.7",
+    "prosemirror-schema-basic": "1.2.4",
+    "prosemirror-schema-list": "1.5.1",
+    "prosemirror-state": "1.4.4",
+    "prosemirror-view": "1.41.8",
+    "radix-ui": "1.4.3",
+    "react-data-grid": "7.0.0-beta.59",
+    "react-day-picker": "9.14.0",
+    "react-dropzone": "14.3.8",
+    "react-fusioncharts": "4.2.0",
+    "react-grid-layout": "2.2.3",
+    "react-markdown": "10.1.0",
+    "react-resizable-panels": "4.11.2",
+    "react-syntax-highlighter": "16.1.1",
+    "react-window": "2.2.7",
+    "react-zoom-pan-pinch": "3.7.0",
+    "remark-gfm": "4.0.1",
+    "safe-stable-stringify": "2.5.0",
+    "samlify": "2.11.0",
+    "sonner": "2.0.7",
+    "sql-formatter": "15.8.0",
+    "streamdown": "2.5.0",
+    "tailwindcss-animate": "1.0.7",
+    "tinycolor2": "1.6.0",
+    "ulidx": "2.4.1",
+    "use-stick-to-bottom": "1.1.4",
+    "usehooks-ts": "3.1.1",
+    "uuid": "14.0.0",
+    "v0-sdk": "0.16.4",
+    "vaul": "1.1.2",
+    "xlsx": "0.18.5"
+  },
+  "peerDependencies": {
+    "better-auth": "1.6.9",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "framer-motion": "12.38.0",
+    "jotai": "2.20.0",
+    "lucide-react": "1.14.0",
+    "motion": "12.38.0",
+    "next": "16.2.6",
+    "pino": "10.3.1",
+    "pino-pretty": "13.1.3",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "recharts": "2.15.4",
+    "swr": "2.4.1",
+    "tailwind-merge": "3.5.0",
+    "valtio": "2.3.2",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.15",
+    "@playwright/test": "1.60.0",
+    "@tailwindcss/postcss": "4.3.0",
+    "@testing-library/dom": "10.4.1",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/codemirror": "5.60.17",
+    "@types/d3": "7.4.3",
+    "@types/dom-to-image": "2.6.7",
+    "@types/express": "5.0.6",
+    "@types/flubber": "0.4.0",
+    "@types/fs-extra": "11.0.4",
+    "@types/js-yaml": "4.0.9",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/leaflet": "1.9.21",
+    "@types/lodash-es": "4.17.12",
+    "@types/mime-types": "3.0.1",
+    "@types/ms": "2.1.0",
+    "@types/node": "25.9.1",
+    "@types/nodemailer": "7.0.11",
+    "@types/oracledb": "6.10.4",
+    "@types/papaparse": "5.5.2",
+    "@types/pg": "8.20.0",
+    "@types/react": "19.2.15",
+    "@types/react-dom": "19.2.3",
+    "@types/react-syntax-highlighter": "15.5.13",
+    "@types/tinycolor2": "1.4.6",
+    "@types/topojson-client": "3.1.5",
+    "@typescript-eslint/eslint-plugin": "8.60.0",
+    "@typescript-eslint/parser": "8.60.0",
+    "@typescript/native-preview": "7.0.0-dev.20260526.1",
+    "@vitejs/plugin-react": "5.1.3",
+    "@vitest/coverage-v8": "4.1.7",
+    "babel-plugin-react-compiler": "1.0.0",
+    "baseline-browser-mapping": "2.10.32",
+    "better-auth": "1.6.11",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "cross-env": "10.1.0",
+    "dotenv": "17.4.2",
+    "eslint": "10.4.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "framer-motion": "12.40.0",
+    "fs-extra": "11.3.5",
+    "glob": "13.0.6",
+    "husky": "9.1.7",
+    "jotai": "2.20.0",
+    "jsdom": "29.1.1",
+    "knip": "6.14.2",
+    "lint-staged": "17.0.5",
+    "lucide-react": "1.16.0",
+    "motion": "12.40.0",
+    "next": "16.2.6",
+    "npm-check-updates": "22.2.1",
+    "pino": "10.3.1",
+    "pino-pretty": "13.1.3",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "react-scan": "0.5.6",
+    "recharts": "2.15.4",
+    "rimraf": "6.1.3",
+    "swr": "2.4.1",
+    "tailwind-merge": "3.6.0",
+    "tailwind-scrollbar": "4.0.2",
+    "tailwindcss": "4.3.0",
+    "tsc-alias": "1.8.17",
+    "tsx": "4.22.3",
+    "typescript": "6.0.3",
+    "valtio": "2.3.2",
+    "vite-tsconfig-paths": "6.1.1",
+    "vitest": "4.1.7",
+    "zod": "4.4.3"
+  },
+  "_comments": {},
+  "exports": {
+    "./ui": {
+      "types": "./dist/venky-exports/core/ui/index.d.ts",
+      "default": "./dist/venky-exports/core/ui/index.js"
+    },
+    "./ui/pivot": {
+      "types": "./dist/venky-exports/core/ui/pivot/index.d.ts",
+      "default": "./dist/venky-exports/core/ui/pivot/index.js"
+    },
+    "./ui/smart-search": {
+      "types": "./dist/venky-exports/core/ui/smart-search/index.d.ts",
+      "default": "./dist/venky-exports/core/ui/smart-search/index.js"
+    },
+    "./data-ui": {
+      "types": "./dist/venky-exports/core/data-ui/index.d.ts",
+      "default": "./dist/venky-exports/core/data-ui/index.js"
+    },
+    "./data-ui/client": {
+      "types": "./dist/venky-exports/core/data-ui/client/index.d.ts",
+      "default": "./dist/venky-exports/core/data-ui/client/index.js"
+    },
+    "./data-ui/server": {
+      "types": "./dist/venky-exports/core/data-ui/server/index.d.ts",
+      "default": "./dist/venky-exports/core/data-ui/server/index.js"
+    },
+    "./components/ui/*": {
+      "types": "./dist/venky-exports/core/components/ui/*.d.ts",
+      "default": "./dist/venky-exports/core/components/ui/*.js"
+    },
+    "./components/elements/*": {
+      "types": "./dist/venky-exports/core/components/elements/*.d.ts",
+      "default": "./dist/venky-exports/core/components/elements/*.js"
+    },
+    "./client": {
+      "types": "./dist/venky-exports/core/client/index.d.ts",
+      "default": "./dist/venky-exports/core/client/index.js"
+    },
+    "./server/init": {
+      "types": "./dist/venky-exports/core/server/init/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-init.js",
+      "default": "./dist/venky-exports/core/server/init/index.js"
+    },
+    "./server/boot": {
+      "types": "./dist/venky-exports/core/server/boot/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-boot.js",
+      "default": "./dist/venky-exports/core/server/boot/index.js"
+    },
+    "./server/boot/instrumentation": {
+      "types": "./dist/venky-exports/core/server/boot/instrumentation/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-boot-instrumentation.js",
+      "default": "./dist/venky-exports/core/server/boot/instrumentation/index.js"
+    },
+    "./server/boot/oom-recorder": {
+      "types": "./dist/venky-exports/core/server/boot/oom-recorder/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-boot-oom-recorder.js",
+      "default": "./dist/venky-exports/core/server/boot/oom-recorder/index.js"
+    },
+    "./server/actions": {
+      "types": "./dist/venky-exports/core/server/actions/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-actions.js",
+      "default": "./dist/venky-exports/core/server/actions/index.js"
+    },
+    "./server/startup": {
+      "types": "./dist/venky-exports/core/server/startup/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-startup.js",
+      "default": "./dist/venky-exports/core/server/startup/index.js"
+    },
+    "./server/sidebar": {
+      "types": "./dist/venky-exports/core/server/sidebar/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-sidebar.js",
+      "default": "./dist/venky-exports/core/server/sidebar/index.js"
+    },
+    "./server/layouts": {
+      "types": "./dist/venky-exports/core/server/layouts/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-layouts.js",
+      "default": "./dist/venky-exports/core/server/layouts/index.js"
+    },
+    "./server/logger": {
+      "types": "./dist/venky-exports/core/server/logger/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server-logger.js",
+      "default": "./dist/venky-exports/core/server/logger/index.js"
+    },
+    "./server": {
+      "types": "./dist/venky-exports/core/server/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server.js",
+      "default": "./dist/venky-exports/core/server/index.js"
+    },
+    "./server/routes": {
+      "types": "./dist/venky-exports/core/server/routes.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/server.js",
+      "default": "./dist/venky-exports/core/server/routes.js"
+    },
+    "./common": {
+      "types": "./dist/venky-exports/core/common/index.d.ts",
+      "default": "./dist/venky-exports/core/common/index.js"
+    },
+    "./types": {
+      "types": "./dist/venky-exports/core/types/index.d.ts",
+      "default": "./dist/venky-exports/core/types/index.js"
+    },
+    "./ds": {
+      "types": "./dist/venky-exports/core/ds/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/ds.js",
+      "default": "./dist/venky-exports/core/ds/index.js"
+    },
+    "./auth": {
+      "types": "./dist/venky-exports/core/auth/index.d.ts",
+      "browser": "./dist/venky-exports/core/browser-stubs/auth.js",
+      "default": "./dist/venky-exports/core/auth/index.js"
+    },
+    "./auth/types": {
+      "types": "./dist/venky-exports/core/auth/types.d.ts",
+      "default": "./dist/venky-exports/core/auth/types.js"
+    },
+    "./hooks": {
+      "types": "./dist/venky-exports/core/hooks/index.d.ts",
+      "default": "./dist/venky-exports/core/hooks/index.js"
+    },
+    "./cli": {
+      "types": "./dist/venky-exports/core/cli/index.d.ts",
+      "default": "./dist/venky-exports/core/cli/index.js"
+    },
+    "./codegen": {
+      "types": "./dist/venky-exports/core/codegen/index.d.ts",
+      "default": "./dist/venky-exports/core/codegen/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "dist",
+    "migrations",
+    "tsconfig.json",
+    "README.md"
+  ]
+}

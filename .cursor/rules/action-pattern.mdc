@@ -1,0 +1,620 @@
+---
+description: Pattern for creating server actions
+globs: src/lib/server/actions/**/*.ts
+alwaysApply: false
+---
+
+# Server Action Pattern
+
+Server actions are **type-safe functions** for complex queries that don't fit the DataSource pattern (charts, reports, aggregations). They provide:
+
+- **End-to-end type safety**: Action name, params, and return type flow from definition to client
+- **Automatic authentication**: Uses same `withDBSessionRoute` infrastructure
+- **Activity logging**: All action calls are logged with params and timing
+- **Caching**: `useQuery` provides SWR-like caching with valtio
+
+## When to Use Actions vs DataSource vs API Routes
+
+### Decision Tree
+
+1. **Use DataSource + `useStore`** for:
+   - Standard CRUD operations
+   - Paginated lists/tables
+   - Single-entity operations where a DataSource exists
+
+2. **Use Actions + `useQuery`/`useMutation`** (preferred) for:
+   - Charts with complex aggregations
+   - Reports with custom SQL
+   - Multi-table joins for analytics
+   - Custom business logic mutations
+   - Dashboard statistics
+
+3. **Use API Routes (`route.ts`)** only for:
+   - Webhooks from external services
+   - Public endpoints (no auth required)
+   - File uploads/downloads with streaming
+   - External API integrations that need specific HTTP methods
+
+### Why Prefer Actions Over API Routes
+
+| Feature | Actions | API Routes |
+|---------|---------|------------|
+| Type safety | Full end-to-end inference | Manual typing required |
+| Caching | Built-in with `useQuery` | Manual implementation |
+| Error handling | Automatic with `UserError` | Manual response formatting |
+| Boilerplate | Minimal | Fetch calls, headers, parsing |
+| Colocation | Next to page that uses it | Separate `/api` directory |
+| Access control | Centralized in action registry | Per-route implementation |
+
+### Quick Reference Table
+
+| Use Case | Solution |
+|----------|----------|
+| Standard CRUD operations | DataSource + `useStore` |
+| Paginated lists/tables | DataSource + `useStore` |
+| Charts with complex aggregations | **Actions** + `useQuery` |
+| Reports with custom SQL | **Actions** + `useQuery` |
+| Multi-table joins for analytics | **Actions** + `useQuery` |
+| Custom business logic mutations | **Actions** + `useMutation` |
+| Webhooks | API Routes |
+| File streaming | API Routes |
+
+## Directory Structure
+
+### Option 1: Colocate with Page (Recommended for Page-Specific Actions)
+
+For dashboard statistics, reports, or actions specific to a single page, colocate the action with the page:
+
+```
+src/app/(secure)/module/feature/
+├── page.tsx              # Entry point
+├── page-content.tsx      # Main content (uses useQuery)
+├── action.ts             # Feature-specific server action
+├── hooks/
+│   └── use-store.ts      # Store hooks
+└── components/
+    └── FeatureChart.tsx  # Components
+```
+
+Example: `src/app/(secure)/work/time-sheets/(dashboard)/action.ts`
+
+### Option 2: Centralized Actions (For Shared/Reusable Actions)
+
+For actions used across multiple pages or modules:
+
+```
+src/lib/server/actions/
+├── index.ts              # ACTIONS registry, types
+├── invoke.ts             # invokeAction(), invokePublicAction()
+├── admin.ts              # Admin-only actions
+├── module/               # Group by module
+│   ├── index.ts          # Module exports
+│   └── entity-actions.ts # Entity-specific actions
+└── comments.ts           # Comments actions
+```
+
+**When to use each:**
+- **Colocated (`action.ts`)**: Dashboard stats, page-specific reports, feature summaries
+- **Centralized**: Actions used by multiple pages, admin operations, shared business logic
+
+## Basic Action Definition
+
+```typescript
+/* Copyright (c) 2024-present Venky Corp. */
+
+import type { PgPoolClient } from 'venky-core/server';
+import type { Session } from 'venky-core/auth';
+import { withDBSessionAction } from 'venky-core/server';
+
+// Simple action with DB and session
+export async function getEntityById(
+  client: PgPoolClient,
+  session: Session,
+  entityId: string,
+) {
+  const result = await client.query(
+    'SELECT * FROM entity WHERE id = $1',
+    [entityId]
+  );
+  return result.rows[0] || null;
+}
+
+// Action with withDBSessionAction wrapper (for direct use as server action)
+export const createEntity = withDBSessionAction(
+  async (client: PgPoolClient, session: Session, data: { name: string; description?: string }) => {
+    const result = await client.query(
+      `INSERT INTO entity (id, name, description, created_by, created_at)
+       VALUES (gen_ulid(), $1, $2, $3, NOW())
+       RETURNING *`,
+      [data.name, data.description, session.user.userName]
+    );
+    return result.rows[0];
+  }
+);
+
+// Action with validation
+export async function updateEntityStatus(
+  client: PgPoolClient,
+  session: Session,
+  entityId: string,
+  status: 'active' | 'inactive',
+) {
+  // Validate access
+  const entity = await client.query(
+    'SELECT user_id FROM entity WHERE id = $1',
+    [entityId]
+  );
+  
+  if (!entity.rows[0]) {
+    throw new Error('Entity not found');
+  }
+  
+  // Check ownership or admin role
+  if (entity.rows[0].user_id !== session.user.id && !session.user.roles.includes('admin')) {
+    throw new Error('Access denied');
+  }
+  
+  const result = await client.query(
+    `UPDATE entity SET status = $1, updated_at = NOW(), updated_by = $2 WHERE id = $3 RETURNING *`,
+    [status, session.user.userName, entityId]
+  );
+  
+  return result.rows[0];
+}
+```
+
+## Registering Actions
+
+```typescript
+// src/lib/server/actions/module/index.ts
+export { getEntityById, createEntity, updateEntityStatus } from './entity-actions';
+
+// Create the registry
+export const ENTITY_ACTIONS = {
+  getEntityById,
+  createEntity,
+  updateEntityStatus,
+};
+
+export type EntityActionName = keyof typeof ENTITY_ACTIONS;
+
+// Define access roles
+export const ENTITY_ACTION_ACCESS_ROLES: Record<EntityActionName, string[]> = {
+  getEntityById: ['all_users'],      // Any authenticated user
+  createEntity: ['editor', 'admin'],  // Editors and admins
+  updateEntityStatus: ['admin'],      // Admin only
+};
+```
+
+## Adding to Main Registry
+
+```typescript
+// src/lib/server/actions/index.ts
+import { ENTITY_ACTIONS, ENTITY_ACTION_ACCESS_ROLES, type EntityActionName } from './module';
+
+export const ACTIONS = {
+  ...ENTITY_ACTIONS,
+  // ... other action groups
+};
+
+export type ActionName = EntityActionName | OtherActionName;
+
+export const ACTION_ACCESS_ROLES: Record<ActionName, string[]> = {
+  ...ENTITY_ACTION_ACCESS_ROLES,
+  // ... other access roles
+};
+```
+
+## Calling Actions from Client
+
+### useQuery - Simple Data Fetching
+
+```typescript
+import { useQuery } from '@/lib/core/client/useQuery';
+
+function ChartComponent({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const result = useQuery('getChartData', startDate, endDate);
+  
+  if (result.status === 'loading') return <Loader />;
+  if (result.status === 'error') return <Error message={result.error} />;
+  
+  return <Chart data={result.data} />;
+}
+```
+
+### useQueryWithOptions - Advanced Data Fetching
+
+```typescript
+import { useQueryWithOptions } from '@/lib/core/client/useQuery';
+
+function ChartComponent({ startDate, endDate }: { startDate?: string; endDate?: string }) {
+  const result = useQueryWithOptions('getChartData', {
+    staleTime: 60_000,           // Data fresh for 1 minute
+    refetchOnWindowFocus: true,  // Refetch when tab becomes active
+    enabled: !!startDate,        // Only fetch when startDate exists
+  }, startDate, endDate);
+  
+  if (result.status === 'loading') return <Loader />;
+  if (result.status === 'error') return <Error message={result.error} />;
+  
+  return <Chart data={result.data} />;
+}
+```
+
+### useSuspenseQuery - With React Suspense
+
+```typescript
+import { useSuspenseQuery } from '@/lib/core/client/useQuery';
+import { Suspense } from 'react';
+
+// No loading checks needed - component suspends until data is ready
+function ChartContent({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const data = useSuspenseQuery('getChartData', {}, startDate, endDate);
+  return <Chart data={data} />;
+}
+
+// With options (retry, staleTime)
+function ChartContentWithRetry({ startDate, endDate }: { startDate: string; endDate: string }) {
+  const data = useSuspenseQuery('getChartData', {
+    retry: 3,
+    staleTime: 60_000,
+  }, startDate, endDate);
+  return <Chart data={data} />;
+}
+
+// Wrap with Suspense boundary
+function ChartPage() {
+  return (
+    <Suspense fallback={<Loader />}>
+      <ChartContent startDate="2024-01-01" endDate="2024-12-31" />
+    </Suspense>
+  );
+}
+```
+
+### SuspenseQueryOptions
+
+```typescript
+interface SuspenseQueryOptions {
+  staleTime?: number;           // Time in ms data is considered fresh (default: Infinity)
+  isPublic?: boolean;           // For unauthenticated actions (default: false)
+  retry?: number;               // Retry attempts on failure (default: 0)
+  retryDelay?: number | ((attempt: number) => number); // Delay between retries (default: 1000)
+}
+```
+
+### QueryOptions
+
+```typescript
+interface QueryOptions {
+  staleTime?: number;           // Time in ms data is considered fresh (default: Infinity)
+  refetchOnWindowFocus?: boolean; // Refetch when window regains focus (default: false)
+  refetchInterval?: number;     // Auto-refetch every N ms (default: undefined)
+  enabled?: boolean;            // Only fetch when true (default: true)
+  isPublic?: boolean;           // For unauthenticated actions (default: false)
+  retry?: number;               // Retry attempts on failure (default: 0)
+  retryDelay?: number | ((attempt: number) => number); // Delay between retries (default: 1000)
+}
+```
+
+### PrefetchOptions
+
+```typescript
+interface PrefetchOptions {
+  isPublic?: boolean;           // For unauthenticated actions (default: false)
+  retry?: number;               // Retry attempts on failure (default: 0)
+  retryDelay?: number | ((attempt: number) => number); // Delay between retries (default: 1000)
+}
+```
+
+### QueryResult Type
+
+```typescript
+type QueryResult<TData> =
+  | { status: 'loading' }
+  | { status: 'error'; error: string }
+  | { status: 'success'; data: TData };
+
+// Import for type annotations
+import type { QueryResult } from '@/lib/core/client/useQuery';
+```
+
+### Real-Time Dashboard Example
+
+```typescript
+// Auto-refresh every 30 seconds with retry on network failures
+const result = useQueryWithOptions('getDashboardMetrics', {
+  staleTime: 60_000,
+  refetchInterval: 30_000,
+  refetchOnWindowFocus: true,
+  retry: 2,
+  retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 30000), // Exponential backoff
+}, dashboardId);
+```
+
+### useMutation - For Mutations (Type-Safe)
+
+```typescript
+import { useMutation } from '@/lib/core/client/useQuery';
+
+// Simple usage
+function CreateButton() {
+  const createEntity = useMutation('createEntity');
+  
+  const handleClick = async () => {
+    try {
+      const result = await createEntity({ name: 'New Entity' });
+      // result is typed as ActionOutput<'createEntity'>
+    } catch (error) {
+      // Error already shown via showError()
+    }
+  };
+  
+  return <Button onClick={handleClick}>Create</Button>;
+}
+
+// With options - cache invalidation and callbacks
+function CreateWithOptions() {
+  const createEntity = useMutation('createEntity', {
+    invalidateOnSuccess: ['getEntities', 'getEntityCount'],
+    invalidateStoresOnSuccess: ['Entities'], // Refresh stores by datasourceId
+    onSuccess: (result) => {
+      // result is fully typed
+      console.info('Created:', result.id);
+    },
+    onError: (message) => {
+      // Additional error handling (toast already shown)
+    },
+  });
+  
+  return <Button onClick={() => createEntity({ name: 'New' })}>Create</Button>;
+}
+
+// Precise store targeting
+function CreateWithPreciseStoreInvalidation() {
+  const createEntity = useMutation('createEntity', {
+    invalidateStoresOnSuccess: [
+      { datasourceId: 'Entities', page: 'entities-page', alias: 'entities-list' },
+    ],
+  });
+  
+  return <Button onClick={() => createEntity({ name: 'New' })}>Create</Button>;
+}
+
+// Common pattern: Invalidate dashboard stats
+// Always include dashboard queries when mutations affect dashboard data
+const generateInvoice = useMutation('generateInvoice', {
+  invalidateOnSuccess: [
+    'getTimesheetData',
+    'getTimesheetDashboardStats',
+    'getCustomerDashboardStats',  // Don't forget dashboard!
+  ],
+  invalidateStoresOnSuccess: ['WKInvoices'],
+});
+```
+
+### Type Safety Flow
+
+```typescript
+// 1. Define action with types
+export async function getChartData(
+  client: PgPoolClient,
+  session: Session,
+  startDate: string,
+  endDate: string,
+): Promise<ChartDataPoint[]> { ... }
+
+// 2. Register in ACTIONS
+export const ACTIONS = { getChartData, ... };
+
+// 3. Client gets full type inference
+const result = useQuery('getChartData', '2024-01-01', '2024-12-31');
+// TypeScript knows:
+// - 'getChartData' is valid action name
+// - Two string params required
+// - result.data is ChartDataPoint[]
+```
+
+### Prefetching
+
+```typescript
+import { prefetchQuery } from '@/lib/core/client/useQuery';
+
+// Prefetch on hover for instant navigation
+<button
+  onMouseEnter={() => prefetchQuery('getChartData', {}, chartId)}
+  onClick={() => navigate(`/charts/${chartId}`)}
+>
+  View Chart
+</button>
+
+// Prefetch with options
+await prefetchQuery('getChartData', { retry: 2 }, chartId);
+```
+
+### Cache Invalidation
+
+```typescript
+import { invalidateQuery, invalidateQueries, invalidateAllQueries } from 'venky-core/client';
+
+// Invalidate all queries for an action
+invalidateQuery('getEntities');
+
+// Invalidate specific query with params
+invalidateQuery('getEntity', '123');
+
+// Invalidate multiple actions
+invalidateQueries(['getEntities', 'getEntityCount']);
+
+// Invalidate everything (e.g., on logout)
+invalidateAllQueries();
+```
+
+### Debugging (Development Only)
+
+Use the VENKY Devtools panel (toggle with `⌘⇧D` or `Ctrl+Shift+D`):
+
+- **Activity Tab**: Real-time log of all query/mutation operations
+- **Queries Tab**: Inspect all cached queries with expandable data
+- **Mutations Tab**: History of all mutations with params and results
+- **Stores Tab**: Active `useStore` instances with row data
+
+### MutationOptions
+
+```typescript
+interface MutationOptionsBase<TOutput> {
+  invalidateOnSuccess?: string[];           // Action names to invalidate on success
+  invalidateStoresOnSuccess?: StoreIdentifier[]; // Stores to invalidate/refresh on success
+  isPublic?: boolean;                       // For unauthenticated actions (default: false)
+  onSuccess?: (result: TOutput) => void;    // Callback on success
+  onError?: (error: string) => void;        // Callback on error (in addition to toast)
+}
+```
+
+**Note:** `StoreIdentifier` can be either a `string` (datasourceId) or an object `{ datasourceId, page?, alias? }` for precise targeting.
+
+## Access Role Options
+
+| Role | Description |
+|------|-------------|
+| `'public'` | No authentication required |
+| `'all_users'` | Any authenticated user |
+| `'admin'` | Admin role only |
+| `'editor'` | Editor role |
+| Custom roles | Any role defined in your system |
+
+## Action Wrappers
+
+```typescript
+// With DB connection and session
+import { withDBSessionAction } from 'venky-core/server';
+
+export const myAction = withDBSessionAction(
+  async (client, session, arg1, arg2) => {
+    // Has client and session
+  }
+);
+
+// With session only (no DB)
+import { withSessionAction } from 'venky-core/server';
+
+export const myAction = withSessionAction(
+  async (session, arg1, arg2) => {
+    // Has session, no DB client
+  }
+);
+
+// With DB only (no session - for public actions)
+import { withDBAction } from 'venky-core/server';
+
+export const myPublicAction = withDBAction(
+  async (client, arg1, arg2) => {
+    // Has client, no session
+  }
+);
+```
+
+## Error Handling
+
+```typescript
+import { UserError } from 'venky-core/common';
+
+export async function sensitiveAction(client: PgPoolClient, session: Session) {
+  // Throw UserError for user-facing messages
+  if (!session.user.roles.includes('admin')) {
+    throw new UserError('You do not have permission to perform this action');
+  }
+  
+  // Regular errors are logged but not exposed to client
+  try {
+    await client.query('...');
+  } catch (error) {
+    logger.error('Database error:', error);
+    throw new UserError('An error occurred. Please try again.');
+  }
+}
+```
+
+## Infrastructure Notes
+
+Actions use the same infrastructure as DataSource:
+
+- **Transaction handling**: Actions run within `withDBSessionRoute`, so all queries are in a transaction
+- **Activity logging**: Every action call is logged with params, timing, and row count
+- **Session validation**: Authentication is automatic via the wrapper
+- **Error handling**: `UserError` messages are returned to client, other errors are logged only
+
+## Example: Chart Action
+
+```typescript
+// src/lib/server/actions/dashboard/chart-actions.ts
+
+interface SalesDataPoint {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+
+export async function getSalesChart(
+  client: PgPoolClient,
+  session: Session,
+  startDate: string,
+  endDate: string,
+  groupBy: 'day' | 'week' | 'month',
+): Promise<SalesDataPoint[]> {
+  const result = await client.query<SalesDataPoint>(
+    `SELECT 
+       DATE_TRUNC($3, order_date) as date,
+       SUM(total_amount) as revenue,
+       COUNT(*) as orders
+     FROM orders
+     WHERE order_date BETWEEN $1 AND $2
+       AND customer_id = ANY(
+         SELECT customer_id FROM user_customers WHERE user_id = $4
+       )
+     GROUP BY DATE_TRUNC($3, order_date)
+     ORDER BY date`,
+    [startDate, endDate, groupBy, session.user.id]
+  );
+  return result.rows;
+}
+
+// Client usage
+const { data } = useQuery('getSalesChart', '2024-01-01', '2024-12-31', 'month');
+// data: SalesDataPoint[]
+```
+
+## Consuming projects: workflow Call Action step
+
+Every project must **provide `actionRegistry` in server-config** (required). The registry must include core actions; consuming projects merge `coreActions` from `venky-core/server` with their own actions.
+
+1. **Export `WORKFLOW_CALLABLE_ACTIONS`** in the app’s action index by merging core’s list with any project action names that are safe for workflows:
+
+```typescript
+import { coreActions } from 'venky-core/server';
+
+export const WORKFLOW_CALLABLE_ACTIONS: readonly string[] = [
+  ...coreActions.WORKFLOW_CALLABLE_ACTIONS,
+  'myProjectAction', // add project actions that are workflow-callable
+] as const;
+```
+
+2. **Add `actionRegistry` to your server-config** (`src/lib/server/init/server-config.ts`). It is **required**: merge core actions with your app’s ACTIONS, ACTION_ACCESS_ROLES, and WORKFLOW_CALLABLE_ACTIONS. `initializeServer()` uses it for the workflow Call Action step and action invocation:
+
+```typescript
+// src/lib/server/init/server-config.ts
+import { ACTIONS, ACTION_ACCESS_ROLES, WORKFLOW_CALLABLE_ACTIONS } from '../actions';
+
+const serverConfig: ServerConfig = {
+  // ... teams, dataSources, jobs, etc.
+  actionRegistry: {
+    ACTIONS: ACTIONS as ActionRegistry['ACTIONS'],
+    ACTION_ACCESS_ROLES: ACTION_ACCESS_ROLES as ActionRegistry['ACTION_ACCESS_ROLES'],
+    WORKFLOW_CALLABLE_ACTIONS,
+  },
+};
+```
+
+Import the type from core: `import type { ActionRegistry } from 'venky-core/server';`
+
+Optional: include `ACTION_PARAM_SCHEMAS` in `actionRegistry` if the app has its own param schemas for the Call Action params form.

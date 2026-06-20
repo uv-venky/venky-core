@@ -1,0 +1,18 @@
+{
+  "totalCount": 5,
+  "firstQueryAt": 32,
+  "lastQueryAt": 3626,
+  "elapsedMs": 8719,
+  "sources": [
+    "store:audit-monitor-pageaudit-monitor",
+    "attr:SavedSearch",
+    "store:audit-monitor",
+    "attr:Audit",
+    "store:audit-monitor:count"
+  ],
+  "loadTime": 7029,
+  "domReadyTime": 3302,
+  "firstContentfulPaint": 2196,
+  "timestamp": "2026-01-15T21:44:29.796Z",
+  "pagePath": "/admin/monitoring/audit"
+}

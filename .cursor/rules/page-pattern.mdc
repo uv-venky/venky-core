@@ -1,0 +1,207 @@
+---
+description: Standard pattern for creating new pages with PageShell and PageLayoutTemplate
+globs: src/app/**/page.tsx, src/app/**/page-content.tsx
+alwaysApply: false
+---
+
+# Page Pattern
+
+Standard pattern for creating new pages with PageShell and PageLayoutTemplate.
+
+## 1. Page File Structure (`page.tsx`)
+
+**Note:** `PageShell` already includes `ErrorBoundary` and `Suspense` internally, so you don't need to wrap content manually.
+
+```typescript
+'use client';
+
+import { PageShell } from 'venky-core/ui';
+import dynamic from 'next/dynamic';
+
+const PageContent = dynamic(() => import('./page-content'), { ssr: false });
+
+// Note: Default export required for Next.js pages and dynamic imports
+export default function PageName() {
+  return (
+    <PageShell title="Page Title" noPadding>
+      <PageContent />
+    </PageShell>
+  );
+}
+```
+
+### With Route Params
+
+For pages that need route params (e.g., `[id]`), use React 19's `use()` hook:
+
+```typescript
+'use client';
+
+import { use } from 'react';
+import { PageShell } from 'venky-core/ui';
+import dynamic from 'next/dynamic';
+
+const PageContent = dynamic(() => import('./page-content'), { ssr: false });
+
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function DetailPage({ params }: PageProps) {
+  const { id } = use(params);
+  
+  return (
+    <PageShell title="Detail Page" noPadding>
+      <PageContent id={id} />
+    </PageShell>
+  );
+}
+```
+
+## 2. Page Content Structure (`page-content.tsx`)
+
+```typescript
+'use client';
+
+import { Icon } from 'lucide-react';
+import { PageLayoutTemplate } from 'venky-core/ui';
+import { useStore } from 'venky-core/client';
+import type { DataType } from '@/lib/common/ds/types/module/DataType';
+import useTableColumns from './hooks/use-table-columns';
+import useSmartSearchColumns from './hooks/use-smart-search-columns';
+import EditForm from './components/edit-form';
+
+export default function PageContent() {
+  const store = useStore<DataType>({
+    page: 'page-id',
+    datasourceId: 'DataSourceId',
+    alias: 'store-alias',
+    limit: 20,
+    includeCount: true,
+    autoQuery: true,
+  });
+
+  const tableColumns = useTableColumns(store);
+  const smartSearchColumns = useSmartSearchColumns();
+
+  return (
+    <PageLayoutTemplate
+      title="Page Title"
+      subTitle="Page description"
+      icon={<Icon className="size-12 text-muted-foreground" />}
+      store={store}
+      smartSearchColumns={smartSearchColumns}
+      tableColumns={tableColumns}
+      pageId="page-id"
+      itemId="item-id"
+      editForm={<EditForm store={store} />}
+      getDefaultRow={() => ({
+        // Default values for new items
+      })}
+      addNewButtonText="Add New Item"
+    />
+  );
+}
+```
+
+## 3. Directory Structure
+
+```
+src/app/(secure)/module/page-name/
+├── page.tsx                          # Entry point with PageShell
+├── page-content.tsx                  # Main content with PageLayoutTemplate
+├── hooks/
+│   ├── use-store.ts                  # Store hook
+│   ├── use-table-columns.tsx         # Table column definitions
+│   └── use-smart-search-columns.ts   # Dynamic search column definitions
+└── components/
+    ├── edit-form.tsx                 # Edit/Add form
+    └── other-components.tsx          # Page-specific components
+```
+
+## 4. Store Hook Pattern (`hooks/use-store.ts`)
+
+```typescript
+import { useStore } from 'venky-core/client';
+import type { DataType } from '@/lib/common/ds/types/module/DataType';
+
+export function useDataTypeStore() {
+  return useStore<DataType>({
+    datasourceId: 'DataType',
+    page: 'data-type-page',
+    alias: 'data-type-list',
+    limit: 20,
+    includeCount: true,
+    autoQuery: true,
+  });
+}
+```
+
+## 5. Table Columns Hook (`hooks/use-table-columns.tsx`)
+
+> **IMPORTANT**: See `.cursor/rules/table-columns-pattern.mdc` for detailed table column patterns.
+> `row.original` only contains the row `id` - use `useRowValue` or `TableCell` to access data.
+
+```typescript
+import type { Store } from 'venky-core/common';
+import type { DataType } from '@/lib/common/ds/types/module/DataType';
+import type { AccessorKeyColumnDef } from '@tanstack/react-table';
+import { HeaderCell, TableCell } from 'venky-core/ui';
+import { useMemo } from 'react';
+
+export default function useTableColumns(store: Store<DataType>): AccessorKeyColumnDef<DataType>[] {
+  return useMemo(() => [
+    {
+      accessorKey: 'fieldName',
+      meta: { label: 'Field Label' },
+      header: (props) => <HeaderCell {...props} type="Text" store={store} accessorKey="fieldName" title="Field Label" />,
+      // Use TableCell - it internally uses useRowValue to fetch data
+      cell: (props) => <TableCell type="Text" attributeCode="fieldName" {...props} />,
+    },
+    // ... more columns
+  ], [store]);
+}
+```
+
+## 6. Smart Search Columns (`hooks/use-smart-search-columns.ts`)
+
+Smart search columns are defined as hooks to support dynamic definitions (e.g., based on user roles):
+
+```typescript
+import type { SmartSearchColumn } from 'venky-core/common';
+import { useSession } from 'venky-core/client';
+
+export default function useSmartSearchColumns(): SmartSearchColumn[] {
+  const { user } = useSession();
+  const isAdmin = user?.roles?.includes('admin');
+
+  return [
+    {
+      id: 'fieldName',
+      label: 'Field Label',
+      type: 'text',
+    },
+    // Admin-only search column
+    ...(isAdmin ? [{
+      id: 'internalCode',
+      label: 'Internal Code',
+      type: 'text',
+    }] : []),
+  ];
+}
+```
+
+> **Select Type Columns**: For dropdown filters with fixed options or dynamic master data (e.g., customers, users), use `type: 'Select'` with an options hook. See `venky-data-patterns` skill → `store-reference.md` for the complete pattern.
+
+## 7. Key Rules
+
+- **PageShell** wraps the entire page in `page.tsx` (includes ErrorBoundary and Suspense internally)
+- **PageLayoutTemplate** is used in `page-content.tsx` (NOT wrapped in PageShell again)
+- Use `dynamic()` import for page-content to enable code splitting
+- Store configuration should include `includeCount: true` for pagination
+- Separate hooks for table columns, search columns, and store
+- Keep edit forms in separate component files
+- **Do NOT** wrap content in ErrorBoundary or Suspense inside PageShell - it handles this internally
+- **Default exports** are required for Next.js pages and dynamic imports (exception to named export rule)
+- Use React 19's `use()` hook for route params in client pages (not `await`)
+- Smart search columns are hooks to support dynamic definitions (e.g., role-based)

@@ -1,0 +1,474 @@
+---
+description: Architecture rationale and design decisions
+globs: 
+alwaysApply: false
+---
+
+# VENKY Architecture Rationale
+
+This document explains the architectural decisions behind VENKY's data layer and why we chose custom abstractions over popular alternatives.
+
+## DataSource Pattern vs Alternatives
+
+### What We Built
+
+The DataSource pattern is a **full-stack data abstraction layer** that provides:
+- Schema definition with attributes and types
+- Role-based access control (first-class, not bolted on)
+- Lifecycle hooks for validation, audit, and side effects
+- Calculated fields via SQL expressions
+- Tight integration with client-side `useStore` hook
+- Built-in pagination, search, and caching
+
+### Comparison Matrix
+
+| Aspect | DataSource | Prisma | React Query |
+|--------|------------|--------|-------------|
+| Schema definition | ✅ In-code | ✅ Schema file | ❌ None |
+| Type generation | Manual (intentional) | Auto-generated | N/A |
+| Role-based access | ✅ Built-in | ❌ DIY middleware | ❌ DIY |
+| Lifecycle hooks | ✅ 10+ hooks | ✅ Middleware | ❌ N/A |
+| Client state | ✅ Integrated `useStore` | ❌ Separate lib | ✅ Core feature |
+| Caching | ✅ Built-in | ❌ Separate | ✅ Core feature |
+| Pagination | ✅ Built-in | Manual | ❌ DIY |
+| Migrations | ✅ `./migrations` | ✅ Prisma Migrate | N/A |
+| Raw SQL escape | ✅ `fullSQL` in preQuery | ✅ `$queryRaw` | N/A |
+| Community/Docs | ❌ Internal | ✅ Large | ✅ Large |
+
+### Why Not Prisma?
+
+Prisma is excellent, but we chose a custom solution because:
+
+1. **Vertical Integration**
+   - One DataSource definition powers server queries, client state, pagination, search, and access control
+   - With Prisma + React Query + access control middleware, you need 3-4 separate abstractions
+   - Our `useStore` hook automatically handles loading, pagination, dirty state, and optimistic updates
+
+2. **Role-Based Access as First-Class**
+   - Access control is defined per DataSource with `DefaultReadOnlyAccess`, `DefaultFullAccess`
+   - Roles are checked automatically on every query/mutation
+   - In Prisma, you'd bolt this on with middleware and lose type safety
+
+3. **JSONB Column Flexibility**
+   - We intentionally don't auto-generate TypeScript types
+   - Many columns are JSONB with custom structures that need precise typing
+   - Manual interfaces let us define exact types for complex nested objects
+   - Auto-generation would produce `unknown` or `JsonValue` for these
+
+4. **Audit Trail Built-In**
+   - `WHO` attributes (createdAt, createdBy, updatedAt, updatedBy) are auto-populated
+   - Field-level auditing: attributes with `audit: true` automatically track old/new values
+   - Audit records stored with proper types (Number, Date, String, CLOB for large text)
+   - Activity logging: every query/post logged with SQL, params, elapsed time, session
+   - Optimistic locking: updates check `updatedAt` to prevent concurrent overwrites
+   - Prisma requires you to build all of this yourself
+
+5. **Calculated Fields in SQL**
+   - `calculated: true` with SQL in `column` runs computations at database level
+   - Prisma's computed fields are client-side, less efficient for large datasets
+
+### Why Not React Query Alone?
+
+React Query solves different problems:
+- It's excellent for caching and async state management
+- It doesn't define schemas, access control, or server-side logic
+- We use similar patterns internally but with tighter integration
+
+React Query would complement (not replace) our pattern for:
+- External API calls
+- Complex caching scenarios
+- Non-DataSource data fetching
+
+### Raw SQL Escape Hatch
+
+When you need full control, the `preQuery` hook can return `fullSQL`:
+
+```typescript
+preQuery: async ({ query, session, client }) => {
+  if (query.match?.complexReport) {
+    return {
+      fullSQL: `
+        SELECT ...
+        FROM complex_join
+        WHERE ...
+      `,
+      params: [session.user.id],
+    };
+  }
+  return query;
+},
+```
+
+For SQL-level modifications without replacing the whole query, use `preQuery2`:
+
+```typescript
+preQuery2: ({ query, sql, params, session }) => {
+  // Modify the generated SQL directly
+  params.push(query.match?.planId);
+  sql = sql.replace('WHERE', `WHERE plan_id = $${params.length} AND`);
+  return { sql, params };
+},
+```
+
+### Built-in Auditing & Activity Logging
+
+The DataSource system provides comprehensive auditing out of the box:
+
+**Field-Level Change Tracking**
+```typescript
+// Mark attributes for automatic audit logging
+{
+  ...DefaultAttribute,
+  code: 'status',
+  name: 'Status',
+  type: 'Text',
+  audit: true,  // Changes to this field are automatically tracked
+}
+```
+
+When a field with `audit: true` is updated:
+1. System queries current DB value
+2. Compares old vs new
+3. Creates audit record with old/new values (typed correctly)
+4. Posts to `Audit` DataSource automatically
+
+**Optimistic Locking**
+- Updates check `updatedAt` matches what was read
+- If another user modified the record, update fails with clear error
+- Prevents lost updates in concurrent editing
+
+**Activity Logging**
+Every DataSource operation is logged:
+```typescript
+{
+  userName: 'john.doe',
+  eventType: 'Query' | 'Post',
+  eventId: 'Orders',
+  metadata: { sql, params, query },
+  rowCount: 150,
+  elapsedTimeMs: 45,
+  sessionId: 'sess_abc123',
+}
+```
+
+**WHO Attributes (Auto-populated)**
+- `createdAt`, `createdBy` - Set on insert
+- `updatedAt`, `updatedBy` - Set on every update
+- Supports both `userName` (string) and `userId` (number) formats
+
+### Migration System
+
+Migrations are handled via:
+- `./migrations/` - SQL migration files
+- `src/lib/core/server/migrate.ts` - Migration runner with:
+  - Advisory locks (prevents concurrent migrations)
+  - Version tracking with checksums
+  - Execution time logging
+  - Automatic install on fresh databases
+
+### Trade-offs We Accept
+
+1. **Proprietary Knowledge**
+   - New hires can't Google "DataSource preQuery"
+   - Mitigated by: These Cursor rules, internal documentation, consistent patterns
+
+2. **Type Sync Risk**
+   - TypeScript interfaces and DataSource attributes can drift
+   - Mitigated by: Code review, consistent naming conventions
+
+3. **Smaller Ecosystem**
+   - No community plugins or extensions
+   - Mitigated by: We control the full stack, can add features as needed
+
+### When This Pattern Shines
+
+- Enterprise CRUD applications
+- Apps with complex role-based access control
+- Audit-heavy domains (compliance, finance, healthcare)
+- Teams building similar apps repeatedly
+- Full-stack TypeScript teams
+
+### When to Consider Alternatives
+
+- Prototypes or MVPs (use Prisma for speed)
+- Apps with complex graph relationships (consider GraphQL)
+- External API-heavy apps (React Query shines here)
+- Open-source projects (community familiarity matters)
+
+## Complete Data Layer: useStore + useQuery
+
+VENKY's data layer consists of two complementary systems:
+
+| System | Purpose | Use Cases |
+|--------|---------|-----------|
+| **useStore** (DataSource) | CRUD operations | Forms, tables, editable lists |
+| **useQuery** (Actions) | Read-only queries | Charts, dashboards, reports |
+
+### Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              CLIENT                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  useStore (DataSource)              │  useQuery (Actions)                   │
+│  ─────────────────────              │  ──────────────────                   │
+│  • CRUD operations                  │  • Read-only queries                  │
+│  • Forms & editable tables          │  • Charts & dashboards                │
+│  • Optimistic updates (automatic)   │  • Complex SQL aggregations           │
+│  • Dirty tracking                   │  • Caching & stale time               │
+│  • Pagination & sorting             │  • Retry & refetch interval           │
+│  • Field validation                 │  • Suspense support                   │
+│  • Bulk operations                  │  • Prefetching                        │
+│  • Selection state                  │                                       │
+└─────────────────────────────────────┴───────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              SERVER                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  /api/ds (DataSource)               │  /api/action                          │
+│  ─────────────────────              │  ─────────────                        │
+│  • Auto RBAC                        │  • Custom SQL                         │
+│  • 10+ lifecycle hooks              │  • Type-safe functions                │
+│  • Field-level audit                │  • Activity logging                   │
+│  • Optimistic locking               │  • Auth + transactions                │
+│  • WHO column auto-fill             │                                       │
+└─────────────────────────────────────┴───────────────────────────────────────┘
+```
+
+### Comparison: VENKY vs React Query + Prisma
+
+#### CRUD Operations
+
+| Feature | useStore | React Query + Prisma |
+|---------|----------|---------------------|
+| **Create** | `store.createNew()` | `useMutation` + API + Prisma |
+| **Read** | `store.executeQuery()` | `useQuery` + API + Prisma |
+| **Update** | `store.setValue()` → `store.save()` | Manual state + `useMutation` |
+| **Delete** | `store.deleteRow()` | `useMutation` + API |
+| **Optimistic Updates** | ✅ Automatic | ⚠️ Manual `onMutate`/`onError` |
+| **Dirty Tracking** | ✅ `isStoreDirty()`, `isRowDirty()` | ❌ Manual |
+| **Rollback** | ✅ `resetRow()`, `resetStore()` | ❌ Manual |
+| **Field Validation** | ✅ `hasError()`, `getError()` | ❌ Manual |
+| **Bulk Operations** | ✅ `createNewBulk()`, `insertBulk()` | ❌ Multiple calls |
+| **Pagination** | ✅ `next()`, `goToPage()`, `hasMoreRows()` | ⚠️ useInfiniteQuery |
+| **Sorting** | ✅ `setSort()` | ❌ Manual |
+| **Filtering** | ✅ `applyHeaderFilters()` | ❌ Manual |
+| **Selection** | ✅ `selectRow()`, `selectAll()` | ❌ Manual |
+| **Type Safety** | ✅ End-to-end | ⚠️ Types don't flow to client |
+
+#### Read-Only Queries
+
+| Feature | useQuery | React Query |
+|---------|----------|-------------|
+| **Caching** | ✅ LRU (100 entries) | ✅ Configurable |
+| **Stale Time** | ✅ `staleTime` option | ✅ |
+| **Window Focus Refetch** | ✅ `refetchOnWindowFocus` | ✅ |
+| **Refetch Interval** | ✅ `refetchInterval` | ✅ |
+| **Retry Logic** | ✅ `retry`, `retryDelay` | ✅ |
+| **Exponential Backoff** | ✅ Function support | ✅ |
+| **Conditional Fetching** | ✅ `enabled` option | ✅ |
+| **Suspense** | ✅ `useSuspenseQuery` | ✅ |
+| **Prefetching** | ✅ `prefetchQuery` | ✅ |
+| **Cache Invalidation** | ✅ `invalidateQuery`, `invalidateQueries` | ✅ |
+| **Type Safety** | ✅ End-to-end (no codegen) | ❌ Manual |
+| **Devtools** | ✅ VENKY Devtools (visual panel) | ✅ Full devtools |
+
+#### Infrastructure (Shared by Both Systems)
+
+| Feature | VENKY Stack | React Query + Prisma |
+|---------|-------------|---------------------|
+| **Auth/Session** | ✅ Built-in (`withDBSessionRoute`) | ❌ Manual middleware |
+| **DB Transactions** | ✅ Automatic per request | ❌ Manual |
+| **Activity Logging** | ✅ Automatic | ❌ Manual |
+| **Field-level Audit** | ✅ `audit: true` flag | ❌ Manual |
+| **RBAC** | ✅ DataSource level | ❌ Manual |
+| **Optimistic Locking** | ✅ `updatedAt` check | ❌ Manual |
+
+### Code Comparison
+
+#### CRUD Form
+
+**VENKY (useStore):**
+```typescript
+const store = useStore<Order>({ datasourceId: 'Orders', page: 'order', alias: 'edit' });
+const row = useCurrentRowSync(store);
+
+<TextInput label="Customer" value={row.customerName} onChange={(v) => store.setValue('customerName', v)} />
+<Button onClick={() => store.save()} disabled={!store.isStoreDirty()}>Save</Button>
+```
+
+**React Query + Prisma:**
+```typescript
+const { data } = useQuery({ queryKey: ['order', id], queryFn: () => fetch(`/api/orders/${id}`) });
+const [form, setForm] = useState(data);
+const [isDirty, setIsDirty] = useState(false);
+const mutation = useMutation({
+  mutationFn: (data) => fetch(`/api/orders/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  onMutate: async (newData) => {
+    await queryClient.cancelQueries(['order', id]);
+    const previous = queryClient.getQueryData(['order', id]);
+    queryClient.setQueryData(['order', id], newData);
+    return { previous };
+  },
+  onError: (err, newData, context) => {
+    queryClient.setQueryData(['order', id], context.previous);
+  },
+});
+
+<input value={form.customerName} onChange={(e) => { setForm({...form, customerName: e.target.value}); setIsDirty(true); }} />
+<button onClick={() => mutation.mutate(form)} disabled={!isDirty}>Save</button>
+```
+
+#### Chart Dashboard
+
+**VENKY (useQuery):**
+```typescript
+const result = useQueryWithOptions('getMonthlyRevenue', {
+  staleTime: 60_000,
+  refetchInterval: 30_000,
+  retry: 2,
+}, year);
+
+if (result.status === 'loading') return <Spinner />;
+if (result.status === 'error') return <Error message={result.error} />;
+return <Chart data={result.data} />;
+```
+
+**React Query:**
+```typescript
+const { data, isLoading, error } = useQuery({
+  queryKey: ['monthlyRevenue', year],
+  queryFn: () => fetch(`/api/revenue?year=${year}`).then(r => r.json()),
+  staleTime: 60_000,
+  refetchInterval: 30_000,
+  retry: 2,
+});
+
+if (isLoading) return <Spinner />;
+if (error) return <Error message={error.message} />;
+return <Chart data={data} />;
+```
+
+### Lines of Code Comparison
+
+| Task | VENKY Stack | React Query + Prisma |
+|------|-------------|---------------------|
+| **CRUD Form** | ~50 lines | ~150 lines |
+| **Data Table with Edit** | ~100 lines | ~300 lines |
+| **Chart Dashboard** | ~30 lines | ~50 lines |
+| **Infrastructure Setup** | 0 (built-in) | ~500+ lines |
+
+### When to Use Each
+
+| Scenario | Recommendation |
+|----------|----------------|
+| Forms with validation | `useStore` |
+| Editable tables | `useStore` |
+| Bulk data entry | `useStore` |
+| Charts & graphs | `useQuery` |
+| Dashboards | `useQuery` |
+| Complex reports | `useQuery` (Action) |
+| Real-time metrics | `useQuery` with `refetchInterval` |
+| Prefetching on hover | `prefetchQuery` |
+
+### Feature Completeness Rating
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| **CRUD Operations** | 10/10 | Full feature parity + optimistic updates |
+| **Read-Only Queries** | 10/10 | All React Query features for charts |
+| **Infrastructure** | 10/10 | Auth, audit, transactions built-in |
+| **Developer Experience** | 10/10 | VENKY Devtools panel with Activity, Stores, Queries, Mutations tabs |
+| **Type Safety** | 10/10 | End-to-end without codegen |
+
+**Overall: 10/10 for enterprise chart/CRUD applications**
+
+## VENKY Devtools
+
+A visual developer tools panel for inspecting `useStore`, `useQuery`, and `useMutation` operations.
+
+### Availability
+
+- **Development**: Always enabled
+- **Production**: Enabled for users with `admin` or `app_admin` roles
+
+### Usage
+
+```typescript
+// Automatically included via default-secure-layout.tsx
+import { Devtools } from 'venky-core/client';
+
+// Or add manually to any layout
+<Devtools />
+```
+
+### Features
+
+| Feature | Description |
+|---------|-------------|
+| **Activity Tab** | Real-time log of all operations (default tab) |
+| **Stores Tab** | Active `useStore` instances with row data inspection |
+| **Queries Tab** | Cached queries with response data inspection |
+| **Mutations Tab** | Mutation history with params and results |
+| **Resizable Panel** | Drag corner to resize, size persisted in localStorage |
+| **Maximize/Minimize** | Full-screen toggle |
+| **Keyboard Shortcut** | `⌘⇧D` (or `Ctrl+Shift+D`) to toggle |
+| **Copy to Clipboard** | Copy any data as JSON |
+| **Data Inspector** | Expandable tree view for nested objects/arrays |
+
+### Components
+
+```typescript
+import { Devtools, DevtoolsPanel, DevtoolsToggle } from 'venky-core/client';
+
+// Recommended: Combined toggle button + panel
+<Devtools />
+
+// Or use separately
+<DevtoolsToggle />  // Floating button (bottom-left, next to Next.js indicator)
+<DevtoolsPanel />   // The panel itself (bottom-right when open)
+```
+
+### Programmatic Control
+
+```typescript
+import {
+  openDevtools,
+  closeDevtools,
+  toggleDevtools,
+  setActiveTab,
+  enableDevtools,
+  disableDevtools,
+  enableDevtoolsForRoles,
+} from 'venky-core/client';
+
+// Open/close programmatically
+toggleDevtools();
+setActiveTab('stores');
+
+// Enable/disable devtools (e.g., based on user permissions)
+enableDevtools();
+disableDevtools();
+
+// Enable devtools for specific roles (default: ['admin', 'app_admin'])
+enableDevtoolsForRoles(session.roles);
+enableDevtoolsForRoles(session.roles, ['superadmin', 'devops']);
+```
+
+### Debug Functions
+
+```typescript
+import { debugQueryCache } from 'venky-core/client';
+
+// Console table of all cached queries
+debugQueryCache();
+```
+
+### Production Access
+
+Devtools are automatically enabled for users with `admin` or `app_admin` roles via `default-secure-layout.tsx`. This allows debugging production issues without exposing tools to regular users.
+
+## Summary
+
+The DataSource pattern is a deliberate trade-off: we sacrifice community support and familiarity for vertical integration, built-in access control, and tight client-server coupling. For our use case (enterprise CRUD apps with role-based access), this is the right choice.

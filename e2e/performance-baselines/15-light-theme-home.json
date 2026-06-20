@@ -1,0 +1,12 @@
+{
+  "totalCount": 5,
+  "firstQueryAt": 26,
+  "lastQueryAt": 2641,
+  "elapsedMs": 10020,
+  "sources": ["store:users-pageusers", "attr:SavedSearch", "store:users-all", "attr:Users", "store:users-all:count"],
+  "loadTime": 1559,
+  "domReadyTime": 1555,
+  "firstContentfulPaint": 1596,
+  "timestamp": "2026-01-15T21:45:01.774Z",
+  "pagePath": "/admin/config/users"
+}

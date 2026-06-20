@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "incremental": true,
+    "verbatimModuleSyntax": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "venky-core/ui": ["./src/venky-exports/core/ui/index.ts"],
+      "venky-core/ui/*": ["./src/venky-exports/core/ui/*/index.ts"],
+      "venky-core/client": ["./src/venky-exports/core/client/index.ts"],
+      "venky-core/server": ["./src/venky-exports/core/server/index.ts"],
+      "venky-core/server/*": ["./src/venky-exports/core/server/*/index.ts"],
+      "venky-core/common": ["./src/venky-exports/core/common/index.ts"],
+      "venky-core/types": ["./src/venky-exports/core/types/index.ts"],
+      "venky-core/ds": ["./src/venky-exports/core/ds/index.ts"],
+      "venky-core/auth": ["./src/venky-exports/core/auth/index.ts"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "./src/**/*.ts",
+    "./src/**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "./e2e/**/*.ts"
+  ],
+  "exclude": ["node_modules", "dist", "build"]
+}

@@ -1,0 +1,15 @@
+export type AttributeType =
+  | 'Text'
+  | 'TextArray'
+  | 'Boolean'
+  | 'Date'
+  | 'Number'
+  | 'JSON'
+  | 'YN'
+  | 'TF'
+  | 'Binary'
+  | 'Reference'
+  | 'Time'
+  | 'UUID'
+  | 'Polygon'
+  | 'Vector';

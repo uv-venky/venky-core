@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "GitHub.copilot",
+    "biomejs.biome",
+    "tyriar.sort-lines",
+    "streetsidesoftware.code-spell-checker",
+    "moshfeu.compare-folders",
+    "bradlc.vscode-tailwindcss",
+    "typescriptteam.native-preview"
+  ]
+}

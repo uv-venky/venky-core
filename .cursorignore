@@ -1,0 +1,39 @@
+# Build outputs
+dist/
+.next/
+node_modules/
+
+# Test outputs
+test-results/
+playwright-report/
+coverage/
+
+# Cache
+.turbo/
+hf_cache/
+*.tsbuildinfo
+
+# Lock files (too large for context)
+pnpm-lock.yaml
+
+# Generated files
+*.d.ts.map
+
+# Assets (binary files)
+public/images/
+email-templates/*.png
+
+# Data files
+data/
+rag_docs/
+
+# Database scripts (reference only)
+db-scripts/
+
+# Docker/deployment
+docker/
+aws/
+
+# Specs (large docs)
+functional_specs/
+

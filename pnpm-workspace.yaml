@@ -1,0 +1,35 @@
+catalog:
+  react: 19.2.6
+  '@types/react': 19.2.15
+
+overrides:
+  '@ai-sdk/react': 3.0.193
+  '@dnd-kit/core': 6.3.1
+  '@dnd-kit/sortable': 10.0.0
+  '@dnd-kit/utilities': 3.2.2
+  '@tanstack/react-table': 8.21.3
+  '@types/react': 19.2.15
+  '@types/react-dom': 19.2.3
+  ai: 6.0.191
+  date-fns: 4.3.0
+  jotai: 2.20.0
+  prosemirror-gapcursor: 1.4.0
+  react-archer>@types/react: 'catalog:'
+  react-archer>react: 'catalog:'
+  swr: 2.4.1
+  valtio: 2.3.2
+  zod: 4.4.3
+
+peerDependencyRules:
+  ignoreMissing: []
+  allowAny:
+    - zod
+
+confirmModulesPurge: false
+
+minimumReleaseAgeExclude:
+  - '@uv-venky/*'
+
+allowBuilds:
+  esbuild: true
+  sharp: true

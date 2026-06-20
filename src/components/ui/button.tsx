@@ -1,0 +1,126 @@
+'use client';
+
+import * as React from 'react';
+import { Slot as SlotPrimitive } from 'radix-ui';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+import { cn } from '@/lib/utils';
+import clientLogger from '@/lib/core/client/client-logger';
+import type { Activity } from '@/lib/core/common/types/Activity';
+import { isEmpty } from '@/lib/core/common/isEmpty';
+import { useIsUserLoggedIn } from '../core/session-context';
+
+const buttonVariants = cva(
+  "select-none cursor-pointer inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
+        destructive:
+          'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        outline:
+          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+        secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
+        ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-9',
+        'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+        'icon-sm': 'size-8',
+        'icon-lg': 'size-10',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+);
+
+function Button({
+  className,
+  variant = 'default',
+  size = 'default',
+  asChild = false,
+  onClick: onClickProp,
+  activityId: activityIdProp,
+  disabled,
+  ...props
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    activityId?: string;
+  }) {
+  const Comp = asChild ? SlotPrimitive.Slot : 'button';
+
+  const deriveActivityId = React.useCallback((el: HTMLElement) => {
+    const label = el.textContent?.trim() ?? '';
+    const cardTitle = el.closest('[data-slot="card"]')?.querySelector('[data-slot="card-title"]')?.textContent?.trim();
+    const prefix = cardTitle || document.title;
+    return `${prefix} ${label}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }, []);
+  const [isLogging, setIsLogging] = React.useState(false);
+  const isLoggedIn = useIsUserLoggedIn();
+
+  const onClick = React.useCallback(
+    async (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (onClickProp) {
+        if (activityIdProp === 'no-log') {
+          return onClickProp(e);
+        }
+        setIsLogging(true);
+        try {
+          if (isLoggedIn) {
+            const activity: Omit<Activity, 'userName' | 'sessionId' | 'createdAt' | 'trackId'> = {
+              eventType: 'Button Click',
+              eventId:
+                activityIdProp ||
+                (e.currentTarget as HTMLElement).dataset.testid ||
+                e.currentTarget.id ||
+                deriveActivityId(e.currentTarget as HTMLElement) ||
+                'unknown',
+              pageUrl: window.location.pathname,
+            };
+            const label = e.currentTarget.textContent;
+            if (!isEmpty(label)) {
+              activity.metadata = {
+                label,
+              };
+            }
+            clientLogger.logActivity(activity);
+          }
+          onClickProp(e);
+        } catch (_error) {
+          // call the onClick prop even if logging fails
+          onClickProp(e);
+        } finally {
+          setIsLogging(false);
+        }
+      }
+    },
+    [onClickProp, activityIdProp, deriveActivityId, isLoggedIn],
+  );
+
+  return (
+    <Comp
+      data-slot="button"
+      data-activity-id={activityIdProp}
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+      disabled={isLogging || disabled}
+      onClick={onClick}
+    />
+  );
+}
+
+export { Button, buttonVariants };

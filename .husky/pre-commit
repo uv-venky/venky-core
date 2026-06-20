@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+set -e
+pnpm codegen:action-params
+pnpm exec biome format --write src/lib/server/actions/param-schemas.generated.ts 2>/dev/null || true
+git add src/lib/server/actions/param-schemas.generated.ts 2>/dev/null || true
+pnpm exec lint-staged

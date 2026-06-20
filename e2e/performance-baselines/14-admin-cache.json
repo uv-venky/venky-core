@@ -1,0 +1,12 @@
+{
+  "totalCount": 1,
+  "firstQueryAt": 0,
+  "lastQueryAt": 0,
+  "elapsedMs": 4948,
+  "sources": [],
+  "loadTime": 4008,
+  "domReadyTime": 2276,
+  "firstContentfulPaint": 1644,
+  "timestamp": "2026-01-15T21:44:31.542Z",
+  "pagePath": "/admin/monitoring/cache"
+}

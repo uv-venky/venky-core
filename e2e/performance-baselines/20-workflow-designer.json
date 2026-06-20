@@ -1,0 +1,21 @@
+{
+  "totalCount": 8,
+  "firstQueryAt": 5,
+  "lastQueryAt": 2736,
+  "elapsedMs": 6374,
+  "sources": [
+    "store:workflows-all",
+    "attr:Workflows",
+    "store:workflows-editor",
+    "attr:Workflows",
+    "store:integrations-all",
+    "attr:WorkflowIntegrations",
+    "store:workflow-api-keys-all",
+    "attr:WorkflowApiKeys"
+  ],
+  "loadTime": 3034,
+  "domReadyTime": 1091,
+  "firstContentfulPaint": 1152,
+  "timestamp": "2026-01-15T21:45:09.747Z",
+  "pagePath": "/workflows/019b0bb9-cc45-75e7-89a1-1f10ea434322"
+}

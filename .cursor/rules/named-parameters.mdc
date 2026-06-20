@@ -1,0 +1,69 @@
+---
+description: Use named parameters for functions with more than 2 parameters
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# Named Parameters Pattern
+
+Functions with more than 2 parameters should use named parameters (object destructuring) instead of positional parameters.
+
+## Why
+
+- More readable function calls
+- Easier to understand which argument is which
+- Safer refactoring - adding/removing parameters is less error-prone
+- Better IDE autocomplete support
+- Parameters can be provided in any order
+
+## Pattern
+
+```typescript
+// ❌ BAD - positional parameters
+async function processProject(
+  client: PgPoolClient,
+  projectId: string,
+  periodFrom: string,
+  periodTo: string,
+  warnings: string[],
+): Promise<Result> {
+  // ...
+}
+
+// Call site is unclear
+await processProject(client, id, from, to, warnings);
+
+// ✅ GOOD - named parameters
+interface ProcessProjectParams {
+  client: PgPoolClient;
+  projectId: string;
+  periodFrom: string;
+  periodTo: string;
+  warnings: string[];
+}
+
+async function processProject({
+  client,
+  projectId,
+  periodFrom,
+  periodTo,
+  warnings,
+}: ProcessProjectParams): Promise<Result> {
+  // ...
+}
+
+// Call site is self-documenting
+await processProject({
+  client,
+  projectId: id,
+  periodFrom: from,
+  periodTo: to,
+  warnings,
+});
+```
+
+## When to Apply
+
+- **Use named params**: Functions with 3+ parameters
+- **Keep positional**: Functions with 1-2 parameters (e.g., `getById(client, id)`)
+- **Export interfaces**: Export param interfaces for public functions so callers can use them

@@ -1,0 +1,20 @@
+# For smtp config, refer SMTPTransport.Options https://nodemailer.com/smtp/
+appId: 'core'
+smtp:
+  from: 'noreply@venky.local'
+  host: 'localhost'
+  port: 1025
+init:
+  admin:
+    email: 'admin@venky.local'
+    password: 'venky123!'
+pythonService:
+  baseUrl: 'http://localhost:8000'
+orgName: 'Venky'
+secret: ''
+adminAlertEmails:
+  - 'admin@venky.local'
+features:
+  workflow: false
+  complianceExport: false
+  naturalLanguageSearch: false

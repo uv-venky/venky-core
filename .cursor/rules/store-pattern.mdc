@@ -1,0 +1,1149 @@
+---
+description: Store pattern for state management with DataSources
+globs: 
+  - "src/**/use-store.ts"
+  - "src/**/useStore.ts"
+  - "src/**/*-store.ts"
+  - "src/**/page-content.tsx"
+  - "src/**/*Dialog.tsx"
+  - "src/**/*Form.tsx"
+---
+
+# Store Pattern
+
+The store is a **valtio-based reactive state management system** that wraps DataSource CRUD operations. It provides automatic UI updates, dirty tracking, and server synchronization.
+
+## Core Concepts
+
+### Store Identity
+
+Stores are identified by a composite key: `${alias}-${datasourceId}-${page}`. Stores with the same key are **shared across the entire app**.
+
+```typescript
+// These return the SAME store instance
+const store1 = useStore<Users>({ datasourceId: 'Users', page: 'users-page', alias: 'users-list' });
+const store2 = useStore<Users>({ datasourceId: 'Users', page: 'users-page', alias: 'users-list' });
+// store1 === store2 ✅
+```
+
+### Row Status
+
+Each row has a `_status` field indicating its state:
+- `Q` - Queried (from database, unchanged)
+- `I` - Insert (new, pending save)
+- `U` - Update (modified, pending save)
+- `D` - Delete (marked for deletion, pending save)
+- `N` - New (local-only, won't be saved)
+
+### Automatic UI Updates
+
+After `save()`, all components using the store update automatically. **Do not call `executeQuery()` after save** unless refreshing related data from other stores.
+
+---
+
+## Store Configuration
+
+### Creating a Store Hook
+
+Always create a custom hook for each store to ensure consistent configuration:
+
+```typescript
+// src/app/(secure)/module/feature/hooks/use-store.ts
+import type { Entity } from '@/lib/common/ds/types/module/Entity';
+import { useStore } from 'venky-core/client';
+
+export function useEntityStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-page',
+    alias: 'entity-list',
+    limit: 20,
+    includeCount: true,
+    autoQuery: true,
+    sort: { createdAt: -1, secondColumn: -2 },
+  });
+}
+```
+
+### Configuration by Use Case
+
+#### List Page Store
+```typescript
+export function useEntityListStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-page',
+    alias: 'entity-list',
+    limit: 20,              // Standard page size
+    includeCount: true,     // Enable pagination
+    autoQuery: true,        // Auto-fetch on mount
+    autoRefresh: true,      // Real-time updates (optional)
+    sort: { createdAt: -1 },
+  });
+}
+```
+
+#### Detail/Edit Page Store
+```typescript
+export function useEntityEditStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-detail-page',
+    alias: 'entity-edit',
+    limit: 1,               // Single record
+    autoQuery: false,       // Manual query with ID
+  });
+}
+```
+
+#### Dialog Form Store
+```typescript
+export function useEntityDialogStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-page',
+    alias: 'entity-dialog',  // Separate alias from list
+    limit: 1,
+    autoQuery: false,
+  });
+}
+```
+
+#### ComboboxInput Store (Lookup Data)
+```typescript
+export function useUserLookupStore() {
+  return useStore<Users>({
+    datasourceId: 'Users',
+    page: 'user-lookup',
+    alias: 'user-combobox',
+    limit: 50,
+    autoQuery: false,
+    select: ['userName', 'displayName', 'email'],  // Only needed fields
+  });
+}
+```
+
+> **Full Pattern**: For complete Select/ComboboxInput pattern including options hooks, SmartSearch Select columns, and form integration, see `venky-ui-patterns` and `venky-data-patterns` skills.
+
+#### Real-Time Updates Store
+```typescript
+export function useNotificationsStore() {
+  return useStore<Notifications>({
+    datasourceId: 'Notifications',
+    page: 'notifications-page',
+    alias: 'notifications-list',
+    limit: 20,
+    autoQuery: true,
+    autoRefresh: true,  // Subscribe to SSE for real-time updates
+  });
+}
+```
+
+### Store Props Reference
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `datasourceId` | `string` | Required | DataSource name |
+| `page` | `string` | Required | Page identifier for store key |
+| `alias` | `string` | Required | Instance identifier for store key |
+| `limit` | `number` | `20` | Page size for queries |
+| `autoQuery` | `boolean` | `false` | Auto-fetch on mount |
+| `autoRefresh` | `boolean` | `false` | Real-time updates via SSE |
+| `includeCount` | `boolean` | `false` | Include total count for pagination |
+| `filterLocally` | `boolean` | `false` | Client-side filtering (when full dataset is loaded) |
+| `select` | `string[]` | `undefined` | Field projection (for performance) |
+| `match` | `object` | `undefined` | Default equality filters (merged with executeQuery) |
+| `filters` | `Filter[]` | `undefined` | Default complex filters with operators (merged with executeQuery) |
+| `sort` | `object` | `undefined` | Default sort order (see Sort Priority below) |
+| `invalidateOnSave` | `string[]` | `undefined` | Query action names to invalidate on save |
+| `invalidateStoresOnSave` | `StoreIdentifier[]` | `undefined` | Other stores to refresh on save |
+
+### Default Filters (match and filters)
+
+Use `match` for simple equality filtering and `filters` for complex conditions with operators.
+
+#### Simple Equality with `match`
+
+```typescript
+// Filter projects where isArchived = false
+export function useActiveProjectsStore() {
+  return useStore<WKProjects>({
+    datasourceId: 'WKProjects',
+    page: 'project-switcher',
+    alias: 'active-projects',
+    limit: 500,
+    autoQuery: true,
+    match: { isArchived: false },  // Simple equality
+    sort: { projectName: 1 },
+  });
+}
+```
+
+#### Complex Conditions with `filters`
+
+```typescript
+// Filter periods with complex conditions
+export function useRecentPeriodsStore() {
+  return useStore<WKTimesheetPeriods>({
+    datasourceId: 'WKTimesheetPeriods',
+    page: 'period-selector',
+    alias: 'recent-periods',
+    limit: 500,
+    autoQuery: true,
+    filters: [
+      { periodEnd: { inthepast: new Date().toISOString() } },
+      { periodYear: { gte: new Date().getFullYear() - 1 } },
+    ],
+    sort: { periodYear: 1, periodNumber: 2 },
+  });
+}
+```
+
+#### Combining match and filters
+
+```typescript
+// Both can be used together
+export function useActiveTasksStore() {
+  return useStore<WKTasks>({
+    datasourceId: 'WKTasks',
+    page: 'task-list',
+    alias: 'active-tasks',
+    autoQuery: true,
+    match: { projectId: 'abc123' },  // Simple equality
+    filters: [{ status: { in: ['Active', 'In_Progress'] } }],  // Complex operator
+  });
+}
+```
+
+**Note:** `match` and `filters` are merged with any conditions passed to `executeQuery()`. Use these for static filters that don't change during the component lifecycle. For dynamic filters that depend on state/props, use `usePreQuery` or `executeQuery()` instead.
+
+### Sort Priority
+
+Sort values use a **signed priority system**:
+- **Sign** determines direction: positive = ascending, negative = descending
+- **Absolute value** determines priority: `1` = primary sort, `2` = secondary sort, etc.
+
+```typescript
+sort: {
+  createdAt: -1,    // Primary sort: descending (newest first)
+  name: 2,          // Secondary sort: ascending (A-Z)
+  status: -3,       // Tertiary sort: descending
+}
+```
+
+| Value | Direction | Priority |
+|-------|-----------|----------|
+| `1` | Ascending | Primary |
+| `-1` | Descending | Primary |
+| `2` | Ascending | Secondary |
+| `-2` | Descending | Secondary |
+| `3` | Ascending | Tertiary |
+| `-3` | Descending | Tertiary |
+
+---
+
+## When to Use `useStore` vs `useQuery`/`useMutation`
+
+When a DataSource exists for the entity, prefer `useStore` for any page that **edits** data. It eliminates manual state management (no `useState` for local edits, no `useRef` for server snapshots, no equality comparisons for change detection). The store gives you dirty tracking, `save()`, and `resetStore()` for free.
+
+| Scenario | Use | Why |
+|----------|-----|-----|
+| CRUD with dirty tracking (edit/save/cancel) | `useStore` | Automatic change detection, batch save, revert on cancel |
+| Multiple related stores saving together | `useStore` + `Promise.all([a.save(), b.save()])` | Parallel save, unified dirty state |
+| Read-only views with computed/joined data | `useQuery` | DataSource can't do JOINs or computed columns |
+| One-off operations that navigate away | `useMutation` | Delete, duplicate — no local state to track |
+| Updating sharing/permissions on an entity | `useStore` + `updateRow()` + `save()` | Avoids a separate mutation; changes flow through one mechanism |
+
+**Example — dashboard detail page:**
+- `useStore<Dashboards>` for layout, visibility, sharing (owner edits)
+- `useStore<DashboardWidgets>` for widget content (both save together)
+- `useQuery('getMyDashboards')` for list page (needs computed `widgetCount` JOIN)
+- `useMutation('deleteDashboard')` for delete (navigates away)
+
+---
+
+## Alias Naming Convention
+
+Use consistent, descriptive alias names:
+
+| Pattern | Use Case | Example |
+|---------|----------|---------|
+| `{module}-list` | List pages | `users-list`, `projects-list` |
+| `{module}-edit` | Edit pages/forms | `user-edit`, `project-edit` |
+| `{module}-dialog` | Dialogs | `user-dialog`, `add-project-dialog` |
+| `{module}-combobox` | Lookup/combobox data | `user-combobox`, `role-combobox` |
+| `{module}-{context}` | Specific contexts | `user-roles-tab`, `project-tasks-panel` |
+
+---
+
+## Hook Usage
+
+### Recommended Hooks
+
+#### `useCurrentRowSync` - For Forms (ALWAYS use this for form fields)
+
+```typescript
+import { useCurrentRowSync, useIsStoreDirty, useIsStorePosting } from 'venky-core/ui';
+
+function EntityForm({ store }: { store: Store<Entity> }) {
+  const row = useCurrentRowSync(store);  // ✅ Sync mode prevents cursor jumping
+  const isDirty = useIsStoreDirty(store);
+  const isPosting = useIsStorePosting(store);
+
+  if (!row) return null;
+
+  return (
+    <form>
+      {/* Prefer store-backed for simple binding */}
+      <TextInput label="Name" store={store} attributeCode="name" required />
+      <Button disabled={isPosting || !isDirty}>Save</Button>
+    </form>
+  );
+}
+```
+
+**Why `useCurrentRowSync`?** The sync mode ensures immediate UI updates when typing, preventing cursor jumping issues in form fields.
+
+**Store-backed vs controlled:** Use `store={store}` and `attributeCode="name"` for straightforward binding; dirty state and field errors are derived automatically. Use controlled `value`/`onChange` when you need custom logic (e.g. syncing two fields). For normalizing on blur (trim, lowercase email), add **transformValue** on store-backed TextInput/NumberInput/DatePicker (e.g. `transformValue={(v) => v?.trim().toLowerCase() ?? undefined}`).
+
+#### `useDBRows` vs `useRows` - For Lists
+
+Both hooks return the store's rows as an array, but with different TypeScript types:
+
+| Hook | Return Type | Use When |
+|------|-------------|----------|
+| `useDBRows(store)` | `DBRow<T>[]` | All rows are from the database (list pages, tables) |
+| `useRows(store)` | `Row<T>[]` | Store may contain new/unsaved rows (editable grids) |
+
+**Type Differences:**
+
+- **`DBRow<T>`**: All entity fields are **required** (type `T`). Status is `'Q' | 'U' | 'D'`.
+- **`NewRow<T>`**: All entity fields are **optional** (`Partial<T>`). Status is `'N' | 'I'`.
+- **`Row<T>`**: Union of both (`NewRow<T> | DBRow<T>`).
+
+```typescript
+// useDBRows - fields are guaranteed to exist (TypeScript knows row.name is string, not string | undefined)
+const rows = useDBRows(store);
+rows.forEach(row => {
+  console.log(row.name.toUpperCase());  // ✅ No need to check for undefined
+  console.log(row._id);                  // ✅ Always has _id
+});
+
+// useRows - fields may be undefined (for new rows that haven't been saved)
+const rows = useRows(store);
+rows.forEach(row => {
+  console.log(row.name?.toUpperCase()); // Must use optional chaining
+  console.log(row._id ?? row._cid);      // May have _cid instead of _id
+});
+```
+
+**Recommendation**: Use `useDBRows()` for most cases (list pages, tables). Use `useRows()` only when the store contains new/unsaved rows that need to be displayed.
+
+```typescript
+import { useDBRows, useIsStoreLoading } from 'venky-core/ui';
+
+function EntityList({ store }: { store: Store<Entity> }) {
+  const rows = useDBRows(store);  // Preferred for list pages
+  const isLoading = useIsStoreLoading(store);
+
+  if (isLoading) return <LoadingSpinner />;
+
+  return (
+    <ul>
+      {rows.map((row) => (
+        <li key={row._id}>{row.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+#### `useValue` / `useRowValue` - For Table Cells
+
+```typescript
+import { useRowValue } from 'venky-core/ui';
+
+function StatusCell({ store, rowId }: { store: Store<Entity>; rowId: string }) {
+  const status = useRowValue(store, rowId, 'status');
+  return <Badge>{status}</Badge>;
+}
+```
+
+#### `usePreQuery` - For Automatic Filters
+
+```typescript
+import { usePreQuery } from 'venky-core/ui';
+
+function FilteredTable({ store, projectId }: Props) {
+  // Automatically add projectId filter to all queries
+  usePreQuery(store, (query) => ({
+    ...query,
+    filters: [...(query.filters || []), { projectId: { is: projectId } }],
+  }));
+
+  // ... render table
+}
+```
+
+### Hooks Reference
+
+| Hook | Purpose | Returns |
+|------|---------|---------|
+| `useCurrentRowSync` | Current row (sync mode) | `Row<T> \| undefined` |
+| `useCurrentRow` | Current row (async mode) | `Row<T> \| undefined` |
+| `useDBRows` | All rows (DB type) | `ReadonlyArray<DBRow<T>>` |
+| `useRows` | All rows (includes new) | `ReadonlyArray<Row<T>>` |
+| `useRowAtId` | Row by ID | `Row<T> \| undefined` |
+| `useValue` | Field from current row | `T[K] \| undefined` |
+| `useRowValue` | Field from specific row | `T[K] \| undefined` |
+| `useIsStoreLoading` | Loading state | `boolean` |
+| `useIsStorePosting` | Posting/saving state | `boolean` |
+| `useIsStoreDirty` | Has unsaved changes | `boolean` |
+| `useIsRowDirty` | Row has unsaved changes | `boolean` |
+| `useStoreRowCount` | Total row count | `number \| undefined` |
+| `useHasMoreRows` | More rows available | `boolean` |
+| `useSelectedRowIds` | Selected row IDs | `ReadonlyArray<string>` |
+| `usePreQuery` | Modify queries | `void` |
+
+---
+
+## Store Methods
+
+### Creating New Records
+
+**IMPORTANT**: Initialize the store BEFORE opening dialogs, not in useEffect.
+
+```typescript
+// ✅ Correct - Initialize in click handler
+const handleAdd = useCallback(() => {
+  store.createNew({
+    partialRecord: { status: 'draft' },  // Default values
+  });
+  setIsDialogOpen(true);
+}, [store]);
+
+// ❌ Wrong - Causes timing issues (dialog renders before effect runs)
+useEffect(() => {
+  if (open) {
+    store.createNew({ partialRecord: { status: 'draft' } });
+  }
+}, [open, store]);
+```
+
+### Editing Existing Records
+
+```typescript
+const handleEdit = useCallback((row: Entity) => {
+  store.setCurrentRow(row);  // Or store.setCurrentRowId(row._id)
+  setIsDialogOpen(true);
+}, [store]);
+```
+
+### Updating Field Values
+
+```typescript
+// Update current row
+store.setValue('name', 'New Name');
+
+// Update specific row
+store.setValue('name', 'New Name', rowId);
+
+// Update multiple fields
+store.updateRow(rowId, {
+  name: 'New Name',
+  status: 'active',
+});
+```
+
+### Saving Changes
+
+```typescript
+// Basic save (shows default "X rows saved" message)
+const success = await store.save();
+
+// With custom feedback message (preferred)
+await store.save({ feedback: 'Entity saved successfully' });
+
+// No feedback at all (suppress all toasts)
+await store.save({ feedback: 'NONE' });
+```
+
+**Important:** After `save()`, the store automatically refreshes its data. Do NOT call `executeQuery()` or `refresh()` after save - it's unnecessary.
+
+### Deleting Records
+
+```typescript
+// Mark row for deletion and save
+store.deleteRow(rowId);
+await store.save({ feedback: 'Entity deleted' });
+```
+
+**Important:** Always call `save()` after `deleteRow()` to persist the deletion. Do NOT call `executeQuery()` - `save()` auto-refreshes the store.
+
+### Delete with Confirmation
+
+Use `confirmWithUser` from `venky-core/ui` for delete confirmations:
+
+```typescript
+import { confirmWithUser } from 'venky-core/ui';
+
+const handleDelete = useCallback(async (entity: Entity) => {
+  const confirmed = await confirmWithUser({
+    title: 'Delete Entity',
+    content: `Are you sure you want to delete "${entity.name}"? This action cannot be undone.`,
+  });
+  if (confirmed) {
+    store.deleteRow(entity.id);
+    await store.save({ feedback: 'Entity deleted' });
+  }
+}, [store]);
+```
+
+### Querying Data
+
+```typescript
+// Auto-query on mount (via autoQuery: true in config)
+// OR manual query:
+await store.executeQuery();
+
+// With match (equality filters) - use `match`, not deprecated `data`
+await store.executeQuery({
+  query: {
+    match: { projectId: 'abc123' },  // ✅ Correct
+    // data: { projectId },          // ❌ Deprecated
+  },
+});
+
+// With complex filters
+await store.executeQuery({
+  query: {
+    filters: [{ status: { is: 'active' } }],
+    sort: { name: 1 },
+  },
+});
+
+// Force refresh (bypass cache)
+await store.executeQuery({ force: true });
+
+// Pagination
+await store.next();  // Next page
+await store.goToPage(2);  // Go to specific page
+```
+
+**Query Deduplication:** The store automatically skips queries if the parameters haven't changed. You don't need manual guards like `if (row?.id === id) return;` or `useRef` tracking.
+
+### Refreshing Data
+
+Use `refresh()` to re-fetch data from the server using the **same query parameters** (filters, sort, offset):
+
+```typescript
+// Re-fetch with current filters, sort, and offset
+await store.refresh();
+
+// Refresh a specific row by ID
+await store.refreshRow(rowId);
+```
+
+**`refresh()` vs `executeQuery()` behavior:**
+
+| Method | Re-fetches if query unchanged? | Use case |
+|--------|-------------------------------|----------|
+| `executeQuery()` | No (cached) | Change filters, sort, or pagination |
+| `executeQuery({ force: true })` | Yes | Force re-fetch with new query params |
+| `refresh()` | Yes (always) | Get latest data with current query |
+
+- `executeQuery()` will **skip the fetch** if the filter/sort/offset hasn't changed (uses cached results)
+- `refresh()` will **always re-fetch** from the server, even if nothing changed
+
+**When to use `refresh()`:**
+
+1. **After cascade delete on a DIFFERENT store** - When you delete a parent record and child records are cascade-deleted by the database, refresh the child store:
+   ```typescript
+   // Delete role (which cascade-deletes assignments via afterDelete hook)
+   rolesStore.deleteRow(role.projectRoleId);
+   await rolesStore.save({ feedback: 'Role deleted' });
+   // Refresh assignments store since assignments were deleted by DB cascade
+   assignmentsStore.refresh();
+   ```
+
+2. **Sync with external changes** - When data may have changed from other users or processes
+
+**Do NOT use `refresh()` or `executeQuery()` after `save()`** - the store auto-refreshes.
+
+### Resetting Changes
+
+```typescript
+// Discard all unsaved changes
+store.resetStore();
+
+// Clear all data (for full reset)
+store.clearSync();
+```
+
+---
+
+## Dialog Pattern
+
+Complete pattern for add/edit dialogs:
+
+```typescript
+'use client';
+
+import { useCallback, useState } from 'react';
+import { Popup, useCurrentRowSync, useIsStoreDirty, useIsStorePosting, showSuccess, showError } from 'venky-core/ui';
+import type { Entity } from '@/lib/common/ds/types/module/Entity';
+import type { Store } from 'venky-core/common';
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  store: Store<Entity>;
+  editingRow?: Entity | null;
+}
+
+export function EntityDialog({ open, onOpenChange, store, editingRow }: Props) {
+  const row = useCurrentRowSync(store);
+  const isDirty = useIsStoreDirty(store);
+  const isPosting = useIsStorePosting(store);
+
+  const handleSave = async () => {
+    try {
+      const success = await store.save();
+      if (success) {
+        showSuccess(editingRow ? 'Entity updated' : 'Entity created');
+        onOpenChange(false);
+      }
+    } catch {
+      showError('Failed to save');
+    }
+  };
+
+  const handleClose = () => {
+    store.resetStore();  // Discard unsaved changes
+    onOpenChange(false);
+  };
+
+  if (!open) return null;
+
+  return (
+    <Popup
+      title={editingRow ? 'Edit Entity' : 'Add Entity'}
+      onClose={handleClose}
+      width={520}
+      height={430}
+      footer={
+        <>
+          <Button variant="outline" onClick={handleClose} disabled={isPosting}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={isPosting || !isDirty || !row}>
+            {isPosting && <Loader2 className="mr-2 size-4 animate-spin" />}
+            Save
+          </Button>
+        </>
+      }
+    >
+      {row && (
+        <div className="grid gap-4">
+          <TextInput label="Name" store={store} attributeCode="name" required />
+          <TextInput label="Description" store={store} attributeCode="description" />
+        </div>
+      )}
+    </Popup>
+  );
+}
+
+// Usage in parent component
+function ParentComponent() {
+  const store = useEntityDialogStore();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingRow, setEditingRow] = useState<Entity | null>(null);
+
+  // ✅ Initialize store BEFORE opening dialog
+  const handleAdd = useCallback(() => {
+    store.createNew({ partialRecord: { status: 'draft' } });
+    setEditingRow(null);
+    setIsDialogOpen(true);
+  }, [store]);
+
+  const handleEdit = useCallback((row: Entity) => {
+    store.setCurrentRow(row);
+    setEditingRow(row);
+    setIsDialogOpen(true);
+  }, [store]);
+
+  return (
+    <>
+      <Button onClick={handleAdd}>Add Entity</Button>
+      <EntityDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        store={store}
+        editingRow={editingRow}
+      />
+    </>
+  );
+}
+```
+
+---
+
+## Architectural Patterns
+
+When building features that involve displaying and editing data, you need to choose between two patterns based on your data architecture.
+
+### Comparison Table
+
+| Aspect | View + Staging Pattern | Same Store Pattern |
+|--------|----------------------|-------------------|
+| **Number of Stores** | 2 (view store + staging store) | 1 (shared store) |
+| **Data Sources** | Different (view vs table) | Same (table or view) |
+| **Save Operation** | `stageStore.save()` then `viewStore.refresh()` | `store.save()` (auto-updates) |
+| **Cancel Operation** | `stageStore.resetStore()` only | `store.resetStore()` |
+| **Table Update** | Manual refresh required | Automatic (reactive) |
+| **Complexity** | Higher (coordinate two stores) | Lower (single store) |
+| **Use Case** | Views, staging workflows, ETL | Direct editing, CRUD |
+
+### Decision Matrix
+
+**Use View + Staging Pattern when:**
+- Displaying data from a read-only database view
+- Data needs to be staged/validated before final processing
+- Inserts/updates go to a different table than what's displayed
+- ETL or data processing workflows
+- Complex joins or aggregations in the view
+
+**Use Same Store Pattern when:**
+- Direct editing of table data
+- Simple CRUD operations
+- Configuration or master data management
+- Same datasource supports both read and write
+- Want simpler state management
+- Real-time updates without manual refresh
+
+### Pattern 1: View + Staging
+
+Use this when your table displays data from a **view** but edits go to a **staging table**.
+
+**Required Steps:**
+
+1. **Create two stores:**
+   ```typescript
+   const viewStore = useAdItemsVStore();      // View datasource
+   const stagingStore = useDealsStgStore();   // Staging table datasource
+   ```
+
+2. **Pass view store to form component:**
+   ```typescript
+   <AdUploadForm 
+     store={viewStore}  // ← View store for refresh
+     onComplete={handleComplete}
+   />
+   ```
+
+3. **In form component, use staging store:**
+   ```typescript
+   const stageStore = useDealsStgStore();  // Staging store for edits
+   ```
+
+4. **After save, refresh view store:**
+   ```typescript
+   await stageStore.save();
+   const rowId = viewStore.currentRowId();
+   if (rowId) {
+     viewStore.refreshRow(rowId);  // ← Required refresh
+   }
+   ```
+
+5. **On cancel, reset staging store:**
+   ```typescript
+   stageStore.resetStore();  // View store not reset
+   ```
+
+**Common Pitfalls:**
+
+```typescript
+// ❌ Wrong - Table won't show updated data
+await stageStore.save();
+// Missing: viewStore.refresh()
+
+// ✅ Correct
+await stageStore.save();
+viewStore.refreshRow(rowId);  // ← Required
+```
+
+```typescript
+// ❌ Wrong - View store shouldn't be reset
+stageStore.resetStore();
+viewStore.resetStore();  // ← Unnecessary
+
+// ✅ Correct
+stageStore.resetStore();  // Only staging store resets
+```
+
+### Pattern 2: Same Store
+
+Use this when both the table and form operate on the **same datasource**.
+
+**Required Steps:**
+
+1. **Create single store:**
+   ```typescript
+   const store = useUsersStore();  // Single store instance
+   ```
+
+2. **Pass same store to both table and form:**
+   ```typescript
+   <PageLayoutTemplate
+     store={store}  // ← Table uses this
+     editForm={<EditForm store={store} />}  // ← Form uses same
+   />
+   ```
+
+3. **Save automatically updates table:**
+   ```typescript
+   await store.save();  // No refresh needed - auto-updates
+   ```
+
+4. **Cancel resets store:**
+   ```typescript
+   store.resetStore();  // Reverts all changes
+   ```
+
+**Common Pitfalls:**
+
+```typescript
+// ❌ Wrong - Unnecessary refresh
+await store.save();
+store.refresh();  // ← Not needed, rows already updated
+
+// ✅ Correct
+await store.save();  // Rows auto-updated, table reactive
+```
+
+```typescript
+// ✅ This works - both calls return the SAME store instance
+// (stores are shared by alias+datasourceId+page key)
+const tableStore = useUsersStore();
+const formStore = useUsersStore();  // ← Same instance!
+
+// ✅ Also fine - explicit single variable
+const store = useUsersStore();
+// Pass same store to both table and form
+```
+
+### Testing Considerations
+
+**Pattern 1 Testing:**
+- Verify view store refreshes after staging save
+- Verify staging store resets on cancel
+- Verify view store persists on cancel
+- Test data flow: Form → Staging → Save → View Refresh
+
+**Pattern 2 Testing:**
+- Verify table updates automatically after save
+- Verify store resets correctly on cancel
+- Verify no unnecessary refreshes occur
+- Test that same store instance is used throughout
+
+---
+
+## Advanced Features
+
+### Auto-Refresh (Real-Time Updates)
+
+Enable `autoRefresh` for stores that should update when data changes from other tabs, users, or stores:
+
+```typescript
+export function useNotificationsStore() {
+  return useStore<Notifications>({
+    datasourceId: 'Notifications',
+    page: 'notifications-page',
+    alias: 'notifications-list',
+    autoRefresh: true,  // Subscribe to SSE for real-time updates
+    // ...
+  });
+}
+```
+
+**How it works:**
+1. Subscribes to globalPubSub for same-tab changes
+2. Subscribes to SSE for cross-tab/cross-user changes
+3. Auto-refreshes when the datasource changes (debounced)
+4. Skips refresh if store is dirty (has unsaved changes)
+
+### Store Invalidation
+
+Automatically refresh related stores when saving:
+
+```typescript
+export function useOrderStore() {
+  return useStore<Orders>({
+    datasourceId: 'Orders',
+    page: 'order-page',
+    alias: 'order-edit',
+    // When this store saves, refresh these:
+    invalidateOnSave: ['getOrderStats'],  // Query action names
+    invalidateStoresOnSave: [
+      { datasourceId: 'OrderHistory', alias: 'order-history' },  // ✅ Specific store (preferred)
+      'OrderItems',                         // All stores for this datasource (use sparingly)
+    ],
+  });
+}
+```
+
+**Best Practice:** Always use precise store targeting with `{ datasourceId, alias }` instead of just the datasource name. This prevents invalidating unrelated stores (e.g., detail stores when you only want to refresh the list).
+
+```typescript
+// ❌ Wrong - invalidates ALL WKProjects stores (list AND detail)
+invalidateStoresOnSuccess: ['WKProjects']
+
+// ✅ Correct - only invalidate the list store
+invalidateStoresOnSuccess: [{ datasourceId: 'WKProjects', alias: 'wk-projects-all' }]
+```
+
+### Local Filtering
+
+Use `filterLocally: true` when the complete dataset is already loaded in the store:
+
+```typescript
+export function useStatusLookupStore() {
+  return useStore<StatusLookup>({
+    datasourceId: 'StatusLookup',
+    page: 'status-lookup',
+    alias: 'status-combobox',
+    limit: 100,            // Load all statuses
+    autoQuery: true,
+    filterLocally: true,   // Filter client-side, no DB round-trips
+  });
+}
+```
+
+### Field-Level Validation
+
+```typescript
+// Set error on a field
+store.setError({
+  attribute: 'email',
+  rowId: currentRowId,
+  errorMessage: 'Invalid email format',
+  source: 'Controller',
+});
+
+// Clear error
+store.clearError({
+  attribute: 'email',
+  rowId: currentRowId,
+  source: 'Controller',
+});
+
+// Check for errors
+const hasErrors = store.hasErrors();
+const fieldError = store.getError('email', currentRowId);
+
+// In hook form
+const errors = useStoreFieldErrors(store);
+const cellError = useCellErrors(store, rowId, 'email');
+```
+
+---
+
+## Anti-Patterns to Avoid
+
+### ❌ Don't call store methods directly during render
+
+Store methods return values directly from the valtio proxy state but **do not subscribe to changes**. When called during render, the component won't re-render when the data changes. Always use the corresponding hooks instead.
+
+| Store Method (Non-reactive) | Hook (Reactive) |
+|-----------------------------|-----------------|
+| `store.rows()` | `useRows(store)` or `useDBRows(store)` |
+| `store.list()` | `useRows(store)` |
+| `store.dbList()` | `useDBRows(store)` |
+| `store.rowIds()` | `useRowIds(store)` |
+| `store.currentRow()` | `useCurrentRow(store)` or `useCurrentRowSync(store)` |
+| `store.currentRowId()` | `useCurrentRowId(store)` |
+| `store.isLoading()` | `useIsStoreLoading(store)` |
+| `store.isPosting()` | `useIsStorePosting(store)` |
+| `store.isBusy()` | `useIsStoreBusy(store)` |
+| `store.isStoreDirty()` | `useIsStoreDirty(store)` |
+| `store.selectedRowIds()` | `useSelectedRowIds(store)` |
+| `store.selectedRows()` | `useSelectedRows(store)` |
+| `store.hasMoreRows()` | `useHasMoreRows(store)` |
+| `store.getSize()` | `useStoreSize(store)` |
+| `store.getSort()` | `useFullSortState(store)` |
+| `store.getOffset()` | `useStoreOffset(store)` |
+| `store.error()` | `useStoreError(store)` |
+
+```typescript
+// ❌ Wrong - won't re-render when rows change
+function MyComponent({ store }: Props) {
+  const rows = store.rows();           // Non-reactive!
+  const isLoading = store.isLoading(); // Non-reactive!
+  return <div>{rows.length} items</div>;
+}
+
+// ✅ Correct - subscribes to changes, triggers re-render
+function MyComponent({ store }: Props) {
+  const rows = useDBRows(store);
+  const isLoading = useIsStoreLoading(store);
+  return <div>{rows.length} items</div>;
+}
+```
+
+**Exception**: Store methods ARE safe to call in event handlers, useEffect callbacks, and async functions (outside of render):
+
+```typescript
+// ✅ OK in event handlers
+const handleClick = () => {
+  const currentId = store.currentRowId();
+  const isDirty = store.isStoreDirty();
+  if (isDirty) {
+    // handle dirty state
+  }
+};
+
+// ✅ OK in useEffect
+useEffect(() => {
+  if (store.hasMoreRows()) {
+    // do something
+  }
+}, [someOtherDep]);
+```
+
+### ❌ Don't initialize store in useEffect for dialogs
+
+```typescript
+// ❌ Wrong - causes timing issues
+useEffect(() => {
+  if (open) store.createNew({ ... });
+}, [open]);
+
+// ✅ Correct - initialize before opening
+const handleAdd = () => {
+  store.createNew({ ... });
+  setOpen(true);
+};
+```
+
+### ❌ Don't call executeQuery or refresh after save
+
+```typescript
+// ❌ Wrong - unnecessary, save auto-refreshes
+await store.save();
+await store.executeQuery();
+
+// ❌ Wrong - also unnecessary
+await store.save();
+await store.refresh();
+
+// ✅ Correct - just save
+await store.save({ feedback: 'Saved successfully' });
+
+// ✅ Only refresh a DIFFERENT store after cascade delete
+await rolesStore.save({ feedback: 'Role deleted' });
+assignmentsStore.refresh();  // Different store, cascade-deleted by DB
+```
+
+### ❌ Don't use useCurrentRow for form fields
+
+```typescript
+// ❌ Wrong - causes cursor jumping in inputs
+const row = useCurrentRow(store);
+
+// ✅ Correct - sync mode for forms
+const row = useCurrentRowSync(store);
+```
+
+### ❌ Don't create stores with same key but different configs
+
+```typescript
+// ❌ Wrong - second config is ignored (same key)
+const store1 = useStore({ datasourceId: 'Users', page: 'users', alias: 'list', limit: 20 });
+const store2 = useStore({ datasourceId: 'Users', page: 'users', alias: 'list', limit: 50 });
+
+// ✅ Correct - use different alias for different configs
+const listStore = useStore({ datasourceId: 'Users', page: 'users', alias: 'users-list', limit: 20 });
+const exportStore = useStore({ datasourceId: 'Users', page: 'users', alias: 'users-export', limit: 1000 });
+```
+
+### ❌ Don't forget to save after deleteRow for DB rows
+
+```typescript
+// ❌ Wrong - row is only marked for deletion, not persisted
+await store.deleteRow(rowId);
+
+// ✅ Correct - save to persist the deletion
+await store.deleteRow(rowId);
+if (store.isRowFromDB(rowId)) {
+  await store.save();
+}
+```
+
+### ❌ Don't add manual query deduplication guards
+
+The store handles query deduplication internally. If the same query is called again, it's automatically skipped.
+
+```typescript
+// ❌ Wrong - unnecessary guards
+useEffect(() => {
+  if (row?.projectId === projectId) return;  // Redundant
+  store.executeQuery({ query: { match: { projectId } } });
+}, [projectId, store, row?.projectId]);
+
+// ❌ Also wrong - useRef tracking is unnecessary
+const queriedIdRef = useRef<string | null>(null);
+useEffect(() => {
+  if (queriedIdRef.current === projectId) return;
+  queriedIdRef.current = projectId;
+  store.executeQuery({ query: { match: { projectId } } });
+}, [projectId, store]);
+
+// ✅ Correct - just call executeQuery
+useEffect(() => {
+  store.executeQuery({ query: { match: { projectId } } });
+}, [projectId, store]);
+```
+
+### ❌ Don't have multiple useEffects calling executeQuery
+
+Consolidate into a single effect to avoid duplicate queries on mount.
+
+```typescript
+// ❌ Wrong - both effects run on mount
+useEffect(() => {
+  if (customerId) store.setSmartSearchFilters([...]);
+  store.executeQuery();
+}, [customerId, store]);
+
+useEffect(() => {
+  store.executeQuery();  // Duplicate!
+}, [includeArchived, store]);
+
+// ✅ Correct - single effect
+useEffect(() => {
+  if (customerId) store.setSmartSearchFilters([...]);
+  store.executeQuery();
+}, [customerId, includeArchived, store]);
+```
+
+### ❌ Don't use deprecated `data` or `filter` properties
+
+```typescript
+// ❌ Deprecated
+store.executeQuery({ query: { data: { projectId } } });
+store.executeQuery({ query: { filter: [{ status: { is: 'active' } }] } });
+
+// ✅ Correct - use match and filters
+store.executeQuery({ query: { match: { projectId } } });
+store.executeQuery({ query: { filters: [{ status: { is: 'active' } }] } });
+```
+
+---
+
+## Performance Tips
+
+1. **Use `select` for ComboboxInput stores** - Only fetch needed fields
+2. **Use `filterLocally` for small, static datasets** - Avoid DB round-trips
+3. **Use appropriate `limit`** - Don't fetch more than needed
+4. **Share stores via same key** - Avoid duplicate fetches
+5. **Use `autoRefresh` sparingly** - Only for data that needs real-time updates

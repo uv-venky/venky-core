@@ -1,0 +1,107 @@
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import reactHooks from 'eslint-plugin-react-hooks';
+
+export default [
+  {
+    files: ['src/**/*.{ts,tsx}', 'e2e/**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsparser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        Headers: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        RequestInit: 'readonly',
+        Blob: 'readonly',
+        File: 'readonly',
+        FileReader: 'readonly',
+        Buffer: 'readonly',
+        crypto: 'readonly',
+        performance: 'readonly',
+        getComputedStyle: 'readonly',
+        navigator: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        requestAnimationFrame: 'readonly',
+        // React globals
+        React: 'readonly',
+        // DOM element types
+        HTMLElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        HTMLImageElement: 'readonly',
+        HTMLAnchorElement: 'readonly',
+        HTMLTableElement: 'readonly',
+        HTMLTableSectionElement: 'readonly',
+        HTMLTableRowElement: 'readonly',
+        HTMLTableHeaderCellElement: 'readonly',
+        HTMLTableDataCellElement: 'readonly',
+        HTMLHRElement: 'readonly',
+        HTMLHeadingElement: 'readonly',
+        HTMLParagraphElement: 'readonly',
+        HTMLUListElement: 'readonly',
+        HTMLOListElement: 'readonly',
+        HTMLLIElement: 'readonly',
+        HTMLQuoteElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        SVGSVGElement: 'readonly',
+        WheelEvent: 'readonly',
+        MouseEvent: 'readonly',
+        KeyboardEvent: 'readonly',
+        // Node.js globals
+        process: 'readonly',
+        global: 'readonly',
+        NodeJS: 'readonly',
+        AsyncLocalStorage: 'readonly',
+        TextDecoder: 'readonly',
+        ReadableStream: 'readonly',
+        TransformStream: 'readonly',
+        // Other globals
+        d3: 'readonly',
+        GeoJSON: 'readonly',
+        Element: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      // Only enable React hooks rules and disable most others to focus on hook validation
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      // Disable most other rules to focus on React hooks
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-wrapper-object-types': 'off',
+      '@typescript-eslint/no-unused-expressions': 'off',
+      'no-undef': 'off',
+      'no-debugger': 'off',
+      'no-control-regex': 'off',
+      'no-useless-escape': 'off',
+      'no-redeclare': 'off',
+    },
+  },
+];

@@ -1,0 +1,289 @@
+---
+description: Pattern for externalizing project-specific configuration from core to consuming projects
+globs: 
+alwaysApply: false
+---
+
+# Configuration Externalization Pattern
+
+When core contains hardcoded values that should vary between consuming projects (metro-one-cop, metro-one-tim, demo, etc.), use this pattern to externalize the configuration.
+
+## When to Use
+
+- AWS resource names (ECS clusters, services, S3 buckets)
+- GitHub repository names
+- Project-specific URLs or endpoints
+- Feature flags that differ by project
+- Any hardcoded values that are project-specific
+
+## Architecture Overview
+
+```mermaid
+flowchart TB
+    subgraph ConsumingProject [Consuming Project]
+        ProjectConfig[Project config definition]
+        ServerInit[initializeServer with config]
+        AppLayout[AppProvider with config props]
+    end
+    
+    subgraph Core [Core Package]
+        Types[Type definitions only]
+        ServerConfig[ServerConfig interface]
+        AppProvider[AppProviderProps interface]
+        ServerCode[Server code uses getServer]
+        ClientCode[Client code uses useAppContext]
+    end
+    
+    ProjectConfig --> ServerInit
+    ProjectConfig --> AppLayout
+    ServerInit --> ServerConfig
+    AppLayout --> AppProvider
+    ServerConfig --> ServerCode
+    AppProvider --> ClientCode
+```
+
+## Step 1: Define Types in Core
+
+Keep type definitions in core, remove hardcoded values:
+
+```typescript
+// src/lib/core/common/types/MyConfig.ts
+
+export interface MyConfigItem {
+  name: string;
+  endpoint: string;
+  label: string;
+}
+
+export type MyConfigMap = Record<string, MyConfigItem>;
+```
+
+Export from the common package:
+
+```typescript
+// src/venky-exports/core/common/index.ts
+export type { MyConfigItem, MyConfigMap } from '@/lib/core/common/types/MyConfig';
+```
+
+## Step 2: Add to ServerConfig (Server-Side)
+
+```typescript
+// src/lib/core/server/ServerConfig.ts
+
+import type { MyConfigMap } from '@/lib/core/common/types/MyConfig';
+
+export interface ServerConfig {
+  // ... existing fields
+  myConfig?: MyConfigMap;
+  myConfigOption?: string;
+}
+```
+
+## Step 3: Add to AppProvider (Client-Side)
+
+```typescript
+// src/components/sidebar/app-provider.tsx
+
+export interface AppContextValue {
+  // ... existing fields
+  myConfig?: MyConfigMap;
+  myConfigOption?: string;
+}
+
+export interface AppProviderProps extends Partial<AppContextValue> {
+  // ... existing fields
+}
+```
+
+## Step 4: Update Server Code to Use Config
+
+```typescript
+// Server action or API route
+
+import { getServer } from '@/lib/core/server/getServer';
+import { UserError } from 'venky-core/common';
+
+export async function myServerAction(/* ... */) {
+  const server = getServer('myServerAction');
+  const config = server.config.myConfig;
+  
+  // Throw error if config not provided by consuming project
+  if (!config) {
+    throw new UserError('myConfig not configured. Please configure in consuming project.');
+  }
+  
+  // Use config
+  const item = config['KEY'];
+  // ...
+}
+```
+
+## Step 5: Update Client Code to Use Context
+
+Create a dedicated hook for the config:
+
+```typescript
+// src/components/core/hooks/useMyConfig.ts
+
+import { useAppContext } from '@/components/sidebar/app-provider';
+
+export function useMyConfig() {
+  const { myConfig, myConfigOption } = useAppContext();
+  
+  if (!myConfig) {
+    throw new Error('myConfig not configured. Please pass myConfig prop to AppProvider.');
+  }
+  
+  return { myConfig, myConfigOption };
+}
+```
+
+Use in components:
+
+```typescript
+// Component using the config
+
+import { useMyConfig } from '@/components/core/hooks/useMyConfig';
+
+export function MyComponent() {
+  const { myConfig, myConfigOption } = useMyConfig();
+  
+  return (
+    <div>
+      {Object.entries(myConfig).map(([key, item]) => (
+        <a key={key} href={item.endpoint}>{item.label}</a>
+      ))}
+    </div>
+  );
+}
+```
+
+## Step 6: Consuming Project Setup
+
+### Define Configuration
+
+```typescript
+// In consuming project: lib/config/my-config.ts
+
+import type { MyConfigMap } from 'venky-core/common';
+
+export const MY_CONFIG_OPTION = 'option-value';
+
+export const myConfig: MyConfigMap = {
+  KEY1: {
+    name: 'key1-name',
+    endpoint: 'https://example.com/key1',
+    label: 'Key 1',
+  },
+  KEY2: {
+    name: 'key2-name',
+    endpoint: 'https://example.com/key2',
+    label: 'Key 2',
+  },
+};
+```
+
+### Pass to Server Initialization
+
+```typescript
+// In consuming project: lib/server/init/server-config.ts
+
+import type { ServerConfig } from 'venky-core/server';
+import { myConfig, MY_CONFIG_OPTION } from '@/lib/config/my-config';
+
+const serverConfig: ServerConfig = {
+  // ... other config
+  myConfig,
+  myConfigOption: MY_CONFIG_OPTION,
+};
+
+export default serverConfig;
+```
+
+### Pass to AppProvider
+
+```typescript
+// In consuming project: app/(secure)/layout.tsx
+
+import { AppProvider } from 'venky-core/ui';
+import { myConfig, MY_CONFIG_OPTION } from '@/lib/config/my-config';
+
+export default function SecureLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <AppProvider
+      myConfig={myConfig}
+      myConfigOption={MY_CONFIG_OPTION}
+    >
+      {children}
+    </AppProvider>
+  );
+}
+```
+
+## Error Handling
+
+Always throw clear errors when config is missing:
+
+```typescript
+// Server-side
+if (!config) {
+  throw new UserError('Feature X requires myConfig. Configure in your project\'s ServerConfig.');
+}
+
+// Client-side
+if (!myConfig) {
+  throw new Error('Feature X requires myConfig prop on AppProvider.');
+}
+```
+
+## Disabling Workflow
+
+Not all consuming projects need the workflow feature.
+
+1. **YAML** – Set `features: { workflow: false }` in `config/default.yml` (or `config/env.yml` for env-specific). The job registry reads this via `getConfig()` at load time and does not add the four workflow jobs to the default list, so they are not scheduled.
+
+2. **Sidebar teams** – Core does not gate teams by config. In your server-config, pass a `teams` array that excludes the workflow portal, e.g. `[adminPortal, chatPortal]` (import from `venky-core/server/sidebar`), so the Workflows team does not appear in the sidebar.
+
+3. **Layout** – Omit `workflowPlugins` or pass `workflowPlugins={[]}` to AppProvider. Apps that don’t use workflow don’t pass plugins.
+
+Workflow jobs will not run, the Workflows team will not appear (if you pass teams without it), and no workflow client plugins will register. DataSources and routes remain available; optional route/API guards can be added in the consuming project if desired.
+
+## Natural language SmartSearch
+
+NL/voice search on table filter bars is gated in three layers (deployment capability, optional app default, per-page override).
+
+1. **YAML (opt-out)** — NL/voice parse is enabled at deployment level unless `features.naturalLanguageSearch: false` in `config/default.yml` (or `config/env.yml`). Omitted or `true` allows parse. Server: `isNaturalLanguageSearchEnabled()` (`!== false`). Client: `naturalLanguageSearchEnabled` on `AppContext` (`naturalLanguageSearchEnabledProp ?? features.naturalLanguageSearch !== false`).
+
+2. **App default (optional)** — Pass `DEFAULT_ENABLE_NATURAL_LANGUAGE_SEARCH={true}` on `AppProvider` / `BaseAppProvider` to enable NL on all pages that do not pass an explicit prop. Defaults to `false` (`ENABLE_NATURAL_LANGUAGE_SEARCH_DEFAULT` in `@/lib/common/ui-constants`).
+
+3. **Per page (opt-in or override)** — On list pages using `PageLayoutTemplate`, pass `enableNaturalLanguageSearch` (and optionally `nlPlaceholder`). On direct `SmartSearch` usage, pass the same prop on `SmartSearch` or `TableFilters`. Omitted prop uses the app default; pass `false` to opt out when the app default is on.
+
+4. **Disable deployment-wide** — Set `features.naturalLanguageSearch: false`. The parse action rejects with a clear `UserError`; the mode toggle never appears regardless of app or page props.
+
+Optional: pass `naturalLanguageSearchEnabled={true|false}` on `AppProvider` to override the value from config (rare; for tests or special layouts).
+
+See `AGENTS.md` for natural-language SmartSearch configuration and verification.
+
+## Checklist
+
+- [ ] Types defined in `@/lib/core/common/types/`
+- [ ] Types exported from `venky-core/common`
+- [ ] `ServerConfig` interface updated
+- [ ] `AppContextValue` and `AppProviderProps` updated
+- [ ] Server code uses `getServer().config` with error handling
+- [ ] Client hook created with error handling
+- [ ] Client components use the hook
+- [ ] Documentation updated for consuming projects
+
+## Files to Modify
+
+| Location | File | Purpose |
+|----------|------|---------|
+| Core | `src/lib/core/common/types/MyConfig.ts` | Type definitions |
+| Core | `src/venky-exports/core/common/index.ts` | Export types |
+| Core | `src/lib/core/server/ServerConfig.ts` | Add to server config |
+| Core | `src/components/sidebar/app-provider.tsx` | Add to client context |
+| Core | `src/components/core/hooks/useMyConfig.ts` | Client access hook |
+| Consuming | `lib/config/my-config.ts` | Config values |
+| Consuming | `lib/server/init/server-config.ts` | Pass to server |
+| Consuming | `app/(secure)/layout.tsx` | Pass to AppProvider |

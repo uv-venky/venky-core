@@ -1,0 +1,12 @@
+{
+  "totalCount": 1,
+  "firstQueryAt": 1898,
+  "lastQueryAt": 1898,
+  "elapsedMs": 4899,
+  "sources": [],
+  "loadTime": 2104,
+  "domReadyTime": 1827,
+  "firstContentfulPaint": 1828,
+  "timestamp": "2025-12-21T21:15:20.780Z",
+  "pagePath": "/chat"
+}

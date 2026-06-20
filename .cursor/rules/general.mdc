@@ -1,0 +1,750 @@
+---
+description: VENKY project development guidelines
+globs: 
+alwaysApply: true
+---
+
+# VENKY Project Development Guidelines
+
+You are an expert senior software engineer specializing in modern web development, with deep expertise in TypeScript, React 19, Next.js 16 (App Router), Vercel AI SDK, Shadcn UI, Radix UI, Vitest, Playwright, and Tailwind CSS v4.
+
+## Project Stack
+
+- **Framework**: Next.js 16 with App Router
+- **Language**: TypeScript (strict mode)
+- **UI**: Shadcn UI, Radix UI primitives, Tailwind CSS v4
+- **State**: Custom `useStore` hook (valtio-based), React useState for local UI state
+- **Forms**: Custom field components from `venky-core/ui`
+- **Testing**: Vitest (unit), Playwright (e2e)
+- **Linting/Formatting**: Biome (not ESLint/Prettier)
+- **Package Manager**: pnpm (always use pnpm, never npm/yarn)
+- **Core Library**: `venky-core` for shared components and utilities
+
+## Code Style
+
+### General Principles
+
+- Write concise, readable TypeScript code
+- Use functional and declarative programming patterns
+- Follow DRY principle - don't repeat yourself
+- Use early returns for better readability
+- Use `@/` path alias for local imports from `src/` directory
+- **Within the core repo**: Always use direct `@/` imports; do not use `venky-core/ui`, `venky-core/server`, etc. for internal code (those are for consuming projects only).
+
+### Imports Within Core (This Repo)
+
+When editing code inside **venky-core**, always use direct path imports. Do not import from the package name:
+
+```typescript
+// ✅ Correct (inside core)
+import { Link } from '@/components/core/link';
+import { useRouter } from '@/components/core/hooks/useRouter';
+import { redirect } from '@/lib/core/server/redirect';
+import type { Session, User } from '@/auth';
+import type { DeployConfigMap } from '@/lib/core/common/types/DeployConfig';
+
+// ❌ Wrong (do not use package imports inside core)
+import { Link } from 'venky-core/ui';
+import { useRouter } from 'venky-core/data-ui';
+```
+
+This avoids depending on the built package barrel and keeps typecheck/build correct before publish. **Consuming projects** use `venky-core/ui`, `venky-core/server`, etc.
+
+### Package Imports (Consuming Projects)
+
+Import core utilities from the `venky-core` package. These imports are for **consuming projects** (not for use inside core’s own `src/`):
+
+```typescript
+// Client utilities
+import { useStore, useQuery, useRowValue, useRowAtId } from 'venky-core/client';
+
+// UI Components
+import { PageShell, PageLayoutTemplate, TableCell, HeaderCell } from 'venky-core/ui';
+import { Button, Badge, Input, Popup } from 'venky-core/ui';
+import { TextInput, SelectInput, DateInputField } from 'venky-core/ui';
+
+// Common utilities and types
+import { isEmpty, cn, UserError } from 'venky-core/common';
+import type { Store } from 'venky-core/common';
+
+// Server utilities (server components/actions only)
+import { withDBSessionRoute, logger } from 'venky-core/server';
+```
+
+### Local Imports (Project-Specific Code)
+
+Use `@/` path alias for project-specific imports:
+
+```typescript
+import { MyComponent } from '@/components/my-component';
+import type { MyType } from '@/lib/common/ds/types/module/MyType';
+```
+
+### TypeScript Types
+
+Use `interface` for object shapes that may be extended, `type` for unions and utility types:
+
+```typescript
+// Use interface for extendable object shapes
+interface User {
+  id: string;
+  name: string;
+}
+
+interface AdminUser extends User {
+  permissions: string[];
+}
+
+// Use type for unions, intersections, and utility types
+type Status = 'active' | 'inactive' | 'pending';
+type UserWithStatus = User & { status: Status };
+type PartialUser = Partial<User>;
+```
+
+### Avoid Enums - Use Const Maps
+
+```typescript
+// ❌ Don't use enums
+enum Status {
+  Active = 'active',
+  Inactive = 'inactive',
+}
+
+// ✅ Use const maps instead
+const STATUS = {
+  Active: 'active',
+  Inactive: 'inactive',
+} as const;
+
+type Status = (typeof STATUS)[keyof typeof STATUS]; // 'active' | 'inactive'
+
+// Usage
+function setStatus(status: Status) { ... }
+setStatus(STATUS.Active);
+```
+
+### Naming Conventions
+
+- Use descriptive names with auxiliary verbs (`isLoading`, `hasError`, `canSubmit`)
+- Prefix event handlers with "handle" (`handleClick`, `handleSubmit`, `handleKeyDown`)
+- Use lowercase with dashes for directories (`components/auth-wizard`)
+- Use PascalCase for components and types
+- Use camelCase for functions, variables, and hooks
+- For multiple action buttons sharing one handler, use typed state instead of boolean (e.g., `savingStatus: 'Draft' | 'Sent' | null` instead of `isSaving: boolean`) - see `venky-ui-patterns` skill
+
+### File Headers
+
+Add copyright header to new source files (automated via lint-staged):
+```typescript
+/* Copyright (c) 2024-present Venky Corp. */
+```
+
+### Exports
+
+- Always export newly created components, functions, utilities, or types
+- Use named exports (not default exports) for components
+- Update relevant `index.ts` barrel files when adding new exports
+
+### Component File Structure
+
+```
+src/app/(secure)/module/feature/
+├── page.tsx                    # Entry point
+├── page-content.tsx            # Main content
+├── hooks/
+│   ├── use-store.ts            # Store hook
+│   └── use-feature-logic.ts    # Feature-specific hooks
+├── components/
+│   ├── FeatureForm.tsx         # Feature components
+│   └── FeatureTable.tsx
+└── types.ts                    # Feature-specific types (if needed)
+```
+
+## React 19 & Next.js 16 Patterns
+
+### Component Architecture
+
+- Most components are client components (`'use client'`) due to heavy interactivity
+- Use Server Components for layout shells and static content to reduce bundle size
+- `PageShell` includes `ErrorBoundary` and `Suspense` internally - no need to wrap children manually
+
+### React 19 Features
+
+```typescript
+// use() hook for reading promises and context
+import { use } from 'react';
+
+function Component({ dataPromise }: { dataPromise: Promise<Data> }) {
+  const data = use(dataPromise); // Suspends until resolved
+  return <div>{data.name}</div>;
+}
+
+// Async params in pages (Next.js 16)
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  // or use React 19's use() hook in client components
+}
+```
+
+### State Management & Data Fetching
+
+**IMPORTANT: Always use `useStore` with DataSources instead of creating custom API routes (`route.ts`) when:**
+- A DataSource already exists for the data you need
+- You're doing basic CRUD operations (create, read, update, delete)
+- You need to display lists/tables of data
+- You need filtered or paginated data
+
+**Only create custom API routes when:**
+- You need complex aggregations or joins across multiple tables
+- You need to call external APIs or services
+- The operation involves complex business logic that doesn't fit the DataSource pattern
+- No suitable DataSource exists and creating one isn't practical
+
+> **📖 See `.cursor/rules/store-pattern.mdc` for comprehensive store documentation** including configuration patterns, hooks reference, CRUD operations, dialog patterns, and anti-patterns to avoid.
+
+### Framework-agnostic navigation (redirect, Link, params, router)
+
+Core provides pluggable navigation so the same code runs in Next.js and TanStack (or other) consumers:
+
+- **Server redirect**: `import { redirect } from '@/lib/core/server/redirect'` (in core) or `venky-core/server` (consumers). Set via `ServerConfig.redirectImplementation` in `initializeServer`; Next.js default uses `next/navigation` redirect.
+- **Link**: `import { Link } from '@/components/core/link'` (in core). Use `<Link href="..." prefetch={false}>`. Set via `setLinkComponent()` in InitNextJSCoreHooksSetup (Next) or the consumer’s hooks setup (e.g. TanStack).
+- **useRouter, usePathname, useSearchParams, useParams**: Import from `@/components/core/hooks/useRouter`, `usePathname`, `useSearchParams`, `useParams`. Next wires them in InitNextJSCoreHooksSetup; TanStack (or other) consumers call `setRouterImplementation`, `setPathnameImplementation`, `setSearchParamsImplementation`, `setParamsImplementation` in their own setup.
+
+Do not use `next/navigation` or `next/link` in core code except in the adapters: `InitNextJSCoreHooksSetup.ts` and `redirect-nextjs.ts`. Use the framework-agnostic hooks and Link so consumers can plug their router.
+
+**Quick Store Example:**
+
+```typescript
+import { useStore } from 'venky-core/client';
+import { useDBRows, useIsStoreLoading, useCurrentRowSync, useIsStorePosting, useIsStoreDirty } from 'venky-core/ui';
+
+// Create a custom store hook
+export function useEntityStore() {
+  return useStore<Entity>({
+    datasourceId: 'Entity',
+    page: 'entity-page',
+    alias: 'entity-list',
+    limit: 20,
+    autoQuery: true,
+    sort: { createdAt: -1 },
+  });
+}
+
+// Use in components
+const store = useEntityStore();
+const rows = useDBRows(store);
+const isLoading = useIsStoreLoading(store);
+
+// For forms - ALWAYS use useCurrentRowSync to avoid cursor jumping
+const row = useCurrentRowSync(store);
+```
+
+### Popup Component (Resizable/Movable Dialogs)
+
+For form dialogs that benefit from being resizable and movable, use the `Popup` component from `venky-core/ui` instead of the basic Dialog component.
+
+**When to use Popup:**
+- Add/Edit forms with multiple fields
+- Dialogs where users may need to see content behind the dialog
+- Forms that benefit from being resized based on content
+
+**Popup Props:**
+- `title` (required) - Dialog title
+- `description` - Optional subtitle
+- `onClose` - Called when dialog should close
+- `footer` - Footer content (typically action buttons)
+- `width`, `height` - Initial dimensions in pixels
+- `minWidth`, `minHeight` - Minimum resize constraints
+- `resizable` - Enable resize handle (default: true)
+
+**Sizing Guidelines:**
+- Size popups to fit content without scrolling when possible
+- Account for conditional fields (e.g., rate fields only shown for T&M billing)
+- Typical sizes:
+  - Small forms (3-4 fields): ~520x430
+  - Medium forms (5-6 fields): ~520x530
+  - Large forms (7+ fields or conditional sections): ~560x580+
+  - Complex settings dialogs: ~720x850
+
+> **📖 See `.cursor/rules/store-pattern.mdc` for complete dialog pattern with store integration.**
+
+**Use `useState` for:**
+- Local UI state (dialogs, toggles, form inputs)
+- State that doesn't need to be shared across components
+
+```typescript
+const [isOpen, setIsOpen] = useState(false);
+const [selectedId, setSelectedId] = useState<string | null>(null);
+```
+
+**Use valtio `proxy()` for shared UI state:**
+- When multiple components need access to the same UI state
+- For complex UI state that benefits from direct mutation
+
+```typescript
+import { proxy, useSnapshot } from 'valtio';
+
+// Shared UI state
+const uiState = proxy({
+  selectedNodeId: null as string | null,
+  isDrawerOpen: false,
+});
+
+// Usage in components
+function Component() {
+  const snap = useSnapshot(uiState);
+  return (
+    <button onClick={() => { uiState.isDrawerOpen = true; }}>
+      {snap.isDrawerOpen ? 'Close' : 'Open'}
+    </button>
+  );
+}
+```
+
+### Input Fields
+
+Use the custom field components from `venky-core/ui`:
+- `TextInput` for text input
+- `NumberInput` for number input
+- `DateInputField` for date input (has label built-in)
+- `SelectInput` for select input
+- `CheckboxInput` for checkbox input
+- `SwitchInput` for switch input
+- `TextareaInput` for textarea input
+- `ComboboxInput` / `AsyncComboboxInput` for searchable dropdowns
+
+**Store-backed binding:** Prefer `store={store}` and `attributeCode="fieldName"` for simple field binding; value, dirty state, and errors are derived from the store. Use controlled `value`/`onChange` when you need custom logic (e.g. syncing two fields). For normalizing on blur (trim, lowercase), use the optional **transformValue** prop on store-backed TextInput, NumberInput, or DatePicker (e.g. `transformValue={(v) => v?.trim().toLowerCase() ?? undefined}`).
+
+### Async APIs (Next.js 16)
+
+```typescript
+// Always use async versions of runtime APIs
+const cookieStore = await cookies();
+const headersList = await headers();
+const { isEnabled } = await draftMode();
+
+// Handle async params in layouts/pages
+const params = await props.params;
+const searchParams = await props.searchParams;
+```
+
+## Data Fetching Strategy
+
+### Decision Tree for Data Fetching
+
+1. **Use `useStore` with DataSources** for:
+   - Basic CRUD operations (create, read, update, delete)
+   - Lists/tables with filtering, sorting, pagination
+   - Single-entity operations where a DataSource exists
+
+2. **Use Server Actions (`action.ts`) + `useQuery`** for:
+   - Complex aggregations or joins across multiple tables
+   - Dashboard statistics and reports
+   - Complex business logic with multiple queries
+   - Operations that don't map to a single DataSource
+
+3. **Use API Routes (`route.ts`)** only for:
+   - Webhooks from external services
+   - Public endpoints (no auth required)
+   - External API integrations that need specific HTTP methods
+   - File uploads/downloads with streaming
+
+### Server Actions Pattern (Preferred for Complex Queries)
+
+Create an `action.ts` file alongside your page for complex data fetching:
+
+```typescript
+// src/app/(secure)/module/feature/action.ts
+import type { PgPoolClient } from 'venky-core/server';
+import type { Session } from 'venky-core/auth';
+
+export interface FeatureDashboardStats {
+  // Define your return type
+  summary: { total: number; active: number };
+  items: Array<{ id: string; name: string }>;
+}
+
+export async function getFeatureDashboardStats(
+  client: PgPoolClient,
+  session: Session,
+  filterParam?: string, // Optional parameters after session
+): Promise<FeatureDashboardStats> {
+  // Complex queries with joins, aggregations, etc.
+  const result = await client.query(`
+    SELECT ... FROM table1
+    JOIN table2 ON ...
+    WHERE user_name = $1
+    GROUP BY ...
+  `, [session.user.userName]);
+
+  return {
+    summary: { ... },
+    items: result.rows,
+  };
+}
+```
+
+Register the action in `src/lib/server/actions/work.ts` (or appropriate module):
+
+```typescript
+import { getFeatureDashboardStats } from '@/app/(secure)/module/feature/action';
+
+export const WORK_ACTIONS = {
+  // ... other actions
+  getFeatureDashboardStats,
+};
+
+export const WORK_ACTION_ACCESS_ROLES: Record<WorkActionName, string[]> = {
+  // ... other roles
+  getFeatureDashboardStats: ['all_users'], // Any authenticated user
+};
+```
+
+Use in your component with `useQuery`:
+
+```typescript
+// src/app/(secure)/module/feature/page-content.tsx
+import { useQuery } from '@/lib/core/client/useQuery';
+import type { FeatureDashboardStats } from './action';
+
+export default function PageContent() {
+  const result = useQuery('getFeatureDashboardStats', optionalFilterParam);
+
+  if (result.status === 'loading') return <LoadingSpinner />;
+  if (result.status === 'error') return <ErrorDisplay error={result.error} />;
+
+  const data: FeatureDashboardStats = result.data;
+  // Render your dashboard
+}
+```
+
+### API Routes (Only When Necessary)
+
+Only create `route.ts` files for webhooks, public endpoints, or external integrations:
+
+```typescript
+// src/app/api/webhooks/stripe/route.ts
+import { withDBSessionRoute } from 'venky-core/server';
+import type { Session } from 'venky-core/auth';
+import type { PgPoolClient } from 'venky-core/server';
+
+export const POST = withDBSessionRoute(async function callback(
+  client: PgPoolClient,
+  session: Session,
+  req: Request,
+) {
+  const body = await req.json();
+  // Handle webhook
+  return Response.json({ status: 'OK' });
+});
+
+export const runtime = 'nodejs';
+```
+
+### Benefits of Server Actions over API Routes
+
+- **Type safety**: Full TypeScript inference from action to component
+- **Simpler code**: No manual fetch calls, error handling built into `useQuery`
+- **Automatic caching**: `useQuery` provides caching and deduplication
+- **Colocation**: Action logic lives next to the page that uses it
+- **Role-based access**: Centralized access control in action registry
+
+## Styling Guidelines
+
+- Always use Tailwind CSS classes for styling
+- Use `cn()` utility from `@/lib/utils` for conditional class names
+- Tailwind classes are automatically sorted by Biome
+- Never use inline styles or CSS files for component styling
+
+### Scrollable Regions
+
+Any scrollable region (`overflow-auto`, `overflow-y-auto`, `overflow-x-auto`) should include these scrollbar styling classes for a consistent, minimal appearance:
+
+```
+scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40
+```
+
+These classes use the `tailwind-scrollbar` plugin and provide:
+- Thin scrollbar width
+- Transparent track background
+- Subtle thumb with hover state
+
+### Form Layouts
+
+When placing form fields side by side in a grid, always use `items-start` to ensure proper vertical alignment, especially when fields have different heights (e.g., one has `helpText` and another doesn't):
+
+```tsx
+// ✅ Correct - fields align at top
+<div className="grid grid-cols-2 items-start gap-4">
+  <TextInput label="Field 1" helpText="Has help text" />
+  <ComboboxInput label="Field 2" />
+</div>
+
+// ❌ Incorrect - fields may misalign vertically
+<div className="grid grid-cols-2 gap-4">
+  <TextInput label="Field 1" helpText="Has help text" />
+  <ComboboxInput label="Field 2" />
+</div>
+```
+
+## Development Tools
+
+### Browser Tool (MCP)
+
+Use the `cursor-ide-browser` MCP tool for visual verification and UI testing:
+
+- **browser_tabs** - List open browser tabs
+- **browser_lock/unlock** - Lock browser for automation (always unlock when done)
+- **browser_navigate** - Navigate to a URL
+- **browser_snapshot** - Get page structure and element refs
+- **browser_take_screenshot** - Capture visual state
+- **browser_click** - Click elements by ref
+- **browser_fill** - Fill form inputs
+
+**Workflow:**
+1. `browser_tabs` - Check if browser is already open
+2. `browser_lock` - Lock before interactions
+3. `browser_snapshot` - Get element refs
+4. Interact (click, fill, etc.)
+5. `browser_take_screenshot` - Verify visual result
+6. `browser_unlock` - Always unlock when done
+
+Use this tool to:
+- Verify popup/dialog sizing and layout
+- Check that all form fields are visible without scrolling
+- Test UI interactions before committing
+
+### Postgres Tool (MCP)
+
+Use the `user-postgres` MCP tool for database queries and debugging:
+
+- **query** - Run SELECT queries
+- **execute** - Run INSERT/UPDATE/DELETE
+- **list_tables** - List all tables
+- **describe_table** - Get table schema
+
+**When to use:**
+- Debugging data issues
+- Verifying migrations worked correctly
+- Quick data exploration
+- Testing queries before adding to actions
+
+**Note:** Always use read-only queries when exploring. Use caution with execute for data modifications.
+
+## Quality Assurance
+
+### Before Committing
+
+Run these commands and fix any issues:
+```bash
+pnpm typecheck    # TypeScript type checking
+pnpm lint:all     # Biome linting
+pnpm format       # Biome formatting
+pnpm test --run   # Run tests once (use --run to prevent watch mode)
+```
+
+### Testing
+
+- Use `pnpm test` for watch mode during development
+- Use `pnpm test --run` for CI or one-time runs
+
+## Common Utilities
+
+From `venky-core/common`:
+- `isEmpty()` / `isEmptyObject()` - Check for empty values
+- `deepEqual()` - Deep comparison
+- `UserError` - User-facing errors
+
+From `@/lib/utils` (project-specific):
+- `cn()` - Class name merging (Tailwind)
+
+From `venky-core/server`:
+- `logger` - Server-side logging
+- `withDBSessionRoute` - Database route wrapper
+
+## Defensive Coding
+
+Always add fallbacks for potentially null/undefined values, especially in display components:
+
+```typescript
+// ✅ Safe - provides fallback for display
+const displayName = user.name || user.email || 'Unknown';
+
+// ✅ Safe - null coalescing for optional fields
+const allocation = row.allocationPercent ?? 100;
+
+// ❌ Unsafe - will crash if name is undefined
+const initials = name.trim().slice(0, 2); // TypeError if name is undefined
+```
+
+## DataSource Development
+
+### DataSource Hot-Reloading (Dev Mode)
+
+In development mode, DataSource changes are automatically hot-reloaded without restarting the server. When you modify a DataSource definition file:
+
+1. Save the file
+2. Make any request (refresh the page)
+3. The new DataSource definition is automatically loaded
+
+**How it works:**
+- `src/lib/server/init/init.ts` clears the require cache for DS files in dev mode
+- Core's `addDataSources({ reload: true })` clears and reloads all DataSources
+- No server restart needed for DS schema changes
+
+**When to restart the server:**
+- After modifying `init.ts` itself
+- After changing core package code (rebuild core first)
+- If hot-reload isn't picking up changes (rare)
+
+### Adding Joined/Calculated Fields to DataSources
+
+#### New Format (Recommended): Centralized Joins Array
+
+Define joins in a centralized `joins` array for better clarity and maintainability:
+
+```typescript
+joins: [
+  {
+    alias: 'pm',
+    tableName: 'uv_users',
+    joinType: 'LEFT',
+    on: 'pm.user_name = x.project_manager',
+  },
+],
+attributes: [
+  {
+    ...DefaultAttribute,
+    code: 'projectManager',
+    name: 'Project Manager',
+    type: 'Reference',
+    column: 'project_manager',
+    maxLength: 120,
+    ref: { type: 'Text' },
+    joinAlias: 'pm',  // Reference to join definition
+  },
+  {
+    ...DefaultAttribute,
+    code: 'projectManagerName',
+    name: 'Project Manager Name',
+    type: 'Text',
+    column: 'pm.display_name',
+    maxLength: 240,
+    optional: true,
+    joinAlias: 'pm',
+    calculated: true,  // MUST be calculated (from joined table)
+  },
+],
+```
+
+**For nested joins:** Use explicit `dependsOn` field in the join definition:
+
+```typescript
+joins: [
+  {
+    alias: 'cust',
+    tableName: 'customers',
+    joinType: 'INNER',
+    on: 'cust.customer_id = x.customer_id',
+  },
+  {
+    alias: 'custType',
+    tableName: 'customer_types',
+    joinType: 'LEFT',
+    on: 'custType.id = cust.type_id',
+    dependsOn: 'cust',  // Explicit dependency
+  },
+],
+```
+
+#### Old Format (Backward Compatible)
+
+The old attribute-based format is still supported for simple joins:
+
+```typescript
+{
+  ...DefaultAttribute,
+  code: 'projectManager',
+  name: 'Project Manager',
+  type: 'Reference',
+  column: 'project_manager',
+  maxLength: 120,
+  ref: { type: 'Text' },
+  refAlias: 'pm',
+  refTableName: 'uv_users',
+  refWhereClause: 'pm.user_name = x.project_manager',
+  refEquiJoin: false,
+},
+```
+
+**Note:** Old format only supports simple joins to main table. For nested joins, use the new `joins` array format.
+
+**Important:** After adding DS fields, also update the TypeScript type in `src/lib/common/ds/types/`.
+
+### Date Handling - Timezone Issues
+
+When displaying dates from the database, use UTC methods to avoid timezone conversion issues:
+
+```typescript
+// ❌ Wrong - local timezone shifts the date
+const formatDate = (date: string) => format(new Date(date), 'MMM yyyy');
+// "2024-01-01T00:00:00Z" becomes "Dec 2023" in PST timezone
+
+// ✅ Correct - use UTC methods
+const formatDate = (date: string) => {
+  const d = new Date(date);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+};
+// "2024-01-01T00:00:00Z" correctly shows "Jan 2024"
+```
+
+**When to use UTC:**
+- Displaying date-only values (no time component)
+- Comparing dates across timezones
+- Formatting dates for display where day matters
+
+## Common Gotchas
+
+### Click-Outside with Radix UI Portals
+
+When building components with click-outside-to-close behavior that contain Radix UI components (ComboboxInput, SelectInput, Popover), dropdowns render in portals outside your container. Always check for Radix portal elements before canceling:
+
+```typescript
+function handleClickOutside(e: MouseEvent) {
+  if (containerRef.current?.contains(e.target as Node)) return;
+  // Check for Radix portals - dropdowns render outside the container
+  const target = e.target as HTMLElement;
+  if (target.closest('[data-radix-popper-content-wrapper]') || target.closest('[role="listbox"]')) {
+    return;
+  }
+  handleCancel();
+}
+```
+
+## Don'ts
+
+- Don't use `console.log` - use `logger` on server, or allowed console methods (`console.info`, `console.warn`, `console.error`)
+- Don't use `npm` or `yarn` - always use `pnpm`
+- Don't create `.css` files - use Tailwind classes
+- Don't use default exports for components
+- Don't leave TODO comments or placeholders in code
+- Don't use `any` unless absolutely necessary
+- Don't use TypeScript enums - use const maps instead
+
+---
+
+## Future Work: Skills Creation
+
+Once this project is complete, consolidate the patterns documented in these rules into reusable Cursor skills for future projects:
+
+- **venky-nextjs-patterns** - Page structure, server actions, API routes, data fetching
+- **venky-ui-patterns** - Form layouts, scrollbar styling, component architecture, input fields
+- **venky-data-patterns** - useStore, useQuery, DataSource usage, caching strategies
+- **venky-testing-patterns** - Vitest unit tests, Playwright e2e tests
+
+**Source material:**
+- `.cursorrules` - Core coding standards
+- `.cursor/rules/` - Detailed pattern documentation
+
+When ready, prompt: "Let's create the skills from the documented patterns"

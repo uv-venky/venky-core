@@ -1,0 +1,48 @@
+/* Copyright (c) 2024-present Venky Corp. */
+import { makeServerOnlyExport } from './runtime';
+const stub = (name: string) => makeServerOnlyExport(name);
+
+export const logger = stub('logger');
+export const coreActions = stub('coreActions');
+export const newClient = stub('newClient');
+export const createErrorResponse = stub('createErrorResponse');
+export const sqlDescribeRoute = stub('sqlDescribeRoute');
+export const sqlRunRoute = stub('sqlRunRoute');
+export const sqlHistoryIdRoute = stub('sqlHistoryIdRoute');
+export const dsJsonSchemaRoute = stub('dsJsonSchemaRoute');
+export const sqlSchemasRoute = stub('sqlSchemasRoute');
+export const voteApiRoute = stub('voteApiRoute');
+export const logRoute = stub('logRoute');
+export const dsRoute = stub('dsRoute');
+export const sqlHistoryRoute = stub('sqlHistoryRoute');
+export const healthRoute = stub('healthRoute');
+export const chatApiRoute = stub('chatApiRoute');
+export const deploymentsRoute = stub('deploymentsRoute');
+export const exportDsRoute = stub('exportDsRoute');
+export const statusRoute = stub('statusRoute');
+export const workflowExecutionsRoute = stub('workflowExecutionsRoute');
+export const appsStatusRoute = stub('appsStatusRoute');
+export const workflowDuplicateRoute = stub('workflowDuplicateRoute');
+export const suggestionsApiRoute = stub('suggestionsApiRoute');
+export const attributesRoute = stub('attributesRoute');
+export const workflowExecutionStatusRoute = stub('workflowExecutionStatusRoute');
+export const workflowExecuteRoute = stub('workflowExecuteRoute');
+export const shortenUrlRoute = stub('shortenUrlRoute');
+export const documentApiRoute = stub('documentApiRoute');
+export const activityRoute = stub('activityRoute');
+export const mobileAuthRefreshTokenRoute = stub('mobileAuthRefreshTokenRoute');
+export const mobileAuthForcePasswordChangeRoute = stub('mobileAuthForcePasswordChangeRoute');
+export const mobileAuthPasswordResetRequestRoute = stub('mobileAuthPasswordResetRequestRoute');
+export const mobileAuthPasswordResetValidateRoute = stub('mobileAuthPasswordResetValidateRoute');
+export const mobileAuthPasswordResetChangeRoute = stub('mobileAuthPasswordResetChangeRoute');
+export const dsListRoute = stub('dsListRoute');
+export const mobileAuthSignInRoute = stub('mobileAuthSignInRoute');
+export const mobileAuthSignInWithTokenRoute = stub('mobileAuthSignInWithTokenRoute');
+export const historyApiRoute = stub('historyApiRoute');
+export const sseStreamRoute = stub('sseStreamRoute');
+export const queryDatabase = stub('queryDatabase');
+export const getPgTypeName = stub('getPgTypeName');
+export const getAttributeType = stub('getAttributeType');
+export const isNaturalLanguageSearchEnabled = stub('isNaturalLanguageSearchEnabled');
+
+export default stub('server-default');

@@ -1,0 +1,31 @@
+const baseIndex = 100; // to prevent some component on bingmap to show up on top... as they have zIndex of 100
+const Sidebar = baseIndex + 9000;
+
+export const zIndex = {
+  ComboBox: 1001,
+  Menu: 1001,
+  Modal: 1000,
+  OnLineIndicator: 100,
+  Popover: 1001,
+  Popup: 1000,
+  SlideOverPanel: 999,
+  ComponentTip: Sidebar - 2,
+  AnalyzeDialog: Sidebar - 1,
+  DeveloperToolbar: baseIndex + 998,
+  WorkflowToolbar: baseIndex + 998,
+  DnDTip: baseIndex + 9010,
+  Header: baseIndex + 10,
+  Tooltip: baseIndex + 9999,
+  Notification: baseIndex + 9999,
+  ResizeHandler: baseIndex + 20,
+  Sidebar,
+  AutoCompletePopper: baseIndex + 9010,
+  Model: baseIndex + 9010,
+  WFEdgeLabel: baseIndex + 10,
+  WFActiveEdgeSvg: baseIndex + 12,
+  WFActiveNode: baseIndex + 11,
+  WFNode: baseIndex + 1,
+  FAB: baseIndex + 10,
+  FloatingPanel: baseIndex + 5,
+  GridHeader: baseIndex + 4,
+};

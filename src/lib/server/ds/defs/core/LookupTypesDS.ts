@@ -1,0 +1,119 @@
+/* Copyright (c) 2024-present Venky Corp. */
+
+import type { DataSource } from '@/lib/core/common/ds/types/DataSource';
+import {
+  DefaultAttribute,
+  DefaultDataSource,
+  DefaultFullAccess,
+  DefaultReadOnlyAccess,
+} from '@/lib/server/ds/defs/defaults';
+import type { LookupTypes } from '@/lib/common/ds/types/core/LookupTypes';
+import { getPrefix } from '@/lib/server/constants';
+const PREFIX = getPrefix();
+
+export const LookupTypesDS: DataSource<LookupTypes> = {
+  ...DefaultDataSource,
+  id: 'LookupTypes',
+  tableName: `${PREFIX}lookup_types`,
+  attributes: [
+    {
+      ...DefaultAttribute,
+      code: 'id',
+      name: 'Id',
+      type: 'UUID',
+      column: 'id',
+      primary: true,
+      optional: false,
+      defaultValue: 'UUID',
+    },
+    {
+      ...DefaultAttribute,
+      code: 'appId',
+      name: 'App Id',
+      type: 'Text',
+      column: 'app_id',
+      maxLength: 128,
+      optional: false,
+      defaultValue: 'APP_ID',
+    },
+    {
+      ...DefaultAttribute,
+      code: 'code',
+      name: 'Code',
+      type: 'Text',
+      column: 'code',
+      maxLength: 128,
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'name',
+      name: 'Name',
+      type: 'Text',
+      column: 'name',
+      maxLength: 256,
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'description',
+      name: 'Description',
+      type: 'Text',
+      column: 'description',
+      optional: true,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'valueType',
+      name: 'Value Type',
+      type: 'Text',
+      column: 'value_type',
+      maxLength: 20,
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'createdAt',
+      name: 'Created At',
+      type: 'Date',
+      column: 'created_at',
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'createdBy',
+      name: 'Created By',
+      type: 'Text',
+      column: 'created_by',
+      maxLength: 128,
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'updatedAt',
+      name: 'Updated At',
+      type: 'Date',
+      column: 'updated_at',
+      optional: false,
+    },
+    {
+      ...DefaultAttribute,
+      code: 'updatedBy',
+      name: 'Updated By',
+      type: 'Text',
+      column: 'updated_by',
+      maxLength: 128,
+      optional: false,
+    },
+  ],
+  access: [
+    {
+      ...DefaultFullAccess,
+      roleCode: 'admin',
+    },
+    {
+      ...DefaultReadOnlyAccess,
+      roleCode: 'all_users',
+    },
+  ],
+};

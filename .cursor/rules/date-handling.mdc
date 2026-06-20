@@ -1,0 +1,113 @@
+---
+description: Date Handling and Timezone Safety
+globs: "**/*.ts, **/*.tsx"
+alwaysApply: false
+---
+
+# Date Handling Guidelines
+
+## The Timezone Problem
+
+When JavaScript parses a date string in `YYYY-MM-DD` format (ISO date without time), it interprets it as **UTC midnight**. When this is then displayed using `toLocaleString()` or `toLocaleDateString()`, it converts to local timezone, which can shift the date **backwards** in western timezones.
+
+```typescript
+// ❌ WRONG - This causes timezone issues
+const date = new Date('2025-05-11'); // Interpreted as UTC midnight
+date.toLocaleDateString('en-US'); // May show "May 10, 2025" in US timezones!
+
+// ❌ WRONG - Same issue
+new Date(isoDateString).toLocaleString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+```
+
+## The Solution
+
+### Option 1: Parse as Local Date (Recommended for display)
+
+Parse the date components manually to create a date in local timezone. Handle both string and Date inputs since database queries may return Date objects:
+
+```typescript
+// ✅ CORRECT - Parse as local date (handles both strings and Date objects)
+function parseDateLocal(dateValue: string | Date): Date {
+  // If already a Date object, extract components to create local date
+  if (dateValue instanceof Date) {
+    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
+  }
+  // Parse string format YYYY-MM-DD
+  const [year, month, day] = dateValue.split('-').map(Number);
+  return new Date(year, month - 1, day); // month is 0-indexed
+}
+
+const date = parseDateLocal('2025-05-11');
+date.toLocaleDateString('en-US'); // Correctly shows "May 11, 2025"
+```
+
+**Note:** Database queries may return Date objects instead of strings. Always handle both types.
+
+### Option 2: Use UTC timezone in formatting
+
+If you want to keep the date in UTC, specify `timeZone: 'UTC'` in the formatting options:
+
+```typescript
+// ✅ CORRECT - Format as UTC
+const date = new Date('2025-05-11');
+date.toLocaleDateString('en-US', { timeZone: 'UTC' }); // Correctly shows "May 11, 2025"
+```
+
+### Option 3: Append time to force local parsing
+
+```typescript
+// ✅ CORRECT - Append time to parse as local
+const date = new Date('2025-05-11T00:00:00');
+date.toLocaleDateString('en-US'); // Correctly shows "May 11, 2025"
+```
+
+## Best Practices
+
+1. **Never use `new Date(isoDateString)` directly** when the string is just a date (YYYY-MM-DD)
+2. **Always use a helper function** like `parseDateLocal()` for consistent date parsing
+3. **Store dates as ISO strings** (YYYY-MM-DD) in the database and API
+4. **Parse to local timezone only at display time**
+5. **Be explicit about timezone** - when in doubt, use `timeZone: 'UTC'` in formatting options
+
+## Common Patterns
+
+### Use `formatDateDisplay` for UI
+
+Always use `formatDateDisplay` from `@/lib/utils` for user-facing date displays:
+
+```typescript
+import { formatDateDisplay } from '@/lib/utils';
+
+// Default format: "Jan 25, 2025"
+formatDateDisplay(dateValue);
+
+// Custom format - month/year only: "Jan 2025"
+formatDateDisplay(dateValue, { month: 'short', year: 'numeric' });
+
+// Long format: "January 25, 2025"
+formatDateDisplay(dateValue, { month: 'long', day: 'numeric', year: 'numeric' });
+
+// In warning messages
+const periodStr = `${formatDateDisplay(periodFrom)} to ${formatDateDisplay(periodTo)}`;
+warnings.push(`${project.projectName}: No billable hours found (${periodStr})`);
+
+// In helpText
+helpText={`Defaults to project end (${project.endDate ? formatDateDisplay(project.endDate) : 'ongoing'})`}
+```
+
+### Other Patterns
+
+```typescript
+// Comparing dates (string comparison works for ISO dates)
+const isAfter = dateStr1 > dateStr2; // Safe for YYYY-MM-DD strings
+
+// Getting today's date as ISO string
+const today = new Date().toISOString().split('T')[0];
+```
+
+## Red Flags to Watch For
+
+- `new Date('YYYY-MM-DD')` without time component
+- `new Date(row.startDate)` where startDate is an ISO date string
+- Date formatting that doesn't use `parseDateLocal()` or `timeZone: 'UTC'`
+- Tests passing in one timezone but failing in another

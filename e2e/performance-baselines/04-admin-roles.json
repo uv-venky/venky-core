@@ -1,0 +1,20 @@
+{
+  "totalCount": 7,
+  "firstQueryAt": 2144,
+  "lastQueryAt": 5274,
+  "elapsedMs": 10889,
+  "sources": [
+    "attr:Roles",
+    "attr:SavedSearch",
+    "store:roles-pageroles",
+    "attr:SavedSearch",
+    "store:roles-all",
+    "attr:Roles",
+    "store:roles-all:count"
+  ],
+  "loadTime": 2157,
+  "domReadyTime": 1004,
+  "firstContentfulPaint": 988,
+  "timestamp": "2026-01-15T21:44:33.235Z",
+  "pagePath": "/admin/config/roles"
+}

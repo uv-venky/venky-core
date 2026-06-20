@@ -1,0 +1,25 @@
+{
+  "totalCount": 12,
+  "firstQueryAt": 281,
+  "lastQueryAt": 7312,
+  "elapsedMs": 10914,
+  "sources": [
+    "attr:Workflows",
+    "attr:SavedSearch",
+    "store:workflows-pageworkflows",
+    "attr:SavedSearch",
+    "store:workflows-list-all",
+    "attr:Workflows",
+    "store:workflows-list-all:count",
+    "attr:UserAvatar",
+    "store:user-avatar-all",
+    "attr:UserAvatar",
+    "store:user-avatar-all",
+    "attr:UserAvatar"
+  ],
+  "loadTime": 2609,
+  "domReadyTime": 1052,
+  "firstContentfulPaint": 888,
+  "timestamp": "2026-01-15T21:45:09.627Z",
+  "pagePath": "/workflows/list"
+}

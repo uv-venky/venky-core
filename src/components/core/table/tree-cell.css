@@ -1,0 +1,72 @@
+.tree-cell:before {
+	content: "";
+	position: absolute;
+	z-index: 1;
+	inset-inline-start: 0;
+	width: 100%;
+	top: 100%;
+	height: 1px;
+	background-color: var(--color-background);
+}
+.tree-cell-indent-wrapper,
+.tree-expander {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+}
+.tree-cell-indent {
+	width: 24px;
+	height: 100%;
+	display: flex;
+	position: relative;
+}
+.tree-leaf {
+	width: 24px;
+	height: 100%;
+	display: flex;
+	position: relative;
+}
+.tree-leaf:before {
+	content: "";
+	position: absolute;
+	inset-inline-start: 0;
+	left: 0;
+	top: 50%;
+	border-top: 1px solid var(--color-border);
+	width: 80%;
+}
+.tree-cell-indent:before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 0;
+	border-left: 1px solid var(--color-border);
+	height: 100%;
+}
+.tree-cell-indent.tree-cell-indent-end:before {
+	display: none;
+}
+.tree-cell-indent.tree-cell-indent-edge.tree-cell-indent-end:before {
+	display: flex;
+}
+.tree-cell-indent-edge:after {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	right: 0;
+	border-top: 1px solid var(--color-border);
+}
+.tree-cell-indent.tree-cell-indent-end:before {
+	height: 50%;
+}
+.tree-expander-open:before {
+	content: "";
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	border-left: 1px solid var(--color-border);
+	height: 100%;
+}
