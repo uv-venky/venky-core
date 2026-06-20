@@ -114,4 +114,6 @@ export { ThemeToggle } from '@/components/theme-toggle';
 export { ShareUrlButton } from '@/components/share-url-button';
 export { CommentsButton } from '@/components/comments-button';
 export { default as LOVCombobox } from '@/components/core/lov-combobox';
+export { RolesPage } from '@/app/(secure)/admin/config/roles/RolesPage';
+export { UsersPage } from '@/app/(secure)/admin/config/users/UsersPage';
 export type { LOVComboboxProps } from '@/components/core/lov-combobox';

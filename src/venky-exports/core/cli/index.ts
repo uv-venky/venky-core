@@ -9,3 +9,4 @@
 
 // Migration utilities
 export { runMigrations } from '@/lib/core/server/run-migrations';
+export { ensureMigrationsTable } from '@/lib/core/server/ensure-migrations-table';

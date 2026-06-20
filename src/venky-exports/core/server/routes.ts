@@ -55,6 +55,9 @@ export const attributesRoute = lazyRoute(() => import('@/app/api/attributes/rout
 // Health route
 export const healthRoute = lazyRoute(() => import('@/app/api/health/route'), 'healthRoute');
 
+// Ping route
+export const pingRoute = lazyRoute(() => import('@/app/api/ping/route'), 'pingRoute');
+
 // Log route
 export const logRoute = lazyRoute(() => import('@/app/api/log/route'), 'logRoute');
 
