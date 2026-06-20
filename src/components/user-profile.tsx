@@ -25,8 +25,6 @@ import { useState } from 'react';
 import { useSnapshot } from 'valtio';
 import { devtoolsStore, openDevtools } from '@/lib/core/client/devtools';
 import { useMutation } from '@/lib/core/client/useQuery';
-import { FeedbackWidgetMenuItem, FeedbackWidgetMenuItemPanel } from '@/lib/feedback/client/FeedbackWidget';
-
 export function UserProfileDropdown({
   hideThemeToggle = false,
   trigger,
@@ -48,7 +46,6 @@ export function UserProfileDropdown({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <FeedbackWidgetMenuItemPanel />
       <DropdownMenuContent
         className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg border-sidebar-border bg-sidebar text-sidebar-foreground"
         side={isMobile ? 'bottom' : 'right'}
@@ -146,7 +143,6 @@ export function UserProfileDropdown({
           <Info />
           About
         </DropdownMenuItem>
-        <FeedbackWidgetMenuItem />
         <DropdownMenuItem
           onClick={async () => {
             const redirectTo = await signOutMutation();
@@ -176,7 +172,7 @@ export function UserProfile({ hideThemeToggle = false }: { hideThemeToggle?: boo
         <Button
           size="icon"
           variant="ghost"
-          className="feedback-mask shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          className="shrink-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           data-testid="header-user-menu"
         >
           <Avatar className="h-8 w-8 rounded-lg bg-sidebar-accent text-sidebar-accent-foreground">

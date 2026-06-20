@@ -57,7 +57,7 @@ import {
   updateActivity,
 } from '@/lib/core/client/devtools/devtools-store';
 import { invalidateQueries } from '@/lib/core/client/valtioQueryStore';
-import { pushLog } from '@/lib/feedback/client/diagnostics';
+import { pushLog } from '@/lib/core/client/diagnostics';
 
 const debug = process.env.NODE_ENV === 'development';
 

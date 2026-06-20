@@ -72,5 +72,3 @@ export {
   DefaultFullAccess,
   DefaultReadOnlyAccess,
 } from '@/lib/core/common/ds/types/Defaults';
-
-export * from '@/lib/feedback/common';

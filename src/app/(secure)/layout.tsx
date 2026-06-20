@@ -10,8 +10,6 @@ import {
 } from '@/lib/common/ui-constants';
 import { deployConfig, AWS_REGION, GITHUB_REPO_NAME } from '@/lib/config/deploy-config';
 import { cn } from '@/lib/utils';
-import { DEFAULT_FEEDBACK_CONFIG } from '@/lib/feedback/common';
-import { FeedbackProvider } from '@/lib/feedback/client';
 
 const CustomMiniLogo = ({ className, fill = '#512eff' }: CustomMiniLogoProps) => (
   <svg
@@ -40,25 +38,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <FeedbackProvider
-      config={{
-        recording: { ...DEFAULT_FEEDBACK_CONFIG.recording, enabled: true },
-      }}
+    <AppProvider
+      APP_NAME={APP_NAME}
+      APP_DESCRIPTION={APP_DESCRIPTION}
+      DISABLE_HEADER_FILTERS_DEFAULT={DISABLE_HEADER_FILTERS_DEFAULT}
+      IGNORE_CASE_DEFAULT={IGNORE_CASE_DEFAULT}
+      TEST_PASSWORD={TEST_PASSWORD}
+      deployConfig={deployConfig}
+      awsRegion={AWS_REGION}
+      gitHubRepoName={GITHUB_REPO_NAME}
+      customMiniLogo={CustomMiniLogo}
+      naturalLanguageSearchEnabled={false}
     >
-      <AppProvider
-        APP_NAME={APP_NAME}
-        APP_DESCRIPTION={APP_DESCRIPTION}
-        DISABLE_HEADER_FILTERS_DEFAULT={DISABLE_HEADER_FILTERS_DEFAULT}
-        IGNORE_CASE_DEFAULT={IGNORE_CASE_DEFAULT}
-        TEST_PASSWORD={TEST_PASSWORD}
-        deployConfig={deployConfig}
-        awsRegion={AWS_REGION}
-        gitHubRepoName={GITHUB_REPO_NAME}
-        customMiniLogo={CustomMiniLogo}
-        naturalLanguageSearchEnabled={false}
-      >
-        {children}
-      </AppProvider>
-    </FeedbackProvider>
+      {children}
+    </AppProvider>
   );
 }

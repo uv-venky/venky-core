@@ -1,7 +1,7 @@
 import type { Activity } from '@/lib/core/common/types/Activity';
 import type { LogLevel } from '@/lib/core/common/types/UserSettings';
 import { getTrackId, resetTrackId } from '@/lib/core/client/state';
-import { pushLog } from '@/lib/feedback/client/diagnostics';
+import { pushLog } from '@/lib/core/client/diagnostics';
 
 interface Props extends Record<string, any> {
   message: string;

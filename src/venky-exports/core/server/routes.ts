@@ -80,6 +80,3 @@ export const integrationTestRoute = lazyRoute(
   () => import('@/app/api/integrations/[id]/test/route'),
   'integrationTestRoute',
 );
-
-// Feedback route
-export const feedbackRoute = lazyRoute(() => import('@/app/api/feedback/route'), 'feedbackRoute');

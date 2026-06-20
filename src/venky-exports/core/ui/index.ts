@@ -115,7 +115,3 @@ export { ShareUrlButton } from '@/components/share-url-button';
 export { CommentsButton } from '@/components/comments-button';
 export { default as LOVCombobox } from '@/components/core/lov-combobox';
 export type { LOVComboboxProps } from '@/components/core/lov-combobox';
-
-// Feedback
-export { FeedbackProvider, FeedbackWidget, useFeedback } from '@/lib/feedback/client';
-export { SessionPlayer } from '@/lib/feedback/admin';
