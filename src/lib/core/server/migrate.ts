@@ -8,24 +8,21 @@ import { runMigrations } from '@/lib/core/server/run-migrations';
 import { ensureMigrationsTable } from '@/lib/core/server/ensure-migrations-table';
 import { PREFIX } from '@/lib/server/constants';
 
-async function install(client: PgPoolClient): Promise<void> {
-  if (process.env.SKIP_MIGRATIONS === 'true') {
-    logger.warn('Skipping migrations during install (SKIP_MIGRATIONS=true)');
-    // Still create the migrations table and admin user even if skipping migrations
-  } else {
-    logger.info('Installing migrations...');
-  }
-  const config = getConfig('install');
+async function ensureInitAdminUser(client: PgPoolClient): Promise<void> {
+  const config = getConfig('ensureInitAdminUser');
   const email = config.init.admin.email;
   const password = config.init.admin.password;
   if (!email || !password) {
     logger.error('config.init.admin must be set!');
     process.exit(1);
   }
-  await ensureMigrationsTable(client);
-  if (process.env.SKIP_MIGRATIONS !== 'true') {
-    await runMigrations(client, logger);
+
+  const { rows } = await client.query(`SELECT 1 FROM ${PREFIX}users WHERE user_name = $1 LIMIT 1`, ['admin']);
+  if (rows.length > 0) {
+    return;
   }
+
+  logger.info('Creating init admin user from config/default.yml');
   await createUser(
     client,
     'system',
@@ -41,6 +38,20 @@ async function install(client: PgPoolClient): Promise<void> {
     },
     true,
   );
+}
+
+async function install(client: PgPoolClient): Promise<void> {
+  if (process.env.SKIP_MIGRATIONS === 'true') {
+    logger.warn('Skipping migrations during install (SKIP_MIGRATIONS=true)');
+    // Still create the migrations table and admin user even if skipping migrations
+  } else {
+    logger.info('Installing migrations...');
+  }
+  await ensureMigrationsTable(client);
+  if (process.env.SKIP_MIGRATIONS !== 'true') {
+    await runMigrations(client, logger);
+  }
+  await ensureInitAdminUser(client);
 }
 
 export async function migrate(): Promise<void> {
@@ -65,5 +76,6 @@ export async function migrate(): Promise<void> {
     }
 
     await runMigrations(client, logger);
+    await ensureInitAdminUser(client);
   });
 }
