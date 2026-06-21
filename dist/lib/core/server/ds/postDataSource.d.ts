@@ -4,16 +4,10 @@ import type { PgPoolClient } from '../../../../lib/core/server/db';
 import type { QueryResult } from '../../../../lib/core/server/ds/ds_types';
 import type { Session } from '../../../../auth';
 export interface PostDataSourceOptions {
-  /** Browser tab trackId for self-refresh prevention in autoRefresh stores */
-  sourceTrackId?: string;
-  /** Skip publishing SSE event (e.g., for internal system operations) */
-  skipSSE?: boolean;
+    /** Browser tab trackId for self-refresh prevention in autoRefresh stores */
+    sourceTrackId?: string;
+    /** Skip publishing SSE event (e.g., for internal system operations) */
+    skipSSE?: boolean;
 }
-export declare function postDataSource<T extends object>(
-  client: PgPoolClient,
-  session: Session,
-  ds: DataSource<T>,
-  rows: Row<T>[],
-  options?: PostDataSourceOptions,
-): Promise<QueryResult<T>>;
+export declare function postDataSource<T extends object>(client: PgPoolClient, session: Session, ds: DataSource<T>, rows: Row<T>[], options?: PostDataSourceOptions): Promise<QueryResult<T>>;
 //# sourceMappingURL=postDataSource.d.ts.map

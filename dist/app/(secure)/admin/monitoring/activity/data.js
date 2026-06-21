@@ -1,8 +1,8 @@
 import { PREFIX } from '../../../../../lib/server/constants';
 import { getConfig } from '../../../../../lib/core/server/config';
-export async function getActivityEvents({ client, _session, filters }) {
-  const appId = getConfig('getActivityEvents').appId;
-  const sql = `
+export async function getActivityEvents({ client, _session, filters, }) {
+    const appId = getConfig('getActivityEvents').appId;
+    const sql = `
     SELECT user_name as "userName",
            event_type as "eventType",
            created_at as "createdAt"
@@ -10,12 +10,12 @@ export async function getActivityEvents({ client, _session, filters }) {
      WHERE created_at >= $1 AND created_at < $2 AND app_id = $3
      ORDER BY created_at DESC
   `;
-  const { rows } = await client.query(sql, [filters.fromDate, filters.toDate, appId]);
-  return rows;
+    const { rows } = await client.query(sql, [filters.fromDate, filters.toDate, appId]);
+    return rows;
 }
-export async function getActivityEventsAll({ client, _session, filters }) {
-  const appId = getConfig('getActivityEventsAll').appId;
-  const sql = `
+export async function getActivityEventsAll({ client, _session, filters, }) {
+    const appId = getConfig('getActivityEventsAll').appId;
+    const sql = `
     SELECT user_name as "userName",
            event_type as "eventType",
            description,
@@ -32,7 +32,7 @@ export async function getActivityEventsAll({ client, _session, filters }) {
      WHERE created_at >= $1 AND created_at < $2 AND app_id = $3
      ORDER BY created_at DESC
   `;
-  const { rows } = await client.query(sql, [filters.fromDate, filters.toDate, appId]);
-  return rows;
+    const { rows } = await client.query(sql, [filters.fromDate, filters.toDate, appId]);
+    return rows;
 }
 //# sourceMappingURL=data.js.map

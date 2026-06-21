@@ -1,7 +1,7 @@
 import type { DataSource } from '../../../../lib/core/common/ds/types/DataSource';
 declare global {
-  var _$venkyDataSources: Map<string, DataSource<any>> | undefined;
-  var _$venkyDataSourcesVersion: number | undefined;
+    var _$venkyDataSources: Map<string, DataSource<any>> | undefined;
+    var _$venkyDataSourcesVersion: number | undefined;
 }
 /**
  * Clears the DataSource cache and reloads core DataSources in dev mode.
@@ -14,12 +14,9 @@ export declare function clearDataSourceCache(): Promise<void>;
  * @param options - Options for adding DataSources
  * @param options.reload - If true, clears and reloads all DataSources (useful for dev mode hot-reload)
  */
-export declare function addDataSources(
-  ds: Record<string, DataSource<any>>,
-  options?: {
+export declare function addDataSources(ds: Record<string, DataSource<any>>, options?: {
     reload?: boolean;
-  },
-): Promise<void>;
+}): Promise<void>;
 export declare function getDataSource<T extends object>(id: string): DataSource<T>;
 export declare function getAllDataSources(): Record<string, DataSource<any>>;
 //# sourceMappingURL=ds.d.ts.map

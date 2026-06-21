@@ -1,10 +1,10 @@
 import type { PivotColumn } from '../../../../components/core/pivot/PivotTypes';
 export type Item = {
-  category: string;
-  item: string;
-  price: number;
-  qty: number;
-  region: string;
+    category: string;
+    item: string;
+    price: number;
+    qty: number;
+    region: string;
 };
 export type ColumnKey = keyof Item;
 export declare const getTextValue: (item: Readonly<Item>, attr: ColumnKey) => string;

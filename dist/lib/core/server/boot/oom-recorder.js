@@ -6,7 +6,7 @@
  * does not pull node:fs/process.on into the ping helper module graph.
  */
 export async function installCoreOomRecorder() {
-  const { installOomRecorder } = await import('../../../../lib/server/oom-recorder');
-  installOomRecorder();
+    const { installOomRecorder } = await import('../../../../lib/server/oom-recorder');
+    installOomRecorder();
 }
 //# sourceMappingURL=oom-recorder.js.map

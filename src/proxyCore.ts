@@ -23,6 +23,7 @@ const UNAUTHENTICATED_STATIC_PREFIXES = [
   '/p/',
   '/api/p/',
   '/login',
+  '/legal',
 ] as const;
 
 // Next.js static asset prefixes (checked after session, rate-limited only if unauthenticated)

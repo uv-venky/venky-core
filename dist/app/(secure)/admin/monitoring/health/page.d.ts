@@ -1,2 +1,2 @@
-export default function HealthDashboardPage(): import('react/jsx-runtime').JSX.Element;
+export default function HealthDashboardPage(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=page.d.ts.map

@@ -1,17 +1,15 @@
 export interface CrashDump {
-  ts: string;
-  pid: number;
-  uptimeSec: number;
-  reason: 'uncaughtException' | 'unhandledRejection' | 'exit';
-  error?:
-    | {
+    ts: string;
+    pid: number;
+    uptimeSec: number;
+    reason: 'uncaughtException' | 'unhandledRejection' | 'exit';
+    error?: {
         message: string;
         stack?: string;
-      }
-    | {
+    } | {
         code: number;
-      };
-  mem: NodeJS.MemoryUsage;
+    };
+    mem: NodeJS.MemoryUsage;
 }
 export declare function getOomDir(): string;
 export declare function installOomRecorder(): void;

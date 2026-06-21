@@ -40,10 +40,5 @@ export * from '../../../lib/core/common/ds/types/YN';
 export * from '../../../lib/core/common/ds/types/YNFilter';
 export { calculateNextRunAt } from '../../../lib/core/common/schedule-utils';
 export { getPasswordRequirements } from '../../../lib/common/password-utils';
-export {
-  DefaultAttribute,
-  DefaultDataSource,
-  DefaultFullAccess,
-  DefaultReadOnlyAccess,
-} from '../../../lib/core/common/ds/types/Defaults';
+export { DefaultAttribute, DefaultDataSource, DefaultFullAccess, DefaultReadOnlyAccess, } from '../../../lib/core/common/ds/types/Defaults';
 //# sourceMappingURL=index.js.map

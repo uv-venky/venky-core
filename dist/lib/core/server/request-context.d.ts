@@ -10,26 +10,26 @@
  *   - TanStack Start projects: Pass a Vinxi-based adapter via `requestContextProvider` in ServerConfig
  */
 export interface CookieOptions {
-  httpOnly?: boolean;
-  secure?: boolean;
-  sameSite?: 'strict' | 'lax' | 'none';
-  expires?: Date;
-  path?: string;
+    httpOnly?: boolean;
+    secure?: boolean;
+    sameSite?: 'strict' | 'lax' | 'none';
+    expires?: Date;
+    path?: string;
 }
 export interface RequestContextProvider {
-  /** Get a cookie value by name */
-  getCookie(name: string): Promise<string | undefined>;
-  /** Set a cookie */
-  setCookie(name: string, value: string, options?: CookieOptions): Promise<void>;
-  /** Delete a cookie */
-  deleteCookie(name: string): Promise<void>;
-  /** Get a header value by name */
-  getHeader(name: string): Promise<string | null>;
-  /** Get all headers as a Web Standard Headers object */
-  getHeaders(): Promise<Headers>;
+    /** Get a cookie value by name */
+    getCookie(name: string): Promise<string | undefined>;
+    /** Set a cookie */
+    setCookie(name: string, value: string, options?: CookieOptions): Promise<void>;
+    /** Delete a cookie */
+    deleteCookie(name: string): Promise<void>;
+    /** Get a header value by name */
+    getHeader(name: string): Promise<string | null>;
+    /** Get all headers as a Web Standard Headers object */
+    getHeaders(): Promise<Headers>;
 }
 declare global {
-  var _$venkyRequestContextProvider: RequestContextProvider | null | undefined;
+    var _$venkyRequestContextProvider: RequestContextProvider | null | undefined;
 }
 /**
  * Set the request context provider for the current framework.

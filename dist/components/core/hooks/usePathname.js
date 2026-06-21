@@ -13,7 +13,7 @@ import { useSyncExternalStore } from 'react';
  * framework-specific hook (e.g., TanStack Router's useLocation).
  */
 function useDefaultPathname() {
-  return useSyncExternalStore(subscribeToPathname, getPathname, getServerPathname);
+    return useSyncExternalStore(subscribeToPathname, getPathname, getServerPathname);
 }
 let activeHook = useDefaultPathname;
 /**
@@ -21,19 +21,19 @@ let activeHook = useDefaultPathname;
  * Call this once during app initialization before the first render.
  */
 export function setPathnameImplementation(hook) {
-  activeHook = hook;
+    activeHook = hook;
 }
 export function usePathname() {
-  return activeHook();
+    return activeHook();
 }
 function getPathname() {
-  return window.location.pathname;
+    return window.location.pathname;
 }
 function getServerPathname() {
-  return '/';
+    return '/';
 }
 function subscribeToPathname(callback) {
-  window.addEventListener('popstate', callback);
-  return () => window.removeEventListener('popstate', callback);
+    window.addEventListener('popstate', callback);
+    return () => window.removeEventListener('popstate', callback);
 }
 //# sourceMappingURL=usePathname.js.map

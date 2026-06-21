@@ -1,13 +1,13 @@
 export type QueryStatus = 'loading' | 'success' | 'error';
 export interface CacheEntry<T> {
-  status: QueryStatus;
-  data?: T;
-  error?: string;
-  promise?: Promise<void>;
-  initialQueryFiredAt: number;
-  /** Timestamp when data was last fetched successfully */
-  dataUpdatedAt?: number;
-  invalidated?: boolean;
+    status: QueryStatus;
+    data?: T;
+    error?: string;
+    promise?: Promise<void>;
+    initialQueryFiredAt: number;
+    /** Timestamp when data was last fetched successfully */
+    dataUpdatedAt?: number;
+    invalidated?: boolean;
 }
 export declare const queryStore: Record<string, CacheEntry<unknown>>;
 export declare function updateUsage(key: string): void;

@@ -8,13 +8,13 @@
  * — a `'use server'` file may only export async functions.
  */
 export declare const AccessDeniedResourceType: {
-  readonly Domain: 'domain';
-  readonly Agent: 'agent';
-  readonly Action: 'action';
-  readonly DataSourceQuery: 'datasource:query';
-  readonly DataSourceInsert: 'datasource:insert';
-  readonly DataSourceUpdate: 'datasource:update';
-  readonly DataSourceDelete: 'datasource:delete';
+    readonly Domain: "domain";
+    readonly Agent: "agent";
+    readonly Action: "action";
+    readonly DataSourceQuery: "datasource:query";
+    readonly DataSourceInsert: "datasource:insert";
+    readonly DataSourceUpdate: "datasource:update";
+    readonly DataSourceDelete: "datasource:delete";
 };
 export type AccessDeniedResourceType = (typeof AccessDeniedResourceType)[keyof typeof AccessDeniedResourceType];
 //# sourceMappingURL=AccessDenied.d.ts.map

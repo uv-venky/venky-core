@@ -4,6 +4,6 @@
  * Consuming apps can add authorizers here or in their own init module.
  */
 export function registerAppSSEAuthorizers() {
-  // No default app-level SSE authorizers in venky-core.
+    // No default app-level SSE authorizers in venky-core.
 }
 //# sourceMappingURL=sse-authorizers.js.map

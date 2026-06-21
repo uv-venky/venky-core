@@ -9,12 +9,12 @@
  * — a `'use server'` file may only export async functions.
  */
 export const AccessDeniedResourceType = {
-  Domain: 'domain',
-  Agent: 'agent',
-  Action: 'action',
-  DataSourceQuery: 'datasource:query',
-  DataSourceInsert: 'datasource:insert',
-  DataSourceUpdate: 'datasource:update',
-  DataSourceDelete: 'datasource:delete',
+    Domain: 'domain',
+    Agent: 'agent',
+    Action: 'action',
+    DataSourceQuery: 'datasource:query',
+    DataSourceInsert: 'datasource:insert',
+    DataSourceUpdate: 'datasource:update',
+    DataSourceDelete: 'datasource:delete',
 };
 //# sourceMappingURL=AccessDenied.js.map

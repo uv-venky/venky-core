@@ -1,52 +1,52 @@
 import type { SidebarIcon } from './icons';
 export interface PageItem {
-  title: string;
-  pagePath: string;
-  icon: SidebarIcon;
-  retainSearchParams?: boolean;
-  hidden?: boolean;
-  parentPagePath?: string;
-  onClickAction?: SidebarAction;
+    title: string;
+    pagePath: string;
+    icon: SidebarIcon;
+    retainSearchParams?: boolean;
+    hidden?: boolean;
+    parentPagePath?: string;
+    onClickAction?: SidebarAction;
 }
 export interface ServerPageItem extends PageItem {
-  roles: readonly string[];
-  isHidden?: (roles: string[]) => boolean;
+    roles: readonly string[];
+    isHidden?: (roles: string[]) => boolean;
 }
 export interface PageGroup {
-  title: string;
-  groupPath: string;
-  icon: SidebarIcon;
-  isExpanded?: boolean;
-  pages: PageItem[];
+    title: string;
+    groupPath: string;
+    icon: SidebarIcon;
+    isExpanded?: boolean;
+    pages: PageItem[];
 }
 export interface ServerPageGroup extends PageGroup {
-  pages: ServerPageItem[];
+    pages: ServerPageItem[];
 }
 export interface ModuleMenuItems {
-  title: string;
-  modulePath: string;
-  pageGroups: PageGroup[];
+    title: string;
+    modulePath: string;
+    pageGroups: PageGroup[];
 }
 export interface ServerModuleMenuItems extends ModuleMenuItems {
-  pageGroups: ServerPageGroup[];
+    pageGroups: ServerPageGroup[];
 }
 export interface Team {
-  name: string;
-  menuTitle?: string;
-  logo: SidebarIcon;
-  teamPath: string;
-  modules: ModuleMenuItems[];
-  oneLevelNav: PageItem[];
+    name: string;
+    menuTitle?: string;
+    logo: SidebarIcon;
+    teamPath: string;
+    modules: ModuleMenuItems[];
+    oneLevelNav: PageItem[];
 }
 export interface Application {
-  name: string;
-  logo: SidebarIcon;
-  url: string;
-  roles: string[];
+    name: string;
+    logo: SidebarIcon;
+    url: string;
+    roles: string[];
 }
 export interface ServerTeam extends Team {
-  modules: ServerModuleMenuItems[];
-  oneLevelNav: ServerPageItem[];
+    modules: ServerModuleMenuItems[];
+    oneLevelNav: ServerPageItem[];
 }
 /**
  * Map of sidebar action names. Consuming projects can extend this via module augmentation:
@@ -60,7 +60,7 @@ export interface ServerTeam extends Team {
  * }
  */
 export interface SidebarActionMap {
-  createNewChat: null;
+    createNewChat: null;
 }
 export type SidebarAction = keyof SidebarActionMap;
 //# sourceMappingURL=types.d.ts.map

@@ -1,2 +1,2 @@
-export declare function SSOLoginPage(): import('react/jsx-runtime').JSX.Element;
+export declare function SSOLoginPage(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=SSOLoginPage.d.ts.map

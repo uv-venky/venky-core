@@ -22,7 +22,7 @@ export * from '../../../components/core/hooks/useEvent';
 export * from '../../../components/core/hooks/useLatest';
 export * from '../../../components/core/hooks/useMediaQuery';
 // Loading tracker
-export { useManualReadySignal, useLoadingControl, useLoadingTracker } from '../../../lib/core/client/loading-tracker';
+export { useManualReadySignal, useLoadingControl, useLoadingTracker, } from '../../../lib/core/client/loading-tracker';
 // SSE client (subscribe to real-time server events)
 export { useSSE, useSSEStatus } from '../../../lib/sse/client';
 export { default as usePageTitle } from '../../../components/core/hooks/usePageTitle';

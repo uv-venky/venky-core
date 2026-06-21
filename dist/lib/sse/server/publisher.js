@@ -31,12 +31,12 @@
  * ```
  */
 export async function publishSSE(client, channel, data) {
-  const eventType = 'sse';
-  const payload = {
-    channel,
-    data,
-    timestamp: Date.now(),
-  };
-  await client.query(`SELECT pg_notify('VENKY_events', $1)`, [JSON.stringify([eventType, payload])]);
+    const eventType = 'sse';
+    const payload = {
+        channel,
+        data,
+        timestamp: Date.now(),
+    };
+    await client.query(`SELECT pg_notify('VENKY_events', $1)`, [JSON.stringify([eventType, payload])]);
 }
 //# sourceMappingURL=publisher.js.map

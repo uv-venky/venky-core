@@ -6,9 +6,9 @@ let activeHook = () => ({});
  * Call this once during app initialization before the first render.
  */
 export function setParamsImplementation(hook) {
-  activeHook = hook;
+    activeHook = hook;
 }
 export function useParams() {
-  return activeHook();
+    return activeHook();
 }
 //# sourceMappingURL=useParams.js.map

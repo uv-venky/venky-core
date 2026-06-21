@@ -1,28 +1,28 @@
 export interface LoadingTrackerMetadata {
-  /** Time of first query in ms since mount */
-  firstQueryAt: number;
-  /** Time of last query in ms since mount */
-  lastQueryAt: number;
-  totalQueries: number;
-  sources: string[];
+    /** Time of first query in ms since mount */
+    firstQueryAt: number;
+    /** Time of last query in ms since mount */
+    lastQueryAt: number;
+    totalQueries: number;
+    sources: string[];
 }
 /** Metadata written to DOM for Playwright tests */
 export interface DataLoadMeta {
-  totalCount: number;
-  firstQueryAt: number;
-  lastQueryAt: number;
-  elapsedMs: number;
-  sources: string[];
+    totalCount: number;
+    firstQueryAt: number;
+    lastQueryAt: number;
+    elapsedMs: number;
+    sources: string[];
 }
 export interface LoadingTrackerState {
-  /** Number of queries currently in-flight */
-  pendingCount: number;
-  /** Whether any query has been tracked (prevents false ready on empty pages) */
-  hasTracked: boolean;
-  /** Whether all initial queries have completed */
-  isReady: boolean;
-  /** Metadata about the loading process */
-  metadata: LoadingTrackerMetadata;
+    /** Number of queries currently in-flight */
+    pendingCount: number;
+    /** Whether any query has been tracked (prevents false ready on empty pages) */
+    hasTracked: boolean;
+    /** Whether all initial queries have completed */
+    isReady: boolean;
+    /** Metadata about the loading process */
+    metadata: LoadingTrackerMetadata;
 }
 export declare const loadingTracker: LoadingTrackerState;
 /**
@@ -63,8 +63,8 @@ export declare function useLoadingTracker(): Readonly<LoadingTrackerState>;
  * ```
  */
 export declare function useLoadingControl(): {
-  increment: typeof incrementPending;
-  decrement: typeof decrementPending;
+    increment: typeof incrementPending;
+    decrement: typeof decrementPending;
 };
 /**
  * Hook for explicitly signaling page ready.

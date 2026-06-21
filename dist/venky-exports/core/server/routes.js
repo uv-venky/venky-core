@@ -1,27 +1,24 @@
 /* Copyright (c) 2024-present Venky Corp. */
 function lazyRoute(loader, routeName) {
-  const cache = new Map();
-  return new Proxy(
-    {},
-    {
-      get(_target, prop) {
-        if (typeof prop !== 'string') {
-          return undefined;
-        }
-        if (!cache.has(prop)) {
-          cache.set(prop, async (...args) => {
-            const mod = await loader();
-            const routeExport = mod[prop];
-            if (typeof routeExport !== 'function') {
-              throw new Error(`[core/server/routes] "${routeName}.${prop}" is not a callable route handler export.`);
+    const cache = new Map();
+    return new Proxy({}, {
+        get(_target, prop) {
+            if (typeof prop !== 'string') {
+                return undefined;
             }
-            return routeExport(...args);
-          });
-        }
-        return cache.get(prop);
-      },
-    },
-  );
+            if (!cache.has(prop)) {
+                cache.set(prop, async (...args) => {
+                    const mod = await loader();
+                    const routeExport = mod[prop];
+                    if (typeof routeExport !== 'function') {
+                        throw new Error(`[core/server/routes] "${routeName}.${prop}" is not a callable route handler export.`);
+                    }
+                    return routeExport(...args);
+                });
+            }
+            return cache.get(prop);
+        },
+    });
 }
 // DataSource routes
 export const dsRoute = lazyRoute(() => import('../../../app/api/ds/route'), 'dsRoute');
@@ -43,10 +40,7 @@ export const shortenUrlRoute = lazyRoute(() => import('../../../app/api/shorten-
 // SQL routes
 export const sqlDescribeRoute = lazyRoute(() => import('../../../app/api/sql/describe/route'), 'sqlDescribeRoute');
 export const sqlHistoryRoute = lazyRoute(() => import('../../../app/api/sql/history/route'), 'sqlHistoryRoute');
-export const sqlHistoryIdRoute = lazyRoute(
-  () => import('../../../app/api/sql/history/[id]/route'),
-  'sqlHistoryIdRoute',
-);
+export const sqlHistoryIdRoute = lazyRoute(() => import('../../../app/api/sql/history/[id]/route'), 'sqlHistoryIdRoute');
 export const sqlRunRoute = lazyRoute(() => import('../../../app/api/sql/run/route'), 'sqlRunRoute');
 export const sqlSchemasRoute = lazyRoute(() => import('../../../app/api/sql/schemas/route'), 'sqlSchemasRoute');
 // Status routes
@@ -55,8 +49,5 @@ export const appsStatusRoute = lazyRoute(() => import('../../../app/api/apps/[ap
 // SSE route
 export const sseStreamRoute = lazyRoute(() => import('../../../app/api/sse/stream/route'), 'sseStreamRoute');
 // Integration test route
-export const integrationTestRoute = lazyRoute(
-  () => import('../../../app/api/integrations/[id]/test/route'),
-  'integrationTestRoute',
-);
+export const integrationTestRoute = lazyRoute(() => import('../../../app/api/integrations/[id]/test/route'), 'integrationTestRoute');
 //# sourceMappingURL=routes.js.map

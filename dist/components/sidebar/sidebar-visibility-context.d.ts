@@ -1,13 +1,11 @@
 import { type ReactNode } from 'react';
 interface SidebarVisibilityContextValue {
-  registerHideRequest: () => () => void;
-  shouldHideSidebar: boolean;
+    registerHideRequest: () => () => void;
+    shouldHideSidebar: boolean;
 }
-export declare function SidebarVisibilityProvider({
-  children,
-}: {
-  children: ReactNode;
-}): import('react/jsx-runtime').JSX.Element;
+export declare function SidebarVisibilityProvider({ children }: {
+    children: ReactNode;
+}): import("react/jsx-runtime").JSX.Element;
 export declare function useSidebarVisibility(): SidebarVisibilityContextValue;
 /**
  * Hook to hide the sidebar completely when the component mounts and restore it on unmount.

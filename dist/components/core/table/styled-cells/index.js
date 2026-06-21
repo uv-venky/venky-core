@@ -1,6 +1,6 @@
 /* Copyright (c) 2024-present Venky Corp. */
 // Shared utilities and types
-export { EMPTY_CELL, ENTITY_PRESETS, STATUS_DEFAULTS } from './shared';
+export { EMPTY_CELL, ENTITY_PRESETS, STATUS_DEFAULTS, } from './shared';
 // Styled cell components
 export { BadgeOutlineCell } from './BadgeOutlineCell';
 export { BooleanYesNoCell } from './BooleanYesNoCell';

@@ -1,123 +1,14 @@
-import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Card, CardContent, CardHeader } from '../../../components/ui/card';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { cn } from '../../../lib/utils';
 export default function LoadingSkeleton() {
-  return _jsxs('div', {
-    className: 'space-y-6',
-    children: [
-      _jsx('div', {
-        className: 'grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4',
-        children: [...Array(4)].map((_, i) => _jsx(Skeleton, { className: 'h-32 rounded-lg' }, i)),
-      }),
-      _jsx(Skeleton, { className: 'h-8 w-[500px] rounded-lg' }),
-    ],
-  });
+    return (_jsxs("div", { className: "space-y-6", children: [_jsx("div", { className: "grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4", children: [...Array(4)].map((_, i) => (_jsx(Skeleton, { className: "h-32 rounded-lg" }, i))) }), _jsx(Skeleton, { className: "h-8 w-[500px] rounded-lg" })] }));
 }
 export function DonutSkeleton({ className }) {
-  return _jsxs(Card, {
-    className: className,
-    children: [
-      _jsx(CardHeader, { children: _jsx(Skeleton, { className: 'h-5 w-24' }) }),
-      _jsxs(CardContent, {
-        className: 'flex flex-col items-center',
-        children: [
-          _jsx('div', {
-            className: 'relative h-[180px] w-[180px]',
-            children: _jsxs('svg', {
-              viewBox: '0 0 100 100',
-              className: 'h-full w-full',
-              children: [
-                _jsx('circle', {
-                  cx: '50',
-                  cy: '50',
-                  r: '40',
-                  fill: 'transparent',
-                  stroke: 'currentColor',
-                  strokeWidth: '20',
-                  strokeOpacity: '0.1',
-                }),
-                _jsx('circle', {
-                  cx: '50',
-                  cy: '50',
-                  r: '40',
-                  fill: 'transparent',
-                  stroke: 'var(--chart-1)',
-                  strokeWidth: '20',
-                  strokeDasharray: '63 187',
-                  strokeDashoffset: '0',
-                  className: 'animate-pulse',
-                  strokeOpacity: '0.3',
-                }),
-                _jsx('circle', {
-                  cx: '50',
-                  cy: '50',
-                  r: '40',
-                  fill: 'transparent',
-                  stroke: 'var(--chart-2)',
-                  strokeWidth: '20',
-                  strokeDasharray: '113 137',
-                  strokeDashoffset: '-63',
-                  className: 'animate-pulse',
-                  strokeOpacity: '0.3',
-                }),
-                _jsx('circle', {
-                  cx: '50',
-                  cy: '50',
-                  r: '40',
-                  fill: 'transparent',
-                  stroke: 'var(--chart-3)',
-                  strokeWidth: '20',
-                  strokeDasharray: '75 175',
-                  strokeDashoffset: '-176',
-                  className: 'animate-pulse',
-                  strokeOpacity: '0.3',
-                }),
-                _jsx('circle', { cx: '50', cy: '50', r: '30', fill: 'var(--background)' }),
-              ],
-            }),
-          }),
-          _jsxs('div', {
-            className: 'mt-4 grid grid-cols-3 gap-4 text-xs',
-            children: [
-              _jsxs('div', {
-                className: 'flex items-center gap-1',
-                children: [
-                  _jsx('div', { className: 'h-2 w-2 rounded-full bg-chart-1/30' }),
-                  _jsx(Skeleton, { className: 'h-3 w-16' }),
-                ],
-              }),
-              _jsxs('div', {
-                className: 'flex items-center gap-1',
-                children: [
-                  _jsx('div', { className: 'h-2 w-2 rounded-full bg-chart-2/30' }),
-                  _jsx(Skeleton, { className: 'h-3 w-16' }),
-                ],
-              }),
-              _jsxs('div', {
-                className: 'flex items-center gap-1',
-                children: [
-                  _jsx('div', { className: 'h-2 w-2 rounded-full bg-chart-3/30' }),
-                  _jsx(Skeleton, { className: 'h-3 w-16' }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-    ],
-  });
+    return (_jsxs(Card, { className: className, children: [_jsx(CardHeader, { children: _jsx(Skeleton, { className: "h-5 w-24" }) }), _jsxs(CardContent, { className: "flex flex-col items-center", children: [_jsx("div", { className: "relative h-[180px] w-[180px]", children: _jsxs("svg", { viewBox: "0 0 100 100", className: "h-full w-full", children: [_jsx("circle", { cx: "50", cy: "50", r: "40", fill: "transparent", stroke: "currentColor", strokeWidth: "20", strokeOpacity: "0.1" }), _jsx("circle", { cx: "50", cy: "50", r: "40", fill: "transparent", stroke: "var(--chart-1)", strokeWidth: "20", strokeDasharray: "63 187", strokeDashoffset: "0", className: "animate-pulse", strokeOpacity: "0.3" }), _jsx("circle", { cx: "50", cy: "50", r: "40", fill: "transparent", stroke: "var(--chart-2)", strokeWidth: "20", strokeDasharray: "113 137", strokeDashoffset: "-63", className: "animate-pulse", strokeOpacity: "0.3" }), _jsx("circle", { cx: "50", cy: "50", r: "40", fill: "transparent", stroke: "var(--chart-3)", strokeWidth: "20", strokeDasharray: "75 175", strokeDashoffset: "-176", className: "animate-pulse", strokeOpacity: "0.3" }), _jsx("circle", { cx: "50", cy: "50", r: "30", fill: "var(--background)" })] }) }), _jsxs("div", { className: "mt-4 grid grid-cols-3 gap-4 text-xs", children: [_jsxs("div", { className: "flex items-center gap-1", children: [_jsx("div", { className: "h-2 w-2 rounded-full bg-chart-1/30" }), _jsx(Skeleton, { className: "h-3 w-16" })] }), _jsxs("div", { className: "flex items-center gap-1", children: [_jsx("div", { className: "h-2 w-2 rounded-full bg-chart-2/30" }), _jsx(Skeleton, { className: "h-3 w-16" })] }), _jsxs("div", { className: "flex items-center gap-1", children: [_jsx("div", { className: "h-2 w-2 rounded-full bg-chart-3/30" }), _jsx(Skeleton, { className: "h-3 w-16" })] })] })] })] }));
 }
 export function MetricCardSkeleton({ className = 'flex-1' }) {
-  return _jsxs('div', {
-    className: cn('flex flex-1 flex-col items-center justify-center rounded-lg border', className),
-    children: [
-      _jsx('span', { className: 'text-muted-foreground', children: _jsx(Skeleton, { className: 'h-4 w-16' }) }),
-      _jsx('span', {
-        className: 'mt-2 font-extrabold text-3xl text-chart-1',
-        children: _jsx(Skeleton, { className: 'h-6 w-28' }),
-      }),
-    ],
-  });
+    return (_jsxs("div", { className: cn('flex flex-1 flex-col items-center justify-center rounded-lg border', className), children: [_jsx("span", { className: "text-muted-foreground", children: _jsx(Skeleton, { className: "h-4 w-16" }) }), _jsx("span", { className: "mt-2 font-extrabold text-3xl text-chart-1", children: _jsx(Skeleton, { className: "h-6 w-28" }) })] }));
 }
 //# sourceMappingURL=loading.js.map

@@ -20,8 +20,8 @@ export type StreamdownComponent = React.MemoExoticComponent<(props: StreamdownPr
  */
 export declare function loadStreamdown(): Promise<StreamdownComponent>;
 export interface MarkdownDeps {
-  ReactMarkdown: React.ComponentType<any>;
-  remarkGfm: unknown;
+    ReactMarkdown: React.ComponentType<any>;
+    remarkGfm: unknown;
 }
 /**
  * Returns a module-level cached promise that resolves to

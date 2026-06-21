@@ -1,11 +1,8 @@
-export type BooleanFilter =
-  | {
-      istrue: boolean;
-    }
-  | {
-      empty: boolean;
-    }
-  | {
-      notempty: boolean;
-    };
+export type BooleanFilter = {
+    istrue: boolean;
+} | {
+    empty: boolean;
+} | {
+    notempty: boolean;
+};
 //# sourceMappingURL=BooleanFilter.d.ts.map

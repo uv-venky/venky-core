@@ -20,53 +20,54 @@ import { z } from 'zod';
 import { UserError } from '../../../lib/core/common/error';
 import { ACTION_PARAM_OVERRIDES } from './param-schemas.overrides';
 function zodForEntry(action, entry, overrides) {
-  const override = overrides[action]?.[entry.name];
-  let base;
-  if (override) {
-    base = override;
-  } else {
-    switch (entry.type) {
-      case 'string':
-        base = z.string();
-        break;
-      case 'number':
-        base = z.number();
-        break;
-      case 'boolean':
-        base = z.boolean();
-        break;
-      default:
-        // object → opaque pass-through; tighten via ACTION_PARAM_OVERRIDES.
-        base = z.unknown();
-        break;
+    const override = overrides[action]?.[entry.name];
+    let base;
+    if (override) {
+        base = override;
     }
-  }
-  let schema = entry.nullable ? base.nullable() : base;
-  if (entry.optional) {
-    schema = schema.optional();
-  }
-  return schema;
+    else {
+        switch (entry.type) {
+            case 'string':
+                base = z.string();
+                break;
+            case 'number':
+                base = z.number();
+                break;
+            case 'boolean':
+                base = z.boolean();
+                break;
+            default:
+                // object → opaque pass-through; tighten via ACTION_PARAM_OVERRIDES.
+                base = z.unknown();
+                break;
+        }
+    }
+    let schema = entry.nullable ? base.nullable() : base;
+    if (entry.optional) {
+        schema = schema.optional();
+    }
+    return schema;
 }
 /** Build a zod tuple validator for an action's positional params. */
 export function buildActionParamValidator(action, entries, overrides = ACTION_PARAM_OVERRIDES) {
-  const items = entries.map((entry) => zodForEntry(action, entry, overrides));
-  // z.tuple([]) is valid at runtime and rejects any extra args; the cast lets us
-  // pass a (possibly empty) array to the variadic tuple overload.
-  return z.tuple(items);
+    const items = entries.map((entry) => zodForEntry(action, entry, overrides));
+    // z.tuple([]) is valid at runtime and rejects any extra args; the cast lets us
+    // pass a (possibly empty) array to the variadic tuple overload.
+    return z.tuple(items);
 }
 /**
  * Validate an action's args against its param schema. Returns the parsed args
  * on success; throws {@link UserError} on any mismatch.
  */
 export function validateActionParams(action, entries, args, overrides = ACTION_PARAM_OVERRIDES) {
-  const validator = buildActionParamValidator(action, entries, overrides);
-  const result = validator.safeParse(args);
-  if (!result.success) {
-    const detail = result.error.issues
-      .map((issue) => `arg[${issue.path.join('.') || '?'}]: ${issue.message}`)
-      .join('; ');
-    throw new UserError(`Invalid parameters for action ${action}: ${detail}`);
-  }
-  return result.data;
+    const validator = buildActionParamValidator(action, entries, overrides);
+    const result = validator.safeParse(args);
+    if (!result.success) {
+        const detail = result.error.issues
+            .map((issue) => `arg[${issue.path.join('.') || '?'}]: ${issue.message}`)
+            .join('; ');
+        throw new UserError(`Invalid parameters for action ${action}: ${detail}`);
+    }
+    return result.data;
 }
 //# sourceMappingURL=param-validation.js.map

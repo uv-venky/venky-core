@@ -16,9 +16,9 @@ import { resetLoadingTracker } from '../../lib/core/client/loading-tracker';
  * ```
  */
 export function DataLoadingTracker() {
-  useEffect(() => {
-    resetLoadingTracker();
-  }, []);
-  return null;
+    useEffect(() => {
+        resetLoadingTracker();
+    }, []);
+    return null;
 }
 //# sourceMappingURL=DataLoadingTracker.js.map

@@ -11,37 +11,37 @@
 import { z } from 'zod';
 import { UserError } from '../../../lib/core/common/error';
 const DsRequestSchema = z
-  .object({
+    .object({
     ds: z.string(),
     query: z.unknown().optional(),
     rows: z.array(z.unknown()).optional(),
     debug: z.boolean().optional(),
-  })
-  .strict();
+})
+    .strict();
 /** Parse + validate the request envelope. Throws {@link UserError} on any unknown/invalid top-level field. */
 export function parseDsRequest(raw) {
-  const result = DsRequestSchema.safeParse(raw);
-  if (!result.success) {
-    const unknownKeys = result.error.issues.flatMap((issue) => (issue.code === 'unrecognized_keys' ? issue.keys : []));
-    if (unknownKeys.length > 0) {
-      throw new UserError(`Invalid request: unknown field(s): ${unknownKeys.join(', ')}`);
+    const result = DsRequestSchema.safeParse(raw);
+    if (!result.success) {
+        const unknownKeys = result.error.issues.flatMap((issue) => (issue.code === 'unrecognized_keys' ? issue.keys : []));
+        if (unknownKeys.length > 0) {
+            throw new UserError(`Invalid request: unknown field(s): ${unknownKeys.join(', ')}`);
+        }
+        throw new UserError('Invalid request body');
     }
-    throw new UserError('Invalid request body');
-  }
-  return result.data;
+    return result.data;
 }
 // Raw-SQL query facilities are server-only: they are interpolated into SQL with no
 // (or only denylist) validation and must never be accepted from the HTTP client.
 // Server code builds these inside `preQuery`/actions; legitimate clients use the
 // parameterized `filters`/`match`/`sort` fields instead.
 const SERVER_ONLY_QUERY_FIELDS = [
-  'fullSQL',
-  'whereClause',
-  'whereClauseParamList',
-  'subSQL',
-  'subSQLParamList',
-  'fromClause',
-  'orderBy',
+    'fullSQL',
+    'whereClause',
+    'whereClauseParamList',
+    'subSQL',
+    'subSQLParamList',
+    'fromClause',
+    'orderBy',
 ];
 /**
  * Strict schema over the client-facing top-level `Query` props. Props whose
@@ -51,7 +51,7 @@ const SERVER_ONLY_QUERY_FIELDS = [
  * and rejected up front by {@link assertNoServerOnlyQueryFields}.
  */
 const QuerySchema = z
-  .object({
+    .object({
     // statically typed — scalars
     fetchDistinct: z.boolean().optional(),
     countOnly: z.boolean().optional(),
@@ -74,14 +74,14 @@ const QuerySchema = z
     // fully T-dependent — not statically typeable
     parentRow: z.unknown().optional(),
     treeOptions: z.unknown().optional(),
-  })
-  .strict();
+})
+    .strict();
 function assertNoServerOnlyQueryFields(query) {
-  for (const field of SERVER_ONLY_QUERY_FIELDS) {
-    if (query[field] != null) {
-      throw new UserError(`Query field '${field}' is not allowed in client queries`);
+    for (const field of SERVER_ONLY_QUERY_FIELDS) {
+        if (query[field] != null) {
+            throw new UserError(`Query field '${field}' is not allowed in client queries`);
+        }
     }
-  }
 }
 /**
  * Validate a client `query`: reject server-only raw-SQL fields (specific
@@ -90,17 +90,17 @@ function assertNoServerOnlyQueryFields(query) {
  * violation; returns nothing.
  */
 export function validateQuery(query) {
-  if (query != null && typeof query === 'object' && !Array.isArray(query)) {
-    assertNoServerOnlyQueryFields(query);
-  }
-  const result = QuerySchema.safeParse(query);
-  if (!result.success) {
-    const unknownKeys = result.error.issues.flatMap((issue) => (issue.code === 'unrecognized_keys' ? issue.keys : []));
-    if (unknownKeys.length > 0) {
-      throw new UserError(`Invalid query: unknown field(s): ${unknownKeys.join(', ')}`);
+    if (query != null && typeof query === 'object' && !Array.isArray(query)) {
+        assertNoServerOnlyQueryFields(query);
     }
-    const detail = result.error.issues.map((issue) => `${issue.path.join('.') || '?'}: ${issue.message}`).join('; ');
-    throw new UserError(`Invalid query: ${detail}`);
-  }
+    const result = QuerySchema.safeParse(query);
+    if (!result.success) {
+        const unknownKeys = result.error.issues.flatMap((issue) => (issue.code === 'unrecognized_keys' ? issue.keys : []));
+        if (unknownKeys.length > 0) {
+            throw new UserError(`Invalid query: unknown field(s): ${unknownKeys.join(', ')}`);
+        }
+        const detail = result.error.issues.map((issue) => `${issue.path.join('.') || '?'}: ${issue.message}`).join('; ');
+        throw new UserError(`Invalid query: ${detail}`);
+    }
 }
 //# sourceMappingURL=request-schema.js.map

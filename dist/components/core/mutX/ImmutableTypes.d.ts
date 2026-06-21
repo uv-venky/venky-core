@@ -2,7 +2,7 @@ export type Key = string | number;
 export type Path = ReadonlyArray<Key>;
 export type ArrayCollection = ReadonlyArray<string | number> | Collection[];
 export type ObjectCollection = {
-  [key: string]: Collection | string | number | null | undefined | Collection[];
+    [key: string]: Collection | string | number | null | undefined | Collection[];
 };
 export type Collection = ArrayCollection | ObjectCollection;
 export declare function toCollection(value: unknown, msg: string): Collection;

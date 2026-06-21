@@ -1,6 +1,6 @@
 /* Copyright (c) 2024-present Venky Corp. */
 'use client';
-import { jsx as _jsx } from 'react/jsx-runtime';
+import { jsx as _jsx } from "react/jsx-runtime";
 import { NumericWithUnitsCell } from './NumericWithUnitsCell';
 /**
  * Convenience wrapper for percentage values.
@@ -15,11 +15,6 @@ import { NumericWithUnitsCell } from './NumericWithUnitsCell';
  * ```
  */
 export function PercentageCell({ attributeCode, fractionDigits = 0, ...props }) {
-  return _jsx(NumericWithUnitsCell, {
-    attributeCode: attributeCode,
-    unit: '%',
-    fractionDigits: fractionDigits,
-    ...props,
-  });
+    return _jsx(NumericWithUnitsCell, { attributeCode: attributeCode, unit: "%", fractionDigits: fractionDigits, ...props });
 }
 //# sourceMappingURL=PercentageCell.js.map

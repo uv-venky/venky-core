@@ -1,4 +1,4 @@
 export type MultiDateFilter = {
-  bn: [string, string];
+    bn: [string, string];
 };
 //# sourceMappingURL=MultiDateFilter.d.ts.map

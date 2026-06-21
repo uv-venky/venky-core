@@ -1,6 +1,6 @@
 import { type UserSession } from '../../../lib/core/common/types/UserSession';
 type UserSessionState = {
-  session: UserSession;
+    session: UserSession;
 };
 export declare const userSessionState: UserSessionState;
 export declare function useClientSessionSnapshot(): Readonly<UserSession>;

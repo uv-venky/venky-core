@@ -19,19 +19,10 @@ import { z } from 'zod';
 import type { ActionParamSchemaEntry } from './registry-context';
 import { type ActionParamOverrides } from './param-schemas.overrides';
 /** Build a zod tuple validator for an action's positional params. */
-export declare function buildActionParamValidator(
-  action: string,
-  entries: ActionParamSchemaEntry[],
-  overrides?: ActionParamOverrides,
-): z.ZodType<unknown[]>;
+export declare function buildActionParamValidator(action: string, entries: ActionParamSchemaEntry[], overrides?: ActionParamOverrides): z.ZodType<unknown[]>;
 /**
  * Validate an action's args against its param schema. Returns the parsed args
  * on success; throws {@link UserError} on any mismatch.
  */
-export declare function validateActionParams(
-  action: string,
-  entries: ActionParamSchemaEntry[],
-  args: unknown[],
-  overrides?: ActionParamOverrides,
-): unknown[];
+export declare function validateActionParams(action: string, entries: ActionParamSchemaEntry[], args: unknown[], overrides?: ActionParamOverrides): unknown[];
 //# sourceMappingURL=param-validation.d.ts.map

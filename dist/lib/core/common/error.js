@@ -1,43 +1,43 @@
 export function getErrorMessage(e) {
-  if (e instanceof Error) {
-    return e.message;
-  }
-  if (typeof e === 'string') {
-    return e;
-  }
-  return String(e);
+    if (e instanceof Error) {
+        return e.message;
+    }
+    if (typeof e === 'string') {
+        return e;
+    }
+    return String(e);
 }
 const ABORT_ERROR = 'AbortError';
 export class AbortError extends Error {
-  constructor() {
-    super(ABORT_ERROR);
-    this.name = ABORT_ERROR;
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, AbortError);
+    constructor() {
+        super(ABORT_ERROR);
+        this.name = ABORT_ERROR;
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, AbortError);
+        }
     }
-  }
 }
 /** Stable across bundles/realms so instanceof still works when duplicate venky-core copies are loaded. */
 export const USER_ERROR_BRAND = Symbol.for('venky.UserError');
 export class UserError extends Error {
-  [USER_ERROR_BRAND] = true;
-  constructor(message) {
-    super(message);
-    this.name = 'UserError';
-  }
+    [USER_ERROR_BRAND] = true;
+    constructor(message) {
+        super(message);
+        this.name = 'UserError';
+    }
 }
 /** Detect UserError even when instanceof fails (e.g. Next.js duplicate module instances). */
 export function isUserError(error) {
-  if (error instanceof UserError) {
-    return true;
-  }
-  if (typeof error !== 'object' || error === null) {
-    return false;
-  }
-  if (USER_ERROR_BRAND in error) {
-    return true;
-  }
-  return error instanceof Error && error.constructor.name === 'UserError';
+    if (error instanceof UserError) {
+        return true;
+    }
+    if (typeof error !== 'object' || error === null) {
+        return false;
+    }
+    if (USER_ERROR_BRAND in error) {
+        return true;
+    }
+    return error instanceof Error && error.constructor.name === 'UserError';
 }
 /**
  * Checks if an error is due to an aborted/cancelled request.
@@ -45,26 +45,24 @@ export function isUserError(error) {
  * before API requests complete.
  */
 export function isAbortedRequestError(error) {
-  if (error instanceof Error) {
-    // Check for Node.js ECONNRESET error
-    if ('code' in error && error.code === 'ECONNRESET') {
-      return true;
+    if (error instanceof Error) {
+        // Check for Node.js ECONNRESET error
+        if ('code' in error && error.code === 'ECONNRESET') {
+            return true;
+        }
+        // Check for abort error message
+        if (error.message === 'aborted' || error.name === 'AbortError') {
+            return true;
+        }
     }
-    // Check for abort error message
-    if (error.message === 'aborted' || error.name === 'AbortError') {
-      return true;
-    }
-  }
-  return false;
+    return false;
 }
 export function isErrorResponse(value) {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'status' in value &&
-    value.status === 'ERROR' &&
-    'message' in value &&
-    typeof value.message === 'string'
-  );
+    return (typeof value === 'object' &&
+        value !== null &&
+        'status' in value &&
+        value.status === 'ERROR' &&
+        'message' in value &&
+        typeof value.message === 'string');
 }
 //# sourceMappingURL=error.js.map

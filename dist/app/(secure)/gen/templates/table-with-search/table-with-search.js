@@ -1,8 +1,8 @@
 import { camelCase, kebabCase, startCase } from 'lodash-es';
 export default ({ dsName, moduleCode, editable }) => {
-  const alias = kebabCase(dsName);
-  const dsTitle = startCase(camelCase(dsName));
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    const alias = kebabCase(dsName);
+    const dsTitle = startCase(camelCase(dsName));
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 
@@ -33,9 +33,8 @@ export default function ${dsName}TableWithSearch() {
         table={table}
         pageId="${alias}-page"
         itemId="${alias}"
-        ${
-          editable
-            ? `addNewClick={async () => {
+        ${editable
+        ? `addNewClick={async () => {
           await store.createNew({
             partialRecord: {
               // TODO: add default values here if needed
@@ -43,31 +42,26 @@ export default function ${dsName}TableWithSearch() {
           });
           setOpenEditPopup(true);
         }}`
-            : ''
-        }
+        : ''}
       />
       <Card className="flex-1 overflow-hidden p-0">
         <${dsName}Table
           store={store}
           table={table}
-          ${
-            editable
-              ? `onRowClick={() => {
+          ${editable
+        ? `onRowClick={() => {
           setOpenEditPopup(true);
         }}`
-              : ''
-          }
+        : ''}
         />
       </Card>
-      ${
-        editable
-          ? `{openEditPopup && (
+      ${editable
+        ? `{openEditPopup && (
         <EditPopup title="Add New ${dsTitle}" store={store} onClose={() => setOpenEditPopup(false)} modal>
           <${dsName}EditForm store={store} />
         </EditPopup>
       )}`
-          : ''
-      }
+        : ''}
     </div>
   );
 }

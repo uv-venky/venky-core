@@ -1,23 +1,30 @@
 'use client';
 
-import { Logo } from '../logo';
+import { cn } from '@/lib/utils';
+import { VenkyLogo } from '../logo';
+import { getLoginPageBackgroundClass, getLoginPageBackgroundStyle } from '../login-page-background';
+import type { LoginPageContentProps } from '../login-page-types';
 import { ResetPasswordForm } from '@/components/reset-password-form';
-// import { usePageReadySignal } from '@/lib/core/client/use-data-loading-tracker';
-// import { useEffect } from 'react';
 
-export function ResetPasswordPageContent() {
-  // const signalReady = usePageReadySignal();
-
-  // useEffect(() => {
-  //   signalReady();
-  // }, [signalReady]);
-
+export function ResetPasswordPageContent({
+  logo: LogoComponent = VenkyLogo,
+  backgroundImageUrl,
+  backgroundClassName,
+  className,
+}: LoginPageContentProps = {}) {
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[url('/images/bg.jpeg')] bg-center bg-cover">
+    <div
+      className={cn(
+        'flex h-screen flex-col overflow-hidden',
+        getLoginPageBackgroundClass(backgroundImageUrl, backgroundClassName),
+        className,
+      )}
+      style={getLoginPageBackgroundStyle(backgroundImageUrl)}
+    >
       <header className="shrink-0 bg-transparent px-6 py-3">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
-            <Logo />
+            <LogoComponent />
           </div>
         </div>
       </header>

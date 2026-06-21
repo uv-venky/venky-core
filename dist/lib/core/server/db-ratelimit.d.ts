@@ -1,24 +1,24 @@
 export interface DbRateLimitOptions {
-  /** Friendly name used in logs. */
-  name: string;
-  /** Window length in ms. */
-  windowMs: number;
-  /** Max requests per window. */
-  maxRequests: number;
+    /** Friendly name used in logs. */
+    name: string;
+    /** Window length in ms. */
+    windowMs: number;
+    /** Max requests per window. */
+    maxRequests: number;
 }
 export declare class DbRateLimiter {
-  private readonly opts;
-  constructor(opts: DbRateLimitOptions);
-  /**
-   * Atomically increment the bucket for `key` and return whether the caller
-   * has exceeded the limit. Never skipped in development — in-memory dev
-   * bypass belongs to the best-effort limiter, not the security one.
-   */
-  isRateLimited(key: string | null): Promise<boolean>;
-  rejectResponse(): Response;
+    private readonly opts;
+    constructor(opts: DbRateLimitOptions);
+    /**
+     * Atomically increment the bucket for `key` and return whether the caller
+     * has exceeded the limit. Never skipped in development — in-memory dev
+     * bypass belongs to the best-effort limiter, not the security one.
+     */
+    isRateLimited(key: string | null): Promise<boolean>;
+    rejectResponse(): Response;
 }
 declare global {
-  var _$dbRateLimiters: Record<string, DbRateLimiter> | undefined;
+    var _$dbRateLimiters: Record<string, DbRateLimiter> | undefined;
 }
 /** Password reset: 3/hour per email or IP. */
 export declare function getPasswordResetDbLimiter(): DbRateLimiter;

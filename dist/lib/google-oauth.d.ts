@@ -1,24 +1,24 @@
 import 'server-only';
 export interface GoogleTokens {
-  access_token: string;
-  expires_in: number;
-  token_type: string;
-  scope: string;
-  id_token?: string;
-  refresh_token?: string;
+    access_token: string;
+    expires_in: number;
+    token_type: string;
+    scope: string;
+    id_token?: string;
+    refresh_token?: string;
 }
 export interface GoogleUserInfo {
-  id: string;
-  email: string;
-  verified_email: boolean;
-  name: string;
-  given_name?: string;
-  family_name?: string;
-  picture?: string;
+    id: string;
+    email: string;
+    verified_email: boolean;
+    name: string;
+    given_name?: string;
+    family_name?: string;
+    picture?: string;
 }
 interface GoogleOAuthState {
-  returnUrl: string;
-  timestamp: number;
+    returnUrl: string;
+    timestamp: number;
 }
 /**
  * Check if Google OAuth is enabled

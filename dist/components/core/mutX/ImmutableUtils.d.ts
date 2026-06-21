@@ -1,6 +1,6 @@
 import { type Key, type Path } from '../../../components/core/mutX/ImmutableTypes';
 export type Mutable<T> = {
-  -readonly [P in keyof T]: T[P];
+    -readonly [P in keyof T]: T[P];
 };
 declare function update<C>(collection: C, key: Key, updater: (val: unknown) => unknown): C;
 declare function set<C>(collection: C, key: Key, value: unknown): C;

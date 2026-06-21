@@ -8,8 +8,8 @@
  * @returns Object with `hasNewVersion` boolean and `currentVersion` string
  */
 export declare function useVersionCheck(): {
-  hasNewVersion: boolean;
-  clientVersion: string;
-  serverVersion: string | null;
+    hasNewVersion: boolean;
+    clientVersion: string;
+    serverVersion: string | null;
 };
 //# sourceMappingURL=use-version-check.d.ts.map

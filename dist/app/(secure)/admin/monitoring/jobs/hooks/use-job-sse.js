@@ -8,14 +8,14 @@ import { useCallback } from 'react';
  * when jobs start, complete, or fail.
  */
 export function useJobSSE() {
-  const handleMessage = useCallback((_channel, _data) => {
-    // Invalidate the dashboard data when any job event occurs
-    invalidateQuery('getJobDashboard');
-  }, []);
-  return useSSE({
-    channels: ['job:status'],
-    onMessage: handleMessage,
-    enabled: true,
-  });
+    const handleMessage = useCallback((_channel, _data) => {
+        // Invalidate the dashboard data when any job event occurs
+        invalidateQuery('getJobDashboard');
+    }, []);
+    return useSSE({
+        channels: ['job:status'],
+        onMessage: handleMessage,
+        enabled: true,
+    });
 }
 //# sourceMappingURL=use-job-sse.js.map

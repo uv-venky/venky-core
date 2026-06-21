@@ -10,38 +10,33 @@ import { setParamsImplementation } from '../../components/core/hooks/useParams';
 import { setLinkComponent } from '../../components/core/link';
 import NextLink from 'next/link';
 import { createElement } from 'react';
-import {
-  usePathname as useNextPathname,
-  useParams as useNextParams,
-  useSearchParams as useNextSearchParams,
-  useRouter as useNextRouter,
-} from 'next/navigation';
+import { usePathname as useNextPathname, useParams as useNextParams, useSearchParams as useNextSearchParams, useRouter as useNextRouter, } from 'next/navigation';
 function useNextSearchParamsImplementation() {
-  return useNextSearchParams() ?? new URLSearchParams();
+    return useNextSearchParams() ?? new URLSearchParams();
 }
 setPathnameImplementation(useNextPathname);
 setSearchParamsImplementation(useNextSearchParamsImplementation);
 setParamsImplementation(useNextParams);
 function NextLinkAdapter(props) {
-  const { href, prefetch, children, ...rest } = props;
-  return createElement(NextLink, { href, prefetch, ...rest }, children);
+    const { href, prefetch, children, ...rest } = props;
+    return createElement(NextLink, { href, prefetch, ...rest }, children);
 }
 setLinkComponent(NextLinkAdapter);
 function useCoreNavigationSetup() {
-  const nextRouter = useNextRouter();
-  // Router must be set every render since nextRouter reference may change
-  const router = {
-    push(url) {
-      nextRouter.push(url);
-    },
-    replace(url) {
-      nextRouter.replace(url);
-    },
-  };
-  setRouterImplementation(router);
+    const nextRouter = useNextRouter();
+    // Router must be set every render since nextRouter reference may change
+    const router = {
+        push(url) {
+            nextRouter.push(url);
+        },
+        replace(url) {
+            nextRouter.replace(url);
+        },
+    };
+    setRouterImplementation(router);
 }
 export function InitNextJSCoreHooksSetup() {
-  useCoreNavigationSetup();
-  return null;
+    useCoreNavigationSetup();
+    return null;
 }
 //# sourceMappingURL=InitNextJSCoreHooksSetup.js.map

@@ -12,8 +12,8 @@
  * framework-specific router (e.g., TanStack Router's navigate).
  */
 export interface AppRouter {
-  push(url: string): void;
-  replace(url: string): void;
+    push(url: string): void;
+    replace(url: string): void;
 }
 /**
  * Set a custom router implementation for client-side navigation.

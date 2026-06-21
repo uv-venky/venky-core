@@ -9,5 +9,5 @@ export declare function invalidateCache(pattern?: string): Promise<void>;
 /**
  * Get cache statistics
  */
-export declare function getCacheStats(): Promise<import('./types').CacheStats>;
+export declare function getCacheStats(): Promise<import("./types").CacheStats>;
 //# sourceMappingURL=cacheUtils.d.ts.map

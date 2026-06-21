@@ -31,9 +31,5 @@ import type { Channel, ChannelPayload } from '../types';
  * });
  * ```
  */
-export declare function publishSSE<T extends Channel>(
-  client: PgPoolClient,
-  channel: T,
-  data: ChannelPayload<T>,
-): Promise<void>;
+export declare function publishSSE<T extends Channel>(client: PgPoolClient, channel: T, data: ChannelPayload<T>): Promise<void>;
 //# sourceMappingURL=publisher.d.ts.map

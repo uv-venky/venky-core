@@ -37,15 +37,11 @@ export * from '../../../components/core/pivot';
 export { PivotFilters } from '../../../components/core/page/filters';
 // ── Page scaffolding (shell, layout template, fields) ────────────────
 export { default as PageShell } from '../../../components/core/page/page-shell';
-export { PageShellModeProvider, usePageShellModeSafe } from '../../../components/core/page/page-shell-mode-context';
+export { PageShellModeProvider, usePageShellModeSafe, } from '../../../components/core/page/page-shell-mode-context';
 export { default as PageLayoutTemplate } from '../../../components/core/page/page-layout-template';
 export * from '../../../components/core/page/fields';
 // ── Common components used by SmartSearch/DataTable ──────────────────
-export {
-  default as ErrorBoundary,
-  useErrorHandler,
-  withErrorBoundary,
-} from '../../../components/core/common/ErrorBoundary';
+export { default as ErrorBoundary, useErrorHandler, withErrorBoundary } from '../../../components/core/common/ErrorBoundary';
 export { default as EmptyState } from '../../../components/core/common/EmptyState';
 export { default as ErrorCard } from '../../../components/core/common/error';
 export { Popup } from '../../../components/core/page/popup';
@@ -66,12 +62,7 @@ export { default as CONSTANTS } from '../../../lib/core/client/constants';
 // ── Sidebar context (needed when hosting core pages outside core's layout) ──
 export { SidebarProvider, useSidebarSafe } from '../../../components/ui/sidebar';
 // ── App context (needed by PageLayoutTemplate for config values) ─────
-export {
-  BaseAppProvider,
-  useAppContext,
-  useDeployConfig,
-  useAppSidebarContext,
-} from '../../../components/sidebar/app-provider-base';
+export { BaseAppProvider, useAppContext, useDeployConfig, useAppSidebarContext, } from '../../../components/sidebar/app-provider-base';
 export { AppProvider } from '../../../components/sidebar/app-provider';
 // ── Providers (framework-agnostic, for hosting core pages outside core's layout) ──
 export { SessionProvider } from '../../../components/core/session-provider';

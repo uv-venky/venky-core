@@ -3,15 +3,7 @@
  * Curated exports to avoid pulling server-coupled modules into browser bundles.
  */
 export { AppProvider } from '../../../../components/sidebar/app-provider';
-export {
-  BaseAppProvider,
-  type AppContextValue,
-  type BaseAppProviderProps,
-  type CustomMiniLogoProps,
-  useAppContext,
-  useDeployConfig,
-  useAppSidebarContext,
-} from '../../../../components/sidebar/app-provider-base';
+export { BaseAppProvider, type AppContextValue, type BaseAppProviderProps, type CustomMiniLogoProps, useAppContext, useDeployConfig, useAppSidebarContext, } from '../../../../components/sidebar/app-provider-base';
 export { SessionProvider } from '../../../../components/core/session-provider';
 export { TeamProvider, useTeamContext, useTeamContextSafe } from '../../../../components/sidebar/team-context';
 export { setRouterImplementation, type AppRouter } from '../../../../components/core/hooks/useRouter';

@@ -1,7 +1,7 @@
 import { camelCase, startCase } from 'lodash-es';
 export default ({ dsName, moduleCode, editable }) => {
-  const dsTitle = startCase(camelCase(dsName));
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    const dsTitle = startCase(camelCase(dsName));
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 
@@ -42,16 +42,14 @@ export function ${dsName}FilterBar({
           table={table}
         />
         <ColumnViewsDialog table={table as unknown as Table<object>} variant="ghost" />
-        ${
-          editable
-            ? `{addNewClick && (<div className="flex shrink-0 items-center gap-2">
+        ${editable
+        ? `{addNewClick && (<div className="flex shrink-0 items-center gap-2">
           <Button variant="default" onClick={addNewClick}>
             <PlusIcon className="h-4 w-4" />
             Add New ${dsTitle}
             </Button>
           </div>)}`
-            : ''
-        }
+        : ''}
       </div>
     </Suspense>
   );

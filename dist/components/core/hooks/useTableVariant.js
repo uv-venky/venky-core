@@ -9,7 +9,7 @@ import { AppContext } from '../../../components/sidebar/app-provider-base';
  * 3. Falls back to 'default'
  */
 export function useTableVariant(localVariant) {
-  const ctx = useContext(AppContext);
-  return localVariant ?? ctx?.tableVariant ?? 'default';
+    const ctx = useContext(AppContext);
+    return localVariant ?? ctx?.tableVariant ?? 'default';
 }
 //# sourceMappingURL=useTableVariant.js.map

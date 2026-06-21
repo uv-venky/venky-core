@@ -1,17 +1,12 @@
 /* Copyright (c) 2024-present Venky Corp. */
 'use client';
-import {
-  prefetchQueryBase,
-  useMutationBase,
-  useQueryBase,
-  useSuspenseQueryBase,
-} from '../../../lib/core/client/useQueryBase';
+import { prefetchQueryBase, useMutationBase, useQueryBase, useSuspenseQueryBase, } from '../../../lib/core/client/useQueryBase';
 /**
  * Simple query hook for fetching action data.
  * For advanced options (staleTime, refetchOnWindowFocus), use useQueryWithOptions.
  */
 export function useQuery(name, ...params) {
-  return useQueryBase(name, {}, ...params);
+    return useQueryBase(name, {}, ...params);
 }
 /**
  * Query hook with React Query-like options.
@@ -27,7 +22,7 @@ export function useQuery(name, ...params) {
  * }, startDate, endDate);
  */
 export function useQueryWithOptions(name, options, ...params) {
-  return useQueryBase(name, options, ...params);
+    return useQueryBase(name, options, ...params);
 }
 /**
  * Suspense-enabled query hook. Suspends until data is ready.
@@ -54,7 +49,7 @@ export function useQueryWithOptions(name, options, ...params) {
  * </Suspense>
  */
 export function useSuspenseQuery(name, options, ...params) {
-  return useSuspenseQueryBase(name, options, ...params);
+    return useSuspenseQueryBase(name, options, ...params);
 }
 /**
  * Mutation hook with cache invalidation and callbacks.
@@ -72,7 +67,7 @@ export function useSuspenseQuery(name, options, ...params) {
  * });
  */
 export function useMutation(name, options = {}) {
-  return useMutationBase(name, options);
+    return useMutationBase(name, options);
 }
 /**
  * Prefetch data into the cache without triggering a component render.
@@ -92,6 +87,6 @@ export function useMutation(name, options = {}) {
  * await prefetchQuery('getChartData', { retry: 2 }, chartId);
  */
 export async function prefetchQuery(name, options, ...params) {
-  return prefetchQueryBase(name, options, ...params);
+    return prefetchQueryBase(name, options, ...params);
 }
 //# sourceMappingURL=useQuery.js.map

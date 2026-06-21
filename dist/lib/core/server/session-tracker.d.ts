@@ -1,14 +1,14 @@
 interface SessionTrackerApi {
-  updateSessionAccess(sessionId: string, expiresAt: string): void;
-  shutdown(): Promise<void>;
-  getStats(): {
-    totalSessions: number;
-    sessionsNeedingUpdate: number;
-  };
+    updateSessionAccess(sessionId: string, expiresAt: string): void;
+    shutdown(): Promise<void>;
+    getStats(): {
+        totalSessions: number;
+        sessionsNeedingUpdate: number;
+    };
 }
 declare global {
-  var _$sessionTracker: SessionTrackerApi | undefined;
-  var _$isShuttingDown: boolean | undefined;
+    var _$sessionTracker: SessionTrackerApi | undefined;
+    var _$isShuttingDown: boolean | undefined;
 }
 export declare const sessionTracker: SessionTrackerApi;
 export {};

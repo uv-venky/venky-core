@@ -9,6 +9,6 @@ export declare function isCsrfExempt(pathname: string, method: string): boolean;
  */
 export declare function assertCsrf(client: PgPoolClient, session: Session, req: Request): Promise<void>;
 export declare class CsrfError extends Error {
-  constructor(message: string);
+    constructor(message: string);
 }
 //# sourceMappingURL=csrf.d.ts.map

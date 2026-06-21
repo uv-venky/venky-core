@@ -9,50 +9,51 @@ import { getPasswordRequirements } from '../../../lib/common/password-utils';
 import { PREFIX } from '../../../lib/server/constants';
 import { sendServerEvent } from './server-events';
 function hashResetToken(token) {
-  return createHash('sha256').update(token).digest('hex');
+    return createHash('sha256').update(token).digest('hex');
 }
 export async function createPasswordResetToken(client, email, userName) {
-  const key = ulid();
-  // 256 bits of CSPRNG entropy; only its hash is persisted (defends a TTL-store read).
-  const token = randomBytes(32).toString('hex');
-  await putTTLValue(client, key, { tokenHash: hashResetToken(token), email, userName }, 10 * 60);
-  return { key, token: await encrypt(token) };
+    const key = ulid();
+    // 256 bits of CSPRNG entropy; only its hash is persisted (defends a TTL-store read).
+    const token = randomBytes(32).toString('hex');
+    await putTTLValue(client, key, { tokenHash: hashResetToken(token), email, userName }, 10 * 60);
+    return { key, token: await encrypt(token) };
 }
 export async function validatePasswordResetToken(client, key, token, email, userName) {
-  const info = await getTTLValue(client, key);
-  if (!info) return false;
-  let decryptedToken = '';
-  try {
-    decryptedToken = await decrypt(token);
-  } catch (error) {
-    logger.error('Error decrypting password reset token', { error });
-    return false;
-  }
-  const expected = Buffer.from(info.tokenHash, 'hex');
-  const actual = Buffer.from(hashResetToken(decryptedToken), 'hex');
-  const tokenMatches = expected.length === actual.length && timingSafeEqual(expected, actual);
-  return tokenMatches && info.email === email && info.userName === userName;
+    const info = await getTTLValue(client, key);
+    if (!info)
+        return false;
+    let decryptedToken = '';
+    try {
+        decryptedToken = await decrypt(token);
+    }
+    catch (error) {
+        logger.error('Error decrypting password reset token', { error });
+        return false;
+    }
+    const expected = Buffer.from(info.tokenHash, 'hex');
+    const actual = Buffer.from(hashResetToken(decryptedToken), 'hex');
+    const tokenMatches = expected.length === actual.length && timingSafeEqual(expected, actual);
+    return tokenMatches && info.email === email && info.userName === userName;
 }
 export async function validateNewPassword(password, previousPasswordHashes) {
-  const requirements = getPasswordRequirements();
-  for (const requirement of requirements) {
-    if (!requirement.test(password)) {
-      return requirement.message;
+    const requirements = getPasswordRequirements();
+    for (const requirement of requirements) {
+        if (!requirement.test(password)) {
+            return requirement.message;
+        }
     }
-  }
-  // check if the password is not the same as the previous password
-  for (const hash of previousPasswordHashes) {
-    if (await compare(password, hash)) {
-      return 'Password cannot be the same as the previous 3 passwords';
+    // check if the password is not the same as the previous password
+    for (const hash of previousPasswordHashes) {
+        if (await compare(password, hash)) {
+            return 'Password cannot be the same as the previous 3 passwords';
+        }
     }
-  }
-  return null;
+    return null;
 }
 export async function signOutAllUserSessions(con, userName) {
-  const now = new Date().toISOString();
-  await con.query(`UPDATE ${PREFIX}user_sessions SET signed_out_at = $1 WHERE user_name = $2`, [now, userName]);
-  await con.query(
-    `INSERT INTO ${PREFIX}user_sessions_arch (
+    const now = new Date().toISOString();
+    await con.query(`UPDATE ${PREFIX}user_sessions SET signed_out_at = $1 WHERE user_name = $2`, [now, userName]);
+    await con.query(`INSERT INTO ${PREFIX}user_sessions_arch (
               user_name,
               user_id,
               session_id,
@@ -78,10 +79,8 @@ export async function signOutAllUserSessions(con, userName) {
               signed_out_at,
               app_id,
               metadata
-            FROM ${PREFIX}user_sessions WHERE user_name = $1 AND signed_out_at IS NOT NULL`,
-    [userName],
-  );
-  await con.query(`DELETE FROM ${PREFIX}user_sessions WHERE user_name = $1 AND signed_out_at IS NOT NULL`, [userName]);
-  await sendServerEvent(con, 'clearSessionCache', { userName });
+            FROM ${PREFIX}user_sessions WHERE user_name = $1 AND signed_out_at IS NOT NULL`, [userName]);
+    await con.query(`DELETE FROM ${PREFIX}user_sessions WHERE user_name = $1 AND signed_out_at IS NOT NULL`, [userName]);
+    await sendServerEvent(con, 'clearSessionCache', { userName });
 }
 //# sourceMappingURL=password-reset.js.map

@@ -14,7 +14,7 @@
 // `@/`-aliased, extensionless imports the bundler-targeted package uses elsewhere.
 import { generateActionParamSchemas } from '../../../lib/codegen/action-param-schemas.js';
 generateActionParamSchemas({ projectRoot: process.cwd() }).catch((err) => {
-  console.error(err);
-  process.exit(1);
+    console.error(err);
+    process.exit(1);
 });
 //# sourceMappingURL=bin.js.map

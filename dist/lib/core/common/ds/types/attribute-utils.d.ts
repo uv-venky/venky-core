@@ -10,22 +10,14 @@ export declare function isBooleanType(dataType: AttributeType): dataType is 'Boo
 export declare function isYNType(dataType: AttributeType): dataType is 'YN';
 export declare function isTFType(dataType: AttributeType): dataType is 'TF';
 export declare function isPolygonType(dataType: AttributeType): dataType is 'Polygon';
-export type UnwrappedFilter<
-  T extends object,
-  Op extends AllOperators,
-  V extends string | number | string[] | number[] | boolean,
-> = {
-  key: StringKeyof<T>;
-  op: Op;
-  value: V;
-  attribute: Attribute<T>;
-  ignoreCase?: boolean;
-  /** When set, filter is for a key inside a JSON attribute (e.g. "attributes.key"). */
-  jsonKey?: string;
+export type UnwrappedFilter<T extends object, Op extends AllOperators, V extends string | number | string[] | number[] | boolean> = {
+    key: StringKeyof<T>;
+    op: Op;
+    value: V;
+    attribute: Attribute<T>;
+    ignoreCase?: boolean;
+    /** When set, filter is for a key inside a JSON attribute (e.g. "attributes.key"). */
+    jsonKey?: string;
 };
-export declare function unwrapFilter<
-  T extends object,
-  Op extends AllOperators,
-  V extends string | number | string[] | number[] | boolean,
->(dataSource: DataSource<T>, filter: SingleFilter<T>): UnwrappedFilter<T, Op, V>;
+export declare function unwrapFilter<T extends object, Op extends AllOperators, V extends string | number | string[] | number[] | boolean>(dataSource: DataSource<T>, filter: SingleFilter<T>): UnwrappedFilter<T, Op, V>;
 //# sourceMappingURL=attribute-utils.d.ts.map

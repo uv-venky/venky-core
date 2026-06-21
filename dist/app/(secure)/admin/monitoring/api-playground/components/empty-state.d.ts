@@ -1,6 +1,6 @@
 interface EmptyStateProps {
-  actionLabel?: string;
+    actionLabel?: string;
 }
-export default function EmptyState({ actionLabel }: EmptyStateProps): import('react/jsx-runtime').JSX.Element;
+export default function EmptyState({ actionLabel }: EmptyStateProps): import("react/jsx-runtime").JSX.Element;
 export {};
 //# sourceMappingURL=empty-state.d.ts.map

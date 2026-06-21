@@ -13,8 +13,8 @@ import { useSyncExternalStore } from 'react';
  * framework-specific hook (e.g., TanStack Router's useSearch).
  */
 function useDefaultSearchParams() {
-  const search = useSyncExternalStore(subscribeToSearch, getSearch, getServerSearch);
-  return new URLSearchParams(search);
+    const search = useSyncExternalStore(subscribeToSearch, getSearch, getServerSearch);
+    return new URLSearchParams(search);
 }
 let activeHook = useDefaultSearchParams;
 /**
@@ -22,19 +22,19 @@ let activeHook = useDefaultSearchParams;
  * Call this once during app initialization before the first render.
  */
 export function setSearchParamsImplementation(hook) {
-  activeHook = hook;
+    activeHook = hook;
 }
 export function useSearchParams() {
-  return activeHook();
+    return activeHook();
 }
 function getSearch() {
-  return window.location.search;
+    return window.location.search;
 }
 function getServerSearch() {
-  return '';
+    return '';
 }
 function subscribeToSearch(callback) {
-  window.addEventListener('popstate', callback);
-  return () => window.removeEventListener('popstate', callback);
+    window.addEventListener('popstate', callback);
+    return () => window.removeEventListener('popstate', callback);
 }
 //# sourceMappingURL=useSearchParams.js.map

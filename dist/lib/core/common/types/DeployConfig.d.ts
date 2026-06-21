@@ -12,12 +12,12 @@
 export type DeployEnvironment = 'DEV' | 'UAT' | 'PROD' | 'PRODCLONE' | 'DEMO';
 /** Configuration for a single deployment environment */
 export interface DeployConfig {
-  /** AWS ECS cluster name */
-  clusterName: string;
-  /** AWS ECS service name */
-  serviceName: string;
-  /** Human-readable label for the environment */
-  label: string;
+    /** AWS ECS cluster name */
+    clusterName: string;
+    /** AWS ECS service name */
+    serviceName: string;
+    /** Human-readable label for the environment */
+    label: string;
 }
 /** Map of environment to deployment configuration */
 export type DeployConfigMap = Partial<Record<DeployEnvironment, DeployConfig>>;

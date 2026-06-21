@@ -1,8 +1,8 @@
 /* Copyright (c) 2024-present Venky Corp. */
 import { camelCase, startCase } from 'lodash-es';
 export default ({ dsName, template }) => {
-  const dsTitle = startCase(camelCase(dsName));
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    const dsTitle = startCase(camelCase(dsName));
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 

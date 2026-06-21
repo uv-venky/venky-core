@@ -14,13 +14,13 @@ export declare function encryptConfig(config: Record<string, unknown>): Promise<
  */
 export declare function decryptConfig(encryptedConfig: string): Promise<Record<string, unknown>>;
 export type DecryptedIntegration = {
-  id: string;
-  userName: string;
-  name: string;
-  type: IntegrationType;
-  config: IntegrationConfig;
-  createdAt: string;
-  updatedAt: string;
+    id: string;
+    userName: string;
+    name: string;
+    type: IntegrationType;
+    config: IntegrationConfig;
+    createdAt: string;
+    updatedAt: string;
 };
 /**
  * Get a single integration by ID
@@ -33,23 +33,14 @@ export declare function getIntegrationById(integrationId: string): Promise<Decry
 /**
  * Create a new integration
  */
-export declare function createIntegration(
-  userName: string,
-  name: string,
-  type: IntegrationType,
-  config: IntegrationConfig,
-): Promise<DecryptedIntegration>;
+export declare function createIntegration(userName: string, name: string, type: IntegrationType, config: IntegrationConfig): Promise<DecryptedIntegration>;
 /**
  * Update an integration
  */
-export declare function updateIntegration(
-  integrationId: string,
-  userName: string,
-  updates: {
+export declare function updateIntegration(integrationId: string, userName: string, updates: {
     name?: string;
     config?: IntegrationConfig;
-  },
-): Promise<DecryptedIntegration | null>;
+}): Promise<DecryptedIntegration | null>;
 /**
  * Delete an integration
  */
@@ -58,11 +49,11 @@ export declare function deleteIntegration(integrationId: string, userName: strin
  * Workflow node structure for validation
  */
 type WorkflowNodeForValidation = {
-  data?: {
-    config?: {
-      integrationId?: string;
+    data?: {
+        config?: {
+            integrationId?: string;
+        };
     };
-  };
 };
 /**
  * Extract all integration IDs from workflow nodes
@@ -79,12 +70,9 @@ export declare function extractIntegrationIds(nodes: WorkflowNodeForValidation[]
  *
  * @returns Object with `valid` boolean and optional `invalidIds` array
  */
-export declare function validateWorkflowIntegrations(
-  nodes: WorkflowNodeForValidation[],
-  userName: string,
-): Promise<{
-  valid: boolean;
-  invalidIds?: string[];
+export declare function validateWorkflowIntegrations(nodes: WorkflowNodeForValidation[], userName: string): Promise<{
+    valid: boolean;
+    invalidIds?: string[];
 }>;
 export {};
 //# sourceMappingURL=integrations.d.ts.map

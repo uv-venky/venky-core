@@ -13,32 +13,33 @@ import { useSSE } from '../../../lib/sse/client/use-sse';
  * @returns Object with `hasNewVersion` boolean and `currentVersion` string
  */
 export function useVersionCheck() {
-  const [hasNewVersion, setHasNewVersion] = useState(false);
-  const [serverVersion, setServerVersion] = useState(null);
-  const clientVersion = APP_VERSION;
-  // Subscribe to system channel to receive version updates
-  useSSE({
-    channels: ['_system'],
-    onMessage: (_channel, data) => {
-      const payload = data;
-      // Handle version messages
-      if (payload.type === 'version' && payload.version) {
-        const receivedVersion = payload.version;
-        setServerVersion(receivedVersion);
-        // Compare with client version
-        if (receivedVersion !== clientVersion) {
-          setHasNewVersion(true);
-        } else {
-          // Versions match, clear any previous new version state
-          setHasNewVersion(false);
-        }
-      }
-    },
-  });
-  return {
-    hasNewVersion,
-    clientVersion,
-    serverVersion,
-  };
+    const [hasNewVersion, setHasNewVersion] = useState(false);
+    const [serverVersion, setServerVersion] = useState(null);
+    const clientVersion = APP_VERSION;
+    // Subscribe to system channel to receive version updates
+    useSSE({
+        channels: ['_system'],
+        onMessage: (_channel, data) => {
+            const payload = data;
+            // Handle version messages
+            if (payload.type === 'version' && payload.version) {
+                const receivedVersion = payload.version;
+                setServerVersion(receivedVersion);
+                // Compare with client version
+                if (receivedVersion !== clientVersion) {
+                    setHasNewVersion(true);
+                }
+                else {
+                    // Versions match, clear any previous new version state
+                    setHasNewVersion(false);
+                }
+            }
+        },
+    });
+    return {
+        hasNewVersion,
+        clientVersion,
+        serverVersion,
+    };
 }
 //# sourceMappingURL=use-version-check.js.map

@@ -1,7 +1,4 @@
-export declare const GET: (
-  req: Request,
-  routeContext: {
+export declare const GET: (req: Request, routeContext: {
     params: Promise<any>;
-  },
-) => Promise<Response>;
+}) => Promise<Response>;
 //# sourceMappingURL=route.d.ts.map

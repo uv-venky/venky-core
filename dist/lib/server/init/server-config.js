@@ -4,39 +4,39 @@ import { deployConfig, AWS_REGION, GITHUB_REPO_NAME } from '../../config/deploy-
 import { ACTIONS, ACTION_ACCESS_ROLES, WORKFLOW_CALLABLE_ACTIONS } from '../../../lib/server/actions';
 import { DataSources } from '../../../lib/server/ds/defs';
 export function validateAccess(_) {
-  // const customerNameHeader = headers.get('x-customer-name');
-  // if (customerNameHeader) {
-  //   validateCustomerAccess(session, customerNameHeader);
-  //   session.user.customerName = customerNameHeader;
-  // }
+    // const customerNameHeader = headers.get('x-customer-name');
+    // if (customerNameHeader) {
+    //   validateCustomerAccess(session, customerNameHeader);
+    //   session.user.customerName = customerNameHeader;
+    // }
 }
 export function validateProfileUpdate(_key, _value, _user) {
-  // if (key === 'customerName') {
-  //   const roles = rolesByCustomer[value as keyof typeof rolesByCustomer];
-  //   if (!roles.some((role) => user.roles.includes(role))) {
-  //     throw new Error('User is not authorized to update customer information');
-  //   }
-  // }
+    // if (key === 'customerName') {
+    //   const roles = rolesByCustomer[value as keyof typeof rolesByCustomer];
+    //   if (!roles.some((role) => user.roles.includes(role))) {
+    //     throw new Error('User is not authorized to update customer information');
+    //   }
+    // }
 }
 function buildTeams() {
-  return [adminPortal];
+    return [adminPortal];
 }
 const serverConfig = {
-  validateAccess,
-  validateProfileUpdate,
-  teams: buildTeams(),
-  dataSources: DataSources,
-  jobs: [],
-  templateCodeGenFunctions: [],
-  relayStateProcessors,
-  deployConfig,
-  awsRegion: AWS_REGION,
-  gitHubRepoName: GITHUB_REPO_NAME,
-  actionRegistry: {
-    ACTIONS: ACTIONS,
-    ACTION_ACCESS_ROLES: ACTION_ACCESS_ROLES,
-    WORKFLOW_CALLABLE_ACTIONS,
-  },
+    validateAccess,
+    validateProfileUpdate,
+    teams: buildTeams(),
+    dataSources: DataSources,
+    jobs: [],
+    templateCodeGenFunctions: [],
+    relayStateProcessors,
+    deployConfig,
+    awsRegion: AWS_REGION,
+    gitHubRepoName: GITHUB_REPO_NAME,
+    actionRegistry: {
+        ACTIONS: ACTIONS,
+        ACTION_ACCESS_ROLES: ACTION_ACCESS_ROLES,
+        WORKFLOW_CALLABLE_ACTIONS,
+    },
 };
 export default serverConfig;
 //# sourceMappingURL=server-config.js.map

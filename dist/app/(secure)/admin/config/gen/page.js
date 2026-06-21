@@ -1,23 +1,23 @@
 'use client';
-import { jsx as _jsx } from 'react/jsx-runtime';
+import { jsx as _jsx } from "react/jsx-runtime";
 import { CodeGenPage } from '../../../gen/CodeGenPage';
 const modules = [
-  {
-    value: 'admin',
-    label: 'Administration',
-  },
+    {
+        value: 'admin',
+        label: 'Administration',
+    },
 ];
 const subModules = [
-  {
-    value: 'config',
-    label: 'Configuration',
-  },
-  {
-    value: 'monitoring',
-    label: 'Monitoring',
-  },
+    {
+        value: 'config',
+        label: 'Configuration',
+    },
+    {
+        value: 'monitoring',
+        label: 'Monitoring',
+    },
 ];
 export default function Page() {
-  return _jsx(CodeGenPage, { modules: modules, subModules: subModules });
+    return _jsx(CodeGenPage, { modules: modules, subModules: subModules });
 }
 //# sourceMappingURL=page.js.map

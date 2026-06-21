@@ -7,10 +7,5 @@
  *   import { generateActionParamSchemas } from 'venky-core/codegen';
  *   await generateActionParamSchemas({ projectRoot: process.cwd() });
  */
-export {
-  generateActionParamSchemas,
-  type GenerateActionParamSchemasOptions,
-  type GeneratedParamEntry,
-  type ParamType,
-} from '../../../lib/codegen/action-param-schemas';
+export { generateActionParamSchemas, type GenerateActionParamSchemasOptions, type GeneratedParamEntry, type ParamType, } from '../../../lib/codegen/action-param-schemas';
 //# sourceMappingURL=index.d.ts.map

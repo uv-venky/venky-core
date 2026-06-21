@@ -11,7 +11,7 @@ export * from './edit-sheet';
 export * from './fields';
 export { default as Filters } from './filters';
 export * from './MustBeTabletOrDesktop';
-export { default as PageLayoutTemplate, PaginationSection } from './page-layout-template';
+export { default as PageLayoutTemplate, PaginationSection, } from './page-layout-template';
 export * from './page-shell-header-context';
 export * from './page-shell-mode-context';
 export * from './page-shell';

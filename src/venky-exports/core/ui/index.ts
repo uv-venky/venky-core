@@ -76,6 +76,24 @@ export { ResetPasswordConfirmationPage } from '@/app/login/reset-password/[token
 export { exportStoreToCsv } from '@/components/core/download/exportStoreToCsv';
 export { UserProfilePage } from '@/app/(secure)/user/profile/user-profile-page';
 export { LoginPageContent } from '@/app/login/page-content';
+export type {
+  LoginPageContentProps,
+  LoginLogoProps,
+  LoginLogoComponent,
+  LoginTabConfig,
+  LoginTabType,
+  LoginLegalNoticeConfig,
+  LoginLegalLink,
+} from '@/app/login/login-page-types';
+export { DEFAULT_LOGIN_TABS, DEFAULT_LOGIN_LEGAL_NOTICE } from '@/app/login/login-page-types';
+export {
+  DEFAULT_LOGIN_BACKGROUND_CLASS,
+  getLoginPageBackgroundClass,
+  getLoginPageBackgroundStyle,
+} from '@/app/login/login-page-background';
+export { VenkyLogo, Logo } from '@/app/login/logo';
+export { MiniLogo } from '@/app/login/mini-logo';
+export { VenkyLogoMark } from '@/app/login/venky-logo-mark';
 export { ForcePasswordChangePage } from '@/app/(secure)/force-password-change/ForcePasswordChangePage';
 export { WVAuditPage } from '@/app/(secure)/core/wv-audit/WVAuditPage';
 export { useHasRole } from '@/hooks/use-has-role';

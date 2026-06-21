@@ -1,8 +1,5 @@
-export declare const GET: (
-  req: Request,
-  routeContext: {
+export declare const GET: (req: Request, routeContext: {
     params: Promise<any>;
-  },
-) => Promise<Response>;
-export declare const runtime = 'nodejs';
+}) => Promise<Response>;
+export declare const runtime = "nodejs";
 //# sourceMappingURL=route.d.ts.map

@@ -1,7 +1,4 @@
-export declare const DELETE: (
-  req: Request,
-  routeContext: {
+export declare const DELETE: (req: Request, routeContext: {
     params: Promise<any>;
-  },
-) => Promise<Response>;
+}) => Promise<Response>;
 //# sourceMappingURL=route.d.ts.map

@@ -1,2 +1,2 @@
-export default function NoAccess(): import('react/jsx-runtime').JSX.Element;
+export default function NoAccess(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=page.d.ts.map

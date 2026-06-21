@@ -15,20 +15,20 @@ import logger from './logger';
  * setRequestContextProvider(vinxiRequestContext);
  */
 export function setRequestContextProvider(provider) {
-  logger.info('Setting request context provider');
-  globalThis._$venkyRequestContextProvider = provider;
+    logger.info('Setting request context provider');
+    globalThis._$venkyRequestContextProvider = provider;
 }
 /**
  * Get the current request context provider.
  * Throws if no provider has been set.
  */
 export function getRequestContext(name) {
-  const provider = globalThis._$venkyRequestContextProvider;
-  if (!provider) {
-    logger.error(`RequestContext provider not set! ${name}`);
-    throw new Error(`RequestContext provider not set! ${name}. Call setRequestContextProvider() during server initialization.
+    const provider = globalThis._$venkyRequestContextProvider;
+    if (!provider) {
+        logger.error(`RequestContext provider not set! ${name}`);
+        throw new Error(`RequestContext provider not set! ${name}. Call setRequestContextProvider() during server initialization.
         For Next.js, use: setRequestContextProvider(nextjsRequestContext)`);
-  }
-  return provider;
+    }
+    return provider;
 }
 //# sourceMappingURL=request-context.js.map

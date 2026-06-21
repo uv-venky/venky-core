@@ -1,6 +1,6 @@
 /* Copyright (c) 2024-present Venky Corp. */
 'use client';
-import { jsx as _jsx } from 'react/jsx-runtime';
+import { jsx as _jsx } from "react/jsx-runtime";
 import { useRowValue } from '../../../../components/core/hooks/useStoreHooks';
 import { useCurrentStore } from '../../../../components/core/page/RowIdProvider';
 import { assertExists } from '../../../../components/core/utils/assert';
@@ -25,31 +25,17 @@ import { EMPTY_CELL } from './shared';
  * />
  * ```
  */
-export function LabelMappedBadgeCell({
-  attributeCode,
-  labelMap,
-  defaultClassName = '',
-  cellClassName,
-  feedbackMask,
-  row,
-}) {
-  const store = useCurrentStore();
-  assertExists(store, 'Store not found in LabelMappedBadgeCell');
-  const value = useRowValue(store, row.id, attributeCode);
-  if (value == null || value === '') {
-    return EMPTY_CELL;
-  }
-  const stringValue = String(value);
-  const mapping = labelMap[stringValue];
-  const displayLabel = mapping?.label ?? stringValue;
-  const badgeClassName = mapping?.className ?? defaultClassName;
-  return _jsx(Cell, {
-    attributeCode: attributeCode,
-    store: store,
-    rowId: row.id,
-    className: cellClassName,
-    feedbackMask: feedbackMask,
-    children: _jsx(Badge, { variant: 'secondary', className: cn(badgeClassName), children: displayLabel }),
-  });
+export function LabelMappedBadgeCell({ attributeCode, labelMap, defaultClassName = '', cellClassName, feedbackMask, row, }) {
+    const store = useCurrentStore();
+    assertExists(store, 'Store not found in LabelMappedBadgeCell');
+    const value = useRowValue(store, row.id, attributeCode);
+    if (value == null || value === '') {
+        return EMPTY_CELL;
+    }
+    const stringValue = String(value);
+    const mapping = labelMap[stringValue];
+    const displayLabel = mapping?.label ?? stringValue;
+    const badgeClassName = mapping?.className ?? defaultClassName;
+    return (_jsx(Cell, { attributeCode: attributeCode, store: store, rowId: row.id, className: cellClassName, feedbackMask: feedbackMask, children: _jsx(Badge, { variant: "secondary", className: cn(badgeClassName), children: displayLabel }) }));
 }
 //# sourceMappingURL=LabelMappedBadgeCell.js.map

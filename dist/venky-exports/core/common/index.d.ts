@@ -51,11 +51,6 @@ export type { RecurrenceType } from '../../../lib/core/common/schedule-utils';
 export { calculateNextRunAt } from '../../../lib/core/common/schedule-utils';
 export { getPasswordRequirements } from '../../../lib/common/password-utils';
 export type { ValidPasswordResetTokenType } from '../../../lib/core/common/types/PasswordReset';
-export type { DeployEnvironment, DeployConfig, DeployConfigMap } from '../../../lib/core/common/types/DeployConfig';
-export {
-  DefaultAttribute,
-  DefaultDataSource,
-  DefaultFullAccess,
-  DefaultReadOnlyAccess,
-} from '../../../lib/core/common/ds/types/Defaults';
+export type { DeployEnvironment, DeployConfig, DeployConfigMap, } from '../../../lib/core/common/types/DeployConfig';
+export { DefaultAttribute, DefaultDataSource, DefaultFullAccess, DefaultReadOnlyAccess, } from '../../../lib/core/common/ds/types/Defaults';
 //# sourceMappingURL=index.d.ts.map

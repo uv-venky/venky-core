@@ -8,7 +8,7 @@
  */
 export type RedirectImplementation = (url: string) => never;
 declare global {
-  var _$venkyRedirectImplementation: RedirectImplementation | null | undefined;
+    var _$venkyRedirectImplementation: RedirectImplementation | null | undefined;
 }
 /**
  * Set the redirect implementation for the current framework.

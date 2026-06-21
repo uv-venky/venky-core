@@ -1,121 +1,112 @@
 import type { Env } from '../../../../venky-exports/core/ui';
 import type { AppConfig } from '../../../../venky-exports/core/server';
-export type ActivityType =
-  | 'query'
-  | 'mutation'
-  | 'store-query'
-  | 'store-save'
-  | 'store-invalidate'
-  | 'cache-hit'
-  | 'cache-invalidate'
-  | 'network'
-  | 'route-change';
+export type ActivityType = 'query' | 'mutation' | 'store-query' | 'store-save' | 'store-invalidate' | 'cache-hit' | 'cache-invalidate' | 'network' | 'route-change';
 export interface ActivityEntry {
-  id: string;
-  type: ActivityType;
-  name: string;
-  params?: unknown[];
-  status: 'pending' | 'success' | 'error';
-  /** ISO timestamp string */
-  startedAt: string;
-  /** ISO timestamp string */
-  completedAt?: string;
-  duration?: number;
-  error?: string;
-  result?: unknown;
+    id: string;
+    type: ActivityType;
+    name: string;
+    params?: unknown[];
+    status: 'pending' | 'success' | 'error';
+    /** ISO timestamp string */
+    startedAt: string;
+    /** ISO timestamp string */
+    completedAt?: string;
+    duration?: number;
+    error?: string;
+    result?: unknown;
 }
 export interface MutationEntry {
-  id: string;
-  name: string;
-  params: unknown[];
-  status: 'pending' | 'success' | 'error';
-  /** ISO timestamp string */
-  startedAt: string;
-  /** ISO timestamp string */
-  completedAt?: string;
-  duration?: number;
-  error?: string;
-  result?: unknown;
-  invalidatedQueries?: string[];
+    id: string;
+    name: string;
+    params: unknown[];
+    status: 'pending' | 'success' | 'error';
+    /** ISO timestamp string */
+    startedAt: string;
+    /** ISO timestamp string */
+    completedAt?: string;
+    duration?: number;
+    error?: string;
+    result?: unknown;
+    invalidatedQueries?: string[];
 }
 export interface StoreInfo {
-  key: string;
-  datasourceId: string;
-  alias: string;
-  page: string;
-  rowCount: number;
-  isLoading: boolean;
-  isPosting: boolean;
-  isDirty: boolean;
-  dirtyRowCount: number;
-  /** ISO timestamp string */
-  lastQueryAt?: string;
-  /** ISO timestamp string */
-  lastSaveAt?: string;
-  rows?: unknown[];
-  query?: Record<string, unknown>;
+    key: string;
+    datasourceId: string;
+    alias: string;
+    page: string;
+    rowCount: number;
+    isLoading: boolean;
+    isPosting: boolean;
+    isDirty: boolean;
+    dirtyRowCount: number;
+    /** ISO timestamp string */
+    lastQueryAt?: string;
+    /** ISO timestamp string */
+    lastSaveAt?: string;
+    rows?: unknown[];
+    query?: Record<string, unknown>;
 }
 export interface QueryInfo {
-  key: string;
-  actionName: string;
-  params: unknown[];
-  status: 'loading' | 'success' | 'error';
-  /** ISO timestamp string */
-  dataUpdatedAt?: string;
-  error?: string;
-  hasData: boolean;
+    key: string;
+    actionName: string;
+    params: unknown[];
+    status: 'loading' | 'success' | 'error';
+    /** ISO timestamp string */
+    dataUpdatedAt?: string;
+    error?: string;
+    hasData: boolean;
 }
 export type NetworkType = 'api' | 'server-action' | 'ds' | 'query';
 export interface NetworkEntry {
-  id: string;
-  /** ID of the corresponding activity entry for updates */
-  activityId?: string;
-  type: NetworkType;
-  method: string;
-  url: string;
-  /** For server actions, the action name from Next-Action header */
-  actionName?: string;
-  status: 'pending' | 'success' | 'error';
-  statusCode?: number;
-  /** ISO timestamp string */
-  startedAt: string;
-  /** ISO timestamp string */
-  completedAt?: string;
-  duration?: number;
-  requestHeaders?: Record<string, string>;
-  requestBody?: unknown;
-  responseHeaders?: Record<string, string>;
-  responseBody?: unknown;
-  responseSize?: number;
-  error?: string;
+    id: string;
+    /** ID of the corresponding activity entry for updates */
+    activityId?: string;
+    type: NetworkType;
+    method: string;
+    url: string;
+    /** For server actions, the action name from Next-Action header */
+    actionName?: string;
+    status: 'pending' | 'success' | 'error';
+    statusCode?: number;
+    /** ISO timestamp string */
+    startedAt: string;
+    /** ISO timestamp string */
+    completedAt?: string;
+    duration?: number;
+    requestHeaders?: Record<string, string>;
+    requestBody?: unknown;
+    responseHeaders?: Record<string, string>;
+    responseBody?: unknown;
+    responseSize?: number;
+    error?: string;
 }
 export interface RouteEntry {
-  id: string;
-  from: string;
-  to: string;
-  /** ISO timestamp string */
-  timestamp: string;
+    id: string;
+    from: string;
+    to: string;
+    /** ISO timestamp string */
+    timestamp: string;
 }
 export type ErrorSource = 'unhandled' | 'query' | 'mutation' | 'network' | 'validation' | 'server' | 'custom';
 export interface ErrorEntry {
-  id: string;
-  source: ErrorSource;
-  message: string;
-  stack?: string;
-  /** ISO timestamp string */
-  timestamp: string;
-  context?: Record<string, unknown>;
-  /** URL or action where error occurred */
-  url?: string;
+    id: string;
+    source: ErrorSource;
+    message: string;
+    stack?: string;
+    /** ISO timestamp string */
+    timestamp: string;
+    context?: Record<string, unknown>;
+    /** URL or action where error occurred */
+    url?: string;
 }
 export interface EnvironmentInfo {
-  nodeEnv: string;
-  appVersion?: string;
-  userName?: string;
-  userEmail?: string;
-  userRoles?: string[];
-  pathname?: string;
-  env?: Env;
+    nodeEnv: string;
+    appVersion?: string;
+    userName?: string;
+    userEmail?: string;
+    userRoles?: string[];
+    pathname?: string;
+    env?: Env;
 }
 /**
  * App config info for devtools display.
@@ -124,25 +115,25 @@ export interface EnvironmentInfo {
 export type ConfigInfo = Omit<AppConfig, 'secret'>;
 export type DevtoolsTab = 'stores' | 'queries' | 'mutations' | 'activity' | 'network' | 'errors' | 'config';
 interface DevtoolsState {
-  enabled: boolean;
-  isOpen: boolean;
-  activeTab: DevtoolsTab;
-  filter: string;
-  stores: Record<string, StoreInfo>;
-  mutations: MutationEntry[];
-  activity: ActivityEntry[];
-  network: NetworkEntry[];
-  routes: RouteEntry[];
-  errors: ErrorEntry[];
-  environment: EnvironmentInfo;
-  config: ConfigInfo;
-  maxActivityEntries: number;
-  maxMutationEntries: number;
-  maxNetworkEntries: number;
-  maxErrorEntries: number;
-  maxRouteEntries: number;
-  /** Threshold in ms to highlight slow operations */
-  slowThreshold: number;
+    enabled: boolean;
+    isOpen: boolean;
+    activeTab: DevtoolsTab;
+    filter: string;
+    stores: Record<string, StoreInfo>;
+    mutations: MutationEntry[];
+    activity: ActivityEntry[];
+    network: NetworkEntry[];
+    routes: RouteEntry[];
+    errors: ErrorEntry[];
+    environment: EnvironmentInfo;
+    config: ConfigInfo;
+    maxActivityEntries: number;
+    maxMutationEntries: number;
+    maxNetworkEntries: number;
+    maxErrorEntries: number;
+    maxRouteEntries: number;
+    /** Threshold in ms to highlight slow operations */
+    slowThreshold: number;
 }
 export declare const devtoolsStore: DevtoolsState;
 /**
@@ -181,22 +172,17 @@ export declare function updateActivity(id: string, updates: Partial<ActivityEntr
 export declare function logMutation(entry: Omit<MutationEntry, 'id'>): string;
 export declare function updateMutation(id: string, updates: Partial<MutationEntry>): void;
 export declare function registerStore(info: StoreInfo): void;
-type StoreUpdateFields = Pick<StoreInfo, 'datasourceId' | 'alias' | 'page'> &
-  Partial<Omit<StoreInfo, 'key' | 'datasourceId' | 'alias' | 'page'>>;
+type StoreUpdateFields = Pick<StoreInfo, 'datasourceId' | 'alias' | 'page'> & Partial<Omit<StoreInfo, 'key' | 'datasourceId' | 'alias' | 'page'>>;
 export declare function updateStore(key: string, updates: StoreUpdateFields): void;
 export declare function unregisterStore(key: string): void;
 export declare function logNetwork(entry: Omit<NetworkEntry, 'id' | 'activityId'>): string;
 export declare function updateNetwork(id: string, updates: Partial<NetworkEntry>): void;
 export declare function logRoute(from: string, to: string): void;
-export declare function logError(
-  source: ErrorSource,
-  message: string,
-  options?: {
+export declare function logError(source: ErrorSource, message: string, options?: {
     stack?: string;
     context?: Record<string, unknown>;
     url?: string;
-  },
-): string;
+}): string;
 /**
  * Log an error from a caught exception.
  */

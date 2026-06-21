@@ -1,8 +1,8 @@
 import { camelCase, kebabCase, startCase } from 'lodash-es';
 export default ({ dsName, editable }) => {
-  const dsTitle = startCase(camelCase(dsName));
-  const alias = kebabCase(dsName);
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    const dsTitle = startCase(camelCase(dsName));
+    const alias = kebabCase(dsName);
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 
@@ -26,14 +26,12 @@ export default function ${dsName}PageContent() {
         smartSearchColumns={smartSearchColumns}
         tableColumns={tableColumns}
         pageId="${alias}-page"
-        itemId="${alias}"${
-          editable
-            ? `\n        editForm={<EditForm store={store} />}
+        itemId="${alias}"${editable
+        ? `\n        editForm={<EditForm store={store} />}
         getDefaultRow={() => {
           return {};
         }}`
-            : ''
-        }
+        : ''}
 
         addNewButtonText="Add New ${dsTitle}"
       />

@@ -8,83 +8,85 @@ import { auth } from '../../../auth';
 import { QueryBuilder } from '../../../lib/core/server/ds/QueryBuilder';
 import { isAbortedRequestError } from '../../../lib/core/common/error';
 export async function POST(req) {
-  const session = await auth();
-  if (!session) {
-    return Response.json({ status: 'ERROR', message: 'Not authenticated' }, { status: 401 });
-  }
-  let query;
-  try {
-    query = await req.json();
-  } catch (error) {
-    if (isAbortedRequestError(error)) {
-      // Return empty response for aborted requests - no logging needed
-      return new Response(null, { status: 499 }); // 499 Client Closed Request
+    const session = await auth();
+    if (!session) {
+        return Response.json({ status: 'ERROR', message: 'Not authenticated' }, { status: 401 });
     }
-    logger.error('Failed to parse request body:', error);
-    return Response.json({ status: 'ERROR', message: 'Invalid request body' }, { status: 400 });
-  }
-  const client = await newClient();
-  logger.setContext('apiName', 'sample-excel-export');
-  if (logger.debugEnabled) {
-    logger.debug('Export query', query);
-  }
-  try {
-    const qb = new QueryBuilder(RolesDS, session);
-    qb.applyQuery(query);
-    qb.skipPagination = true;
-    const sql = qb.getQuery();
-    const params = qb.getParams();
-    if (process.env.NODE_ENV === 'development') {
-      logger.info(`excel-export sql: ${sql}`);
-      logger.info(`excel-export params: ${params}`);
+    let query;
+    try {
+        query = (await req.json());
     }
-    const qs = new QueryStream(sql, params); // customize your query
-    const dbStream = client.query(qs);
-    const passThrough = new PassThrough();
-    const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
-      stream: passThrough,
-    });
-    const sheet = workbook.addWorksheet(`Deal Types ${new Date().toLocaleString()}`, {
-      views: [{ state: 'frozen', ySplit: 1 }],
-      pageSetup: {
-        orientation: 'landscape',
-      },
-    });
-    const columns = [
-      {
-        header: 'Role Name',
-        key: 'roleName',
-        width: 32,
-      },
-      { header: 'Role Code', key: 'roleCode', width: 12 },
-    ];
-    sheet.columns = columns;
-    dbStream.on('data', (row) => {
-      sheet.addRow(row).commit();
-    });
-    dbStream.on('error', (err) => {
-      logger.error('DB stream error:', err);
-      passThrough.destroy(err);
-      client.release();
-    });
-    dbStream.on('end', async () => {
-      await workbook.commit();
-      client.release();
-    });
-    // Convert Node stream -> Web ReadableStream
-    const webStream = Readable.toWeb(passThrough);
-    return new Response(webStream, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="export.xlsx"',
-      },
-    });
-  } catch (err) {
-    client.release();
-    logger.error('Unexpected error:', err);
-    return new Response('Internal Server Error', { status: 500 });
-  }
+    catch (error) {
+        if (isAbortedRequestError(error)) {
+            // Return empty response for aborted requests - no logging needed
+            return new Response(null, { status: 499 }); // 499 Client Closed Request
+        }
+        logger.error('Failed to parse request body:', error);
+        return Response.json({ status: 'ERROR', message: 'Invalid request body' }, { status: 400 });
+    }
+    const client = await newClient();
+    logger.setContext('apiName', 'sample-excel-export');
+    if (logger.debugEnabled) {
+        logger.debug('Export query', query);
+    }
+    try {
+        const qb = new QueryBuilder(RolesDS, session);
+        qb.applyQuery(query);
+        qb.skipPagination = true;
+        const sql = qb.getQuery();
+        const params = qb.getParams();
+        if (process.env.NODE_ENV === 'development') {
+            logger.info(`excel-export sql: ${sql}`);
+            logger.info(`excel-export params: ${params}`);
+        }
+        const qs = new QueryStream(sql, params); // customize your query
+        const dbStream = client.query(qs);
+        const passThrough = new PassThrough();
+        const workbook = new ExcelJS.stream.xlsx.WorkbookWriter({
+            stream: passThrough,
+        });
+        const sheet = workbook.addWorksheet(`Deal Types ${new Date().toLocaleString()}`, {
+            views: [{ state: 'frozen', ySplit: 1 }],
+            pageSetup: {
+                orientation: 'landscape',
+            },
+        });
+        const columns = [
+            {
+                header: 'Role Name',
+                key: 'roleName',
+                width: 32,
+            },
+            { header: 'Role Code', key: 'roleCode', width: 12 },
+        ];
+        sheet.columns = columns;
+        dbStream.on('data', (row) => {
+            sheet.addRow(row).commit();
+        });
+        dbStream.on('error', (err) => {
+            logger.error('DB stream error:', err);
+            passThrough.destroy(err);
+            client.release();
+        });
+        dbStream.on('end', async () => {
+            await workbook.commit();
+            client.release();
+        });
+        // Convert Node stream -> Web ReadableStream
+        const webStream = Readable.toWeb(passThrough);
+        return new Response(webStream, {
+            status: 200,
+            headers: {
+                'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition': 'attachment; filename="export.xlsx"',
+            },
+        });
+    }
+    catch (err) {
+        client.release();
+        logger.error('Unexpected error:', err);
+        return new Response('Internal Server Error', { status: 500 });
+    }
 }
 /*
   const handleDownload = async () => {

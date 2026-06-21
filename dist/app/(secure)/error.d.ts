@@ -1,10 +1,7 @@
-export default function ErrorBoundary({
-  error,
-  reset,
-}: {
-  error: Error & {
-    digest?: string;
-  };
-  reset: () => void;
-}): import('react/jsx-runtime').JSX.Element;
+export default function ErrorBoundary({ error, reset }: {
+    error: Error & {
+        digest?: string;
+    };
+    reset: () => void;
+}): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=error.d.ts.map

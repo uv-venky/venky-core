@@ -5,12 +5,7 @@
  */
 // App scaffolding/providers
 export { AppProvider } from '../../../../components/sidebar/app-provider';
-export {
-  BaseAppProvider,
-  useAppContext,
-  useDeployConfig,
-  useAppSidebarContext,
-} from '../../../../components/sidebar/app-provider-base';
+export { BaseAppProvider, useAppContext, useDeployConfig, useAppSidebarContext, } from '../../../../components/sidebar/app-provider-base';
 export { SessionProvider } from '../../../../components/core/session-provider';
 export { TeamProvider, useTeamContext, useTeamContextSafe } from '../../../../components/sidebar/team-context';
 // Router/link adapters

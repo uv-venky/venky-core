@@ -1,7 +1,7 @@
 import { kebabCase } from 'lodash-es';
 export default ({ dsName }) => {
-  const alias = kebabCase(dsName);
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    const alias = kebabCase(dsName);
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 

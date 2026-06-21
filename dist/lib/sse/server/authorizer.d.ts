@@ -21,7 +21,7 @@
 import type { Session } from '../../../auth';
 export type ChannelAuthorizer = (channel: string, session: Session) => Promise<boolean> | boolean;
 declare global {
-  var _$sseChannelAuthorizers: Map<string, ChannelAuthorizer> | undefined;
+    var _$sseChannelAuthorizers: Map<string, ChannelAuthorizer> | undefined;
 }
 /**
  * Register an authorizer for a channel prefix. The channel string passed to the
@@ -43,11 +43,8 @@ export declare function authorizeSSEChannel(channel: string, session: Session): 
  * Filters a list of requested channels to those the session is allowed to
  * subscribe to. Returns the allowed set and the denied set for logging.
  */
-export declare function authorizeSSEChannels(
-  channels: string[],
-  session: Session,
-): Promise<{
-  allowed: string[];
-  denied: string[];
+export declare function authorizeSSEChannels(channels: string[], session: Session): Promise<{
+    allowed: string[];
+    denied: string[];
 }>;
 //# sourceMappingURL=authorizer.d.ts.map

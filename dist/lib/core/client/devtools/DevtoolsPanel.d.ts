@@ -1,5 +1,5 @@
 import { type EnvironmentInfo, type ConfigInfo } from './devtools-store';
-export declare function DevtoolsPanel(): import('react/jsx-runtime').JSX.Element | null;
+export declare function DevtoolsPanel(): import("react/jsx-runtime").JSX.Element | null;
 /**
  * Floating toggle button for devtools.
  * Shows activity count badge when there are pending operations.
@@ -10,7 +10,7 @@ export declare function DevtoolsPanel(): import('react/jsx-runtime').JSX.Element
  *
  * <DevtoolsToggle />
  */
-export declare function DevtoolsToggle(): import('react/jsx-runtime').JSX.Element | null;
+export declare function DevtoolsToggle(): import("react/jsx-runtime").JSX.Element | null;
 /**
  * Hook to track route changes in Next.js App Router.
  * Must be used within a component that has access to usePathname.
@@ -43,5 +43,5 @@ export declare function useDevtoolsConfig(info: Partial<ConfigInfo>): void;
  *   );
  * }
  */
-export declare function Devtools(): import('react/jsx-runtime').JSX.Element;
+export declare function Devtools(): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=DevtoolsPanel.d.ts.map

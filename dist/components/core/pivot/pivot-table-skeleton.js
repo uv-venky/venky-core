@@ -1,77 +1,7 @@
-import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Skeleton } from '../../../components/ui/skeleton';
 export function PivotTableSkeleton({ rows = 5, columns = 4 }) {
-  return _jsx('div', {
-    className: 'w-full space-y-4',
-    children: _jsx('div', {
-      className: 'overflow-auto rounded-md border',
-      children: _jsxs(Table, {
-        children: [
-          _jsx(TableHeader, {
-            children: _jsxs(TableRow, {
-              children: [
-                _jsx(TableHead, { children: _jsx(Skeleton, { className: 'h-6 w-24' }) }),
-                Array.from({ length: columns }).map((_, i) =>
-                  _jsx(
-                    TableHead,
-                    { className: 'text-right', children: _jsx(Skeleton, { className: 'ml-auto h-6 w-20' }) },
-                    i,
-                  ),
-                ),
-                _jsx(TableHead, {
-                  className: 'text-right',
-                  children: _jsx(Skeleton, { className: 'ml-auto h-6 w-16' }),
-                }),
-              ],
-            }),
-          }),
-          _jsxs(TableBody, {
-            children: [
-              Array.from({ length: rows }).map((_, rowIndex) =>
-                _jsxs(
-                  TableRow,
-                  {
-                    children: [
-                      _jsx(TableCell, { children: _jsx(Skeleton, { className: 'h-5 w-24' }) }),
-                      Array.from({ length: columns }).map((_, colIndex) =>
-                        _jsx(
-                          TableCell,
-                          { className: 'text-right', children: _jsx(Skeleton, { className: 'ml-auto h-5 w-16' }) },
-                          colIndex,
-                        ),
-                      ),
-                      _jsx(TableCell, {
-                        className: 'text-right',
-                        children: _jsx(Skeleton, { className: 'ml-auto h-5 w-20' }),
-                      }),
-                    ],
-                  },
-                  rowIndex,
-                ),
-              ),
-              _jsxs(TableRow, {
-                className: 'bg-muted/50',
-                children: [
-                  _jsx(TableCell, { children: _jsx(Skeleton, { className: 'h-6 w-16' }) }),
-                  Array.from({ length: columns }).map((_, i) =>
-                    _jsx(
-                      TableCell,
-                      { className: 'text-right', children: _jsx(Skeleton, { className: 'ml-auto h-6 w-20' }) },
-                      i,
-                    ),
-                  ),
-                  _jsx(TableCell, {
-                    className: 'text-right',
-                    children: _jsx(Skeleton, { className: 'ml-auto h-6 w-24' }),
-                  }),
-                ],
-              }),
-            ],
-          }),
-        ],
-      }),
-    }),
-  });
+    return (_jsx("div", { className: "w-full space-y-4", children: _jsx("div", { className: "overflow-auto rounded-md border", children: _jsxs(Table, { children: [_jsx(TableHeader, { children: _jsxs(TableRow, { children: [_jsx(TableHead, { children: _jsx(Skeleton, { className: "h-6 w-24" }) }), Array.from({ length: columns }).map((_, i) => (_jsx(TableHead, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-6 w-20" }) }, i))), _jsx(TableHead, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-6 w-16" }) })] }) }), _jsxs(TableBody, { children: [Array.from({ length: rows }).map((_, rowIndex) => (_jsxs(TableRow, { children: [_jsx(TableCell, { children: _jsx(Skeleton, { className: "h-5 w-24" }) }), Array.from({ length: columns }).map((_, colIndex) => (_jsx(TableCell, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-5 w-16" }) }, colIndex))), _jsx(TableCell, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-5 w-20" }) })] }, rowIndex))), _jsxs(TableRow, { className: "bg-muted/50", children: [_jsx(TableCell, { children: _jsx(Skeleton, { className: "h-6 w-16" }) }), Array.from({ length: columns }).map((_, i) => (_jsx(TableCell, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-6 w-20" }) }, i))), _jsx(TableCell, { className: "text-right", children: _jsx(Skeleton, { className: "ml-auto h-6 w-24" }) })] })] })] }) }) }));
 }
 //# sourceMappingURL=pivot-table-skeleton.js.map

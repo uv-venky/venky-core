@@ -8,6 +8,6 @@ import { redirect as nextRedirect } from 'next/navigation';
  * Can be passed explicitly as config.redirectImplementation in ServerConfig.
  */
 export const nextjsRedirectImplementation = (url) => {
-  nextRedirect(url);
+    nextRedirect(url);
 };
 //# sourceMappingURL=redirect-nextjs.js.map

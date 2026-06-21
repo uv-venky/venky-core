@@ -4,9 +4,9 @@ import type { AnchorHTMLAttributes, ReactNode } from 'react';
  * Core uses href; adapters map to framework (e.g. Next.js href, TanStack to).
  */
 export interface AppLinkProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> {
-  href: string;
-  prefetch?: boolean;
-  children?: ReactNode;
+    href: string;
+    prefetch?: boolean;
+    children?: ReactNode;
 }
 export type LinkComponent = React.ComponentType<AppLinkProps>;
 /**
@@ -21,5 +21,5 @@ export declare function getLinkComponent(): LinkComponent;
 /**
  * Framework-agnostic Link. Uses the component set via setLinkComponent(), or <a> by default.
  */
-export declare function Link(props: AppLinkProps): import('react/jsx-runtime').JSX.Element;
+export declare function Link(props: AppLinkProps): import("react/jsx-runtime").JSX.Element;
 //# sourceMappingURL=Link.d.ts.map

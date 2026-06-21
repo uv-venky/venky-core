@@ -58,7 +58,7 @@ export declare function useSSEStatus(): SSEConnectionStatus;
  * ```
  */
 export declare function useSSEStatusWithDelay(): {
-  status: SSEConnectionStatus;
-  reconnectDelayRemaining: number | null;
+    status: SSEConnectionStatus;
+    reconnectDelayRemaining: number | null;
 };
 //# sourceMappingURL=use-sse.d.ts.map

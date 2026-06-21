@@ -29,28 +29,28 @@
  */
 import { z } from 'zod';
 export const ACTION_PARAM_OVERRIDES = {
-  updateProfile: {
-    key: z.enum([
-      'theme',
-      'notificationLocation',
-      'timezone',
-      'dateFormat',
-      'timeFormat',
-      'phoneNumber',
-      'department',
-      'jobTitle',
-      'bio',
-      'sidebarOpen',
-      'logLevel',
-    ]),
-  },
-  getActivityEvents: {
-    filters: z.object({
-      fromDate: z.string(),
-      toDate: z.string(),
-      eventType: z.string().optional(),
-      user: z.string().optional(),
-    }),
-  },
+    updateProfile: {
+        key: z.enum([
+            'theme',
+            'notificationLocation',
+            'timezone',
+            'dateFormat',
+            'timeFormat',
+            'phoneNumber',
+            'department',
+            'jobTitle',
+            'bio',
+            'sidebarOpen',
+            'logLevel',
+        ]),
+    },
+    getActivityEvents: {
+        filters: z.object({
+            fromDate: z.string(),
+            toDate: z.string(),
+            eventType: z.string().optional(),
+            user: z.string().optional(),
+        }),
+    },
 };
 //# sourceMappingURL=param-schemas.overrides.js.map

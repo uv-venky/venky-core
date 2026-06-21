@@ -1,4 +1,4 @@
-import { jsx as _jsx } from 'react/jsx-runtime';
+import { jsx as _jsx } from "react/jsx-runtime";
 import { APP_DESCRIPTION, APP_NAME } from '../lib/common/ui-constants';
 import { cn } from '../lib/utils';
 import { Albert_Sans, Geist_Mono } from 'next/font/google';
@@ -7,46 +7,36 @@ import { headers } from 'next/headers';
 import AppThemeProvider from './theme-provider';
 import './globals.css';
 const albertSans = Albert_Sans({
-  variable: '--font-albert-sans',
-  subsets: ['latin'],
+    variable: '--font-albert-sans',
+    subsets: ['latin'],
 });
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
+    variable: '--font-geist-mono',
+    subsets: ['latin'],
 });
 const titlingGothicLight = localFont({
-  src: './fonts/TitlingGothicFB-WideLight.otf',
-  variable: '--font-titling-gothic-light',
-  display: 'swap',
+    src: './fonts/TitlingGothicFB-WideLight.otf',
+    variable: '--font-titling-gothic-light',
+    display: 'swap',
 });
 const titlingGothicMedium = localFont({
-  src: './fonts/TitlingGothicFB-WideMd.otf',
-  variable: '--font-titling-gothic-medium',
-  display: 'swap',
+    src: './fonts/TitlingGothicFB-WideMd.otf',
+    variable: '--font-titling-gothic-medium',
+    display: 'swap',
 });
 // Use dynamic metadata to prevent static generation
 export async function generateMetadata() {
-  return {
-    title: APP_NAME,
-    description: APP_DESCRIPTION,
-    icons: {
-      icon: '/logo-mini.png',
-    },
-  };
+    return {
+        title: APP_NAME,
+        description: APP_DESCRIPTION,
+        icons: {
+            icon: '/logo-mini.png',
+        },
+    };
 }
-export default async function RootLayout({ children }) {
-  const nonce = (await headers()).get('x-nonce');
-  return _jsx(AppThemeProvider, {
-    nonce: nonce ?? undefined,
-    className: cn(
-      albertSans.className,
-      albertSans.variable,
-      geistMono.variable,
-      titlingGothicLight.variable,
-      titlingGothicMedium.variable,
-    ),
-    children: children,
-  });
+export default async function RootLayout({ children, }) {
+    const nonce = (await headers()).get('x-nonce');
+    return (_jsx(AppThemeProvider, { nonce: nonce ?? undefined, className: cn(albertSans.className, albertSans.variable, geistMono.variable, titlingGothicLight.variable, titlingGothicMedium.variable), children: children }));
 }
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

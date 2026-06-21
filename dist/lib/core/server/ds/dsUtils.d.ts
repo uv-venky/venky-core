@@ -21,56 +21,21 @@ export declare function normalizeWhitespaceForPost<T extends object>(ds: DataSou
 export declare function validateAttributeConstraintsForPost<T extends object>(ds: DataSource<T>, rows: Row<T>[]): void;
 export declare function serializeValueForAudit(value: unknown): string;
 export declare function toIsoString(value: unknown): string | null;
-export declare function getWhoAttributes<T extends object>(
-  ds: DataSource<T>,
-): {
-  updatedByAttr: Attribute<T>;
-  updatedAtAttr: Attribute<T>;
+export declare function getWhoAttributes<T extends object>(ds: DataSource<T>): {
+    updatedByAttr: Attribute<T>;
+    updatedAtAttr: Attribute<T>;
 };
-export declare function classifyUpdateAttributes<T extends object>(
-  ds: DataSource<T>,
-): {
-  readOnlyColumns: StringKeyof<T>[];
-  pkAttributes: Attribute<T>[];
-  auditAttributes: Attribute<T>[];
+export declare function classifyUpdateAttributes<T extends object>(ds: DataSource<T>): {
+    readOnlyColumns: StringKeyof<T>[];
+    pkAttributes: Attribute<T>[];
+    auditAttributes: Attribute<T>[];
 };
-export declare function getPkValueStr<T extends object>(
-  row:
-    | DBRow<T>
-    | (Partial<T> & {
-        [k: string]: unknown;
-      }),
-  pkAttributes: Attribute<T>[],
-): string;
-export declare function applyAuditValueToRow<T extends object>(
-  ds: DataSource<T>,
-  attr: Attribute<T>,
-  value: unknown,
-  auditRow: NewRow<Audit>,
-  prefix: 'old' | 'new',
-): void;
-export declare function populateDefaultValues<T extends object>(
-  _client: PgPoolClient,
-  session: Session,
-  ds: DataSource<T>,
-  rows: DBRow<T>[],
-): Promise<void>;
-export declare function validateRowForUpdateOrDelete<T extends object>(
-  ds: DataSource<T>,
-  row: DBRow<T>,
-  a: Attribute<T>,
-  attributesInUpdate: Set<string> | null,
-): void;
-export declare function loadCurrentRowsForUpdate<T extends object>(
-  client: PgPoolClient,
-  session: Session,
-  ds: DataSource<T>,
-  rows: DBRow<T>[],
-  pkAttributes: Attribute<T>[],
-): Promise<Map<string, DBRow<T>>>;
-export declare function populateWHOColumnsForUpdate<T extends object>(
-  session: Session,
-  ds: DataSource<T>,
-  rows: DBRow<T>[],
-): void;
+export declare function getPkValueStr<T extends object>(row: DBRow<T> | (Partial<T> & {
+    [k: string]: unknown;
+}), pkAttributes: Attribute<T>[]): string;
+export declare function applyAuditValueToRow<T extends object>(ds: DataSource<T>, attr: Attribute<T>, value: unknown, auditRow: NewRow<Audit>, prefix: 'old' | 'new'): void;
+export declare function populateDefaultValues<T extends object>(_client: PgPoolClient, session: Session, ds: DataSource<T>, rows: DBRow<T>[]): Promise<void>;
+export declare function validateRowForUpdateOrDelete<T extends object>(ds: DataSource<T>, row: DBRow<T>, a: Attribute<T>, attributesInUpdate: Set<string> | null): void;
+export declare function loadCurrentRowsForUpdate<T extends object>(client: PgPoolClient, session: Session, ds: DataSource<T>, rows: DBRow<T>[], pkAttributes: Attribute<T>[]): Promise<Map<string, DBRow<T>>>;
+export declare function populateWHOColumnsForUpdate<T extends object>(session: Session, ds: DataSource<T>, rows: DBRow<T>[]): void;
 //# sourceMappingURL=dsUtils.d.ts.map

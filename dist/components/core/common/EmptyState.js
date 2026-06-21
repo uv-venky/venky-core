@@ -1,59 +1,10 @@
 'use client';
-import { jsx as _jsx, jsxs as _jsxs } from 'react/jsx-runtime';
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { Button } from '../../../components/ui/button';
 import { cn } from '../../../lib/utils';
 import { motion } from 'framer-motion';
 import { BarChart3, FileBarChart, Plus, Table, Table2 } from 'lucide-react';
-export default function EmptyState({
-  title = 'No data available',
-  description = "There's no data to display at the moment.",
-  icon = 'data',
-  className,
-  ctaText,
-  ctaAction,
-  showCta,
-  style,
-}) {
-  return _jsx('div', {
-    className: cn('flex h-full w-full flex-col items-center justify-center bg-background/50', className),
-    style: style,
-    children: _jsxs('div', {
-      className: 'flex flex-col items-center justify-center p-6 text-center sm:p-10',
-      children: [
-        _jsx('div', {
-          className: 'mb-4 rounded-full border border-muted-foreground/25 border-dashed bg-muted/50 p-6',
-          children: _jsx(motion.div, {
-            initial: { scale: 0.8, opacity: 0 },
-            animate: { scale: 1, opacity: 1 },
-            transition: { duration: 0.5, ease: 'easeOut' },
-            children:
-              icon === 'chart'
-                ? _jsx(BarChart3, { className: 'h-12 w-12 text-muted-foreground/70' })
-                : icon === 'pivot'
-                  ? _jsx(Table2, { className: 'h-12 w-12 text-muted-foreground/70' })
-                  : icon === 'table'
-                    ? _jsx(Table, { className: 'h-12 w-12 text-muted-foreground/70' })
-                    : _jsx(FileBarChart, { className: 'h-12 w-12 text-muted-foreground/70' }),
-          }),
-        }),
-        _jsxs(motion.div, {
-          initial: { y: 10, opacity: 0 },
-          animate: { y: 0, opacity: 1 },
-          transition: { duration: 0.5, delay: 0.1, ease: 'easeOut' },
-          children: [
-            _jsx('h3', { className: 'mb-2 font-semibold text-xl tracking-tight', children: title }),
-            _jsx('p', { className: 'mb-6 max-w-md text-muted-foreground', children: description }),
-            showCta &&
-              _jsxs(Button, {
-                activityId: `empty-${title.toLowerCase().replace(/\s+/g, '-')}-cta`,
-                onClick: ctaAction,
-                className: 'gap-2',
-                children: [_jsx(Plus, { className: 'h-4 w-4' }), ctaText],
-              }),
-          ],
-        }),
-      ],
-    }),
-  });
+export default function EmptyState({ title = 'No data available', description = "There's no data to display at the moment.", icon = 'data', className, ctaText, ctaAction, showCta, style, }) {
+    return (_jsx("div", { className: cn('flex h-full w-full flex-col items-center justify-center bg-background/50', className), style: style, children: _jsxs("div", { className: "flex flex-col items-center justify-center p-6 text-center sm:p-10", children: [_jsx("div", { className: "mb-4 rounded-full border border-muted-foreground/25 border-dashed bg-muted/50 p-6", children: _jsx(motion.div, { initial: { scale: 0.8, opacity: 0 }, animate: { scale: 1, opacity: 1 }, transition: { duration: 0.5, ease: 'easeOut' }, children: icon === 'chart' ? (_jsx(BarChart3, { className: "h-12 w-12 text-muted-foreground/70" })) : icon === 'pivot' ? (_jsx(Table2, { className: "h-12 w-12 text-muted-foreground/70" })) : icon === 'table' ? (_jsx(Table, { className: "h-12 w-12 text-muted-foreground/70" })) : (_jsx(FileBarChart, { className: "h-12 w-12 text-muted-foreground/70" })) }) }), _jsxs(motion.div, { initial: { y: 10, opacity: 0 }, animate: { y: 0, opacity: 1 }, transition: { duration: 0.5, delay: 0.1, ease: 'easeOut' }, children: [_jsx("h3", { className: "mb-2 font-semibold text-xl tracking-tight", children: title }), _jsx("p", { className: "mb-6 max-w-md text-muted-foreground", children: description }), showCta && (_jsxs(Button, { activityId: `empty-${title.toLowerCase().replace(/\s+/g, '-')}-cta`, onClick: ctaAction, className: "gap-2", children: [_jsx(Plus, { className: "h-4 w-4" }), ctaText] }))] })] }) }));
 }
 //# sourceMappingURL=EmptyState.js.map

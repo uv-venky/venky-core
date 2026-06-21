@@ -1,17 +1,14 @@
 'use server';
 import { get_json_schema_filter_type, get_json_schema_type } from './json-schema-utils';
 export async function gen_ds_json_query_schema(ds) {
-  const defaultAttrCode = ds.attributes.find((a) => a.type === 'Text')?.code ?? 'attrCode';
-  const attr_type = ds.attributes.map((a) => `"${a.code}": ${get_json_schema_type(a)}`).join(',\n');
-  const schema_type = ds.attributes.map((a) => `"${a.code}": {"type":"number", "default": 1}`).join(',\n');
-  const columns = ds.attributes.map((a) => `"${a.code}"`).join(',\n');
-  const filter_type = ds.attributes
-    .map(
-      (a) =>
-        `{"title": "${a.code}","type": "object","properties": {"${a.code}": { "$ref": "#/definitions/${get_json_schema_filter_type(a)}" }}, "required": ["${a.code}"], "additionalProperties": false}`,
-    )
-    .join(',\n');
-  const schema = `{
+    const defaultAttrCode = ds.attributes.find((a) => a.type === 'Text')?.code ?? 'attrCode';
+    const attr_type = ds.attributes.map((a) => `"${a.code}": ${get_json_schema_type(a)}`).join(',\n');
+    const schema_type = ds.attributes.map((a) => `"${a.code}": {"type":"number", "default": 1}`).join(',\n');
+    const columns = ds.attributes.map((a) => `"${a.code}"`).join(',\n');
+    const filter_type = ds.attributes
+        .map((a) => `{"title": "${a.code}","type": "object","properties": {"${a.code}": { "$ref": "#/definitions/${get_json_schema_filter_type(a)}" }}, "required": ["${a.code}"], "additionalProperties": false}`)
+        .join(',\n');
+    const schema = `{
             "$schema": "https://json-schema.org/draft-07/schema#",
             "$id": "https://venky.dev/request.schema.json",
             "title": "Query",
@@ -259,6 +256,6 @@ ${filter_type}
                 }
             }
         }`;
-  return schema;
+    return schema;
 }
 //# sourceMappingURL=gen-json-query-schema.js.map

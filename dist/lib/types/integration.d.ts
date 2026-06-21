@@ -11,21 +11,7 @@
  *
  * Generated types: ai-gateway, blob, database, fal, firecrawl, github, linear, perplexity, resend, slack, stripe, superagent, v0, venky
  */
-export type IntegrationType =
-  | 'ai-gateway'
-  | 'blob'
-  | 'database'
-  | 'fal'
-  | 'firecrawl'
-  | 'github'
-  | 'linear'
-  | 'perplexity'
-  | 'resend'
-  | 'slack'
-  | 'stripe'
-  | 'superagent'
-  | 'v0'
-  | 'venky';
+export type IntegrationType = 'ai-gateway' | 'blob' | 'database' | 'fal' | 'firecrawl' | 'github' | 'linear' | 'perplexity' | 'resend' | 'slack' | 'stripe' | 'superagent' | 'v0' | 'venky';
 /**
  * Any Integration Type
  * Used when both built-in and custom integration types are acceptable.

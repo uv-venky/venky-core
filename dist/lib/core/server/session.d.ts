@@ -11,14 +11,10 @@ export declare function getEnvironment(): Promise<Env>;
  */
 export declare function getAppConfigForDevtools(): Promise<Omit<AppConfig, 'secret'>>;
 export interface SystemInfo {
-  coreVersion: string;
-  nodeVersion: string;
-  nextVersion: string;
+    coreVersion: string;
+    nodeVersion: string;
+    nextVersion: string;
 }
 export declare function getSystemInfo(): Promise<SystemInfo>;
-export declare function makeBackgroundJobSession(
-  client: PgPoolClient,
-  userName: string,
-  jobId: string,
-): Promise<Session | null>;
+export declare function makeBackgroundJobSession(client: PgPoolClient, userName: string, jobId: string): Promise<Session | null>;
 //# sourceMappingURL=session.d.ts.map

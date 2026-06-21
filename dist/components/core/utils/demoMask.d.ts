@@ -1,7 +1,7 @@
 declare global {
-  interface Window {
-    __VENKY_DEMO_MASK__?: boolean;
-  }
+    interface Window {
+        __VENKY_DEMO_MASK__?: boolean;
+    }
 }
 export declare function setDemoMask(value: boolean): void;
 /**

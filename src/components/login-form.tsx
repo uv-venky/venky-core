@@ -11,6 +11,8 @@ import { toast } from 'sonner';
 import { PasswordInput } from './core/page/fields';
 import { useManualReadySignal } from '@/lib/core/client/loading-tracker';
 import { Link } from '@/components/core/link';
+import type { LoginLegalNoticeConfig } from '@/app/login/login-page-types';
+import { LoginLegalNotice } from './login-legal-notice';
 
 export const loginFieldStyles = cn(
   'h-12 w-full rounded-md border-primary bg-black text-white placeholder:text-white placeholder:opacity-80 focus-visible:border-primary focus-visible:ring-primary/50',
@@ -20,7 +22,11 @@ export const loginButtonStyles = cn(
   'h-[70px] w-full rounded-full bg-primary px-3 py-4 text-2xl text-white transition-colors hover:bg-[#4120D9]',
 );
 
-export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
+export function LoginForm({
+  className,
+  legalNotice,
+  ...props
+}: React.ComponentProps<'div'> & { legalNotice?: LoginLegalNoticeConfig }) {
   const [result, dispatch] = useActionState(authenticate, undefined);
   const searchParams = useSearchParams();
   // Store sourceUrl in a ref to persist it through form submission
@@ -101,16 +107,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   </Link>
                 </div>
               </div>
-              <p className="mb-4 text-white/50 text-xs">
-                By Signing In,I have read,and I understand and agree To the{' '}
-                <Link prefetch={false} href="#">
-                  <u className="cursor-pointer">M1 Terms for Use</u>
-                </Link>{' '}
-                and{' '}
-                <Link prefetch={false} href="#">
-                  <u className="cursor-pointer">Data Privacy Notice</u>
-                </Link>
-              </p>
+              {legalNotice ? <LoginLegalNotice notice={legalNotice} /> : null}
             </div>
           </div>
         </CardContent>

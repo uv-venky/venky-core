@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 export function useLatest(value) {
-  const ref = useRef(value);
-  ref.current = value;
-  return ref;
+    const ref = useRef(value);
+    ref.current = value;
+    return ref;
 }
 //# sourceMappingURL=useLatest.js.map

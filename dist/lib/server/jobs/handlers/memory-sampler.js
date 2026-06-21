@@ -11,68 +11,71 @@ const RETENTION_DAYS = 30;
 const SWEEP_EVERY_N_RUNS = 12; // at the default 5-min schedule => prune ~once/hour
 let runCount = 0;
 function mb(bytes) {
-  return Math.round(bytes / 1024 / 1024);
+    return Math.round(bytes / 1024 / 1024);
 }
 function getCpuUsagePct() {
-  const load = os.loadavg()[0];
-  const count = os.cpus().length || 1;
-  return Number(((load / count) * 100).toFixed(2));
+    const load = os.loadavg()[0];
+    const count = os.cpus().length || 1;
+    return Number(((load / count) * 100).toFixed(2));
 }
 function buildCurrent(appId, kind = 'periodic') {
-  const mem = process.memoryUsage();
-  let pgWritable = null;
-  let pgReadonly = null;
-  try {
-    const wp = getPool();
-    pgWritable = { total: wp.totalCount, idle: wp.idleCount, waiting: wp.waitingCount };
-  } catch {
-    // pool not initialized yet
-  }
-  try {
-    const rp = getReadOnlyPool();
-    pgReadonly = { total: rp.totalCount, idle: rp.idleCount, waiting: rp.waitingCount };
-  } catch {
-    // pool not initialized yet
-  }
-  let sseClients = null;
-  try {
-    sseClients = sseRegistry.getDebugStats().totalClients;
-  } catch {
-    // registry not loaded in some entrypoints
-  }
-  return {
-    appId,
-    uptimeSec: Math.round(process.uptime()),
-    kind,
-    rssMb: mb(mem.rss),
-    heapUsedMb: mb(mem.heapUsed),
-    heapTotalMb: mb(mem.heapTotal),
-    externalMb: mb(mem.external),
-    arrayBuffersMb: mb(mem.arrayBuffers),
-    cpuUsagePct: getCpuUsagePct(),
-    pgWritable,
-    pgReadonly,
-    sseClients,
-  };
+    const mem = process.memoryUsage();
+    let pgWritable = null;
+    let pgReadonly = null;
+    try {
+        const wp = getPool();
+        pgWritable = { total: wp.totalCount, idle: wp.idleCount, waiting: wp.waitingCount };
+    }
+    catch {
+        // pool not initialized yet
+    }
+    try {
+        const rp = getReadOnlyPool();
+        pgReadonly = { total: rp.totalCount, idle: rp.idleCount, waiting: rp.waitingCount };
+    }
+    catch {
+        // pool not initialized yet
+    }
+    let sseClients = null;
+    try {
+        sseClients = sseRegistry.getDebugStats().totalClients;
+    }
+    catch {
+        // registry not loaded in some entrypoints
+    }
+    return {
+        appId,
+        uptimeSec: Math.round(process.uptime()),
+        kind,
+        rssMb: mb(mem.rss),
+        heapUsedMb: mb(mem.heapUsed),
+        heapTotalMb: mb(mem.heapTotal),
+        externalMb: mb(mem.external),
+        arrayBuffersMb: mb(mem.arrayBuffers),
+        cpuUsagePct: getCpuUsagePct(),
+        pgWritable,
+        pgReadonly,
+        sseClients,
+    };
 }
 function buildFromCrash(appId, dump) {
-  return {
-    appId,
-    uptimeSec: dump.uptimeSec,
-    kind: 'crash',
-    rssMb: mb(dump.mem.rss),
-    heapUsedMb: mb(dump.mem.heapUsed),
-    heapTotalMb: mb(dump.mem.heapTotal),
-    externalMb: mb(dump.mem.external),
-    arrayBuffersMb: mb(dump.mem.arrayBuffers),
-    cpuUsagePct: null,
-    pgWritable: null,
-    pgReadonly: null,
-    sseClients: null,
-    ts: dump.ts,
-    pidOverride: dump.pid,
-    extra: { reason: dump.reason, error: dump.error },
-  };
+    return {
+        appId,
+        uptimeSec: dump.uptimeSec,
+        kind: 'crash',
+        rssMb: mb(dump.mem.rss),
+        heapUsedMb: mb(dump.mem.heapUsed),
+        heapTotalMb: mb(dump.mem.heapTotal),
+        externalMb: mb(dump.mem.external),
+        arrayBuffersMb: mb(dump.mem.arrayBuffers),
+        cpuUsagePct: null,
+        pgWritable: null,
+        pgReadonly: null,
+        sseClients: null,
+        ts: dump.ts,
+        pidOverride: dump.pid,
+        extra: { reason: dump.reason, error: dump.error },
+    };
 }
 const INSERT_SQL = `
   INSERT INTO ${PREFIX}memory_samples (
@@ -92,28 +95,28 @@ const INSERT_SQL = `
   )
 `;
 async function insertRow(client, row) {
-  await client.query(INSERT_SQL, [
-    row.appId,
-    nodeId,
-    row.pidOverride ?? process.pid,
-    row.ts ?? null,
-    row.uptimeSec,
-    row.kind,
-    row.rssMb,
-    row.heapUsedMb,
-    row.heapTotalMb,
-    row.externalMb,
-    row.arrayBuffersMb,
-    row.cpuUsagePct,
-    row.pgWritable?.total ?? null,
-    row.pgWritable?.idle ?? null,
-    row.pgWritable?.waiting ?? null,
-    row.pgReadonly?.total ?? null,
-    row.pgReadonly?.idle ?? null,
-    row.pgReadonly?.waiting ?? null,
-    row.sseClients,
-    row.extra == null ? null : JSON.stringify(row.extra),
-  ]);
+    await client.query(INSERT_SQL, [
+        row.appId,
+        nodeId,
+        row.pidOverride ?? process.pid,
+        row.ts ?? null,
+        row.uptimeSec,
+        row.kind,
+        row.rssMb,
+        row.heapUsedMb,
+        row.heapTotalMb,
+        row.externalMb,
+        row.arrayBuffersMb,
+        row.cpuUsagePct,
+        row.pgWritable?.total ?? null,
+        row.pgWritable?.idle ?? null,
+        row.pgWritable?.waiting ?? null,
+        row.pgReadonly?.total ?? null,
+        row.pgReadonly?.idle ?? null,
+        row.pgReadonly?.waiting ?? null,
+        row.sseClients,
+        row.extra == null ? null : JSON.stringify(row.extra),
+    ]);
 }
 /**
  * Job entry point: write one current sample, recover any leftover crash
@@ -124,38 +127,39 @@ async function insertRow(client, row) {
  * can't pin a pool slot.
  */
 export async function sampleMemory() {
-  if (process.env.NODE_ENV !== 'production') return;
-  runCount++;
-  const appId = getConfig('sampleMemory').appId;
-  const client = await newClient();
-  try {
-    await insertRow(client, buildCurrent(appId));
-    const dumps = drainCrashDumps();
-    for (const dump of dumps) {
-      try {
-        await insertRow(client, buildFromCrash(appId, dump));
-      } catch (err) {
-        logger.error('memory-sampler: failed to insert crash row', { err });
-      }
+    if (process.env.NODE_ENV !== 'production')
+        return;
+    runCount++;
+    const appId = getConfig('sampleMemory').appId;
+    const client = await newClient();
+    try {
+        await insertRow(client, buildCurrent(appId));
+        const dumps = drainCrashDumps();
+        for (const dump of dumps) {
+            try {
+                await insertRow(client, buildFromCrash(appId, dump));
+            }
+            catch (err) {
+                logger.error('memory-sampler: failed to insert crash row', { err });
+            }
+        }
+        if (dumps.length > 0) {
+            logger.warn('memory-sampler: recovered crash dumps from disk', { count: dumps.length });
+        }
+        if (runCount % SWEEP_EVERY_N_RUNS === 0) {
+            const res = await client.query(`DELETE FROM ${PREFIX}memory_samples
+          WHERE app_id = $1 AND ts < NOW() - ($2 || ' days')::interval`, [appId, String(RETENTION_DAYS)]);
+            if (res.rowCount && res.rowCount > 0) {
+                logger.info('memory-sampler: pruned old rows', { deleted: res.rowCount, retentionDays: RETENTION_DAYS });
+            }
+        }
     }
-    if (dumps.length > 0) {
-      logger.warn('memory-sampler: recovered crash dumps from disk', { count: dumps.length });
+    catch (err) {
+        logger.error('memory-sampler: sample insert failed', { err });
     }
-    if (runCount % SWEEP_EVERY_N_RUNS === 0) {
-      const res = await client.query(
-        `DELETE FROM ${PREFIX}memory_samples
-          WHERE app_id = $1 AND ts < NOW() - ($2 || ' days')::interval`,
-        [appId, String(RETENTION_DAYS)],
-      );
-      if (res.rowCount && res.rowCount > 0) {
-        logger.info('memory-sampler: pruned old rows', { deleted: res.rowCount, retentionDays: RETENTION_DAYS });
-      }
+    finally {
+        client.release();
     }
-  } catch (err) {
-    logger.error('memory-sampler: sample insert failed', { err });
-  } finally {
-    client.release();
-  }
 }
 /**
  * One-shot boot sample written with sample_kind='startup'. Called from server
@@ -165,16 +169,19 @@ export async function sampleMemory() {
  * sampling to block or break startup.
  */
 export async function recordStartupSample() {
-  if (process.env.NODE_ENV !== 'production') return;
-  const appId = getConfig('sampleMemory').appId;
-  let client = null;
-  try {
-    client = await newClient();
-    await insertRow(client, buildCurrent(appId, 'startup'));
-  } catch (err) {
-    logger.error('memory-sampler: startup sample failed', { err });
-  } finally {
-    client?.release();
-  }
+    if (process.env.NODE_ENV !== 'production')
+        return;
+    const appId = getConfig('sampleMemory').appId;
+    let client = null;
+    try {
+        client = await newClient();
+        await insertRow(client, buildCurrent(appId, 'startup'));
+    }
+    catch (err) {
+        logger.error('memory-sampler: startup sample failed', { err });
+    }
+    finally {
+        client?.release();
+    }
 }
 //# sourceMappingURL=memory-sampler.js.map

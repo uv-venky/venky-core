@@ -5,22 +5,10 @@ import type { Session } from '../../../auth';
  * No BEGIN/COMMIT — autocommit is sufficient; the readonly pool sets
  * default_transaction_read_only at the session level.
  */
-export declare const withReadOnlyDBSessionRoute: (
-  callback: (
-    client: PgPoolReadOnlyClient,
-    session: Session,
-    req: Request,
-    routeContext: {
-      params: Promise<any>;
-    },
-  ) => Promise<Response>,
-) => (
-  req: Request,
-  routeContext: {
+export declare const withReadOnlyDBSessionRoute: (callback: (client: PgPoolReadOnlyClient, session: Session, req: Request, routeContext: {
     params: Promise<any>;
-  },
-) => Promise<Response>;
-export declare const withReadOnlyDBRoute: (
-  callback: (client: PgPoolReadOnlyClient, req: Request) => Promise<Response>,
-) => (req: Request) => Promise<Response>;
+}) => Promise<Response>) => (req: Request, routeContext: {
+    params: Promise<any>;
+}) => Promise<Response>;
+export declare const withReadOnlyDBRoute: (callback: (client: PgPoolReadOnlyClient, req: Request) => Promise<Response>) => (req: Request) => Promise<Response>;
 //# sourceMappingURL=withReadOnlyDBRoutes.d.ts.map

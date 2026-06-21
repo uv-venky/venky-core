@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 /* Copyright (c) 2024-present Venky Corp. */
 /**
  * Server-rendered route layouts that consuming projects re-export as their own

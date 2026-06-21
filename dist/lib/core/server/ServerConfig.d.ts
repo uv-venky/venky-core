@@ -18,50 +18,53 @@ export type WorkflowServerPlugin = Record<string, unknown>;
  * from the settings JSONB column and mapped to the User object.
  */
 export interface UserPropertyCallbacks {
-  /**
-   * Maps custom database fields to User object properties.
-   * @param dbUser - The database user object with all fields including custom ones
-   * @returns Partial User object with custom properties
-   */
-  mapCustomUserProperties?: (dbUser: DBUser) => Partial<User>;
+    /**
+     * Maps custom database fields to User object properties.
+     * @param dbUser - The database user object with all fields including custom ones
+     * @returns Partial User object with custom properties
+     */
+    mapCustomUserProperties?: (dbUser: DBUser) => Partial<User>;
 }
 export interface ServerConfig {
-  teams: ServerTeam[];
-  validateAccess: (props: { session: Session; headers: Headers }) => void;
-  validateProfileUpdate: (key: string, value: string | boolean | undefined, user: User) => void;
-  dataSources: Record<string, DataSource<any>>;
-  jobs: JobEntry[];
-  templateCodeGenFunctions?: TemplateCodeGenFunction[];
-  /** Optional chat agent registry for consuming projects with chat features. */
-  chatAgents?: Record<string, ChatAgentServerType>;
-  relayStateProcessors: RelayStateProcessor[];
-  userPropertyCallbacks?: UserPropertyCallbacks;
-  /** AWS ECS deployment configuration per environment */
-  deployConfig?: DeployConfigMap;
-  /** AWS region for deployments (defaults to 'us-east-1') */
-  awsRegion?: string;
-  /** GitHub repository name for GitHub Actions links (e.g., 'uv-venky/metro-one-cop') */
-  gitHubRepoName?: string;
-  /** Subject for new user welcome email (external users). Default: 'Welcome To Metro One Dashboard' */
-  newUserEmailSubject?: string;
-  /** Subject for new user welcome email (internal users). Default: 'Welcome To Metro One Dashboard' */
-  newUserEmailSubjectInternal?: string;
-  /** Optional workflow plugins for consuming projects with workflow features. */
-  workflowPlugins?: WorkflowServerPlugin[];
-  /**
-   * Action registry for server action invocation.
-   * Required: every project must provide ACTIONS, ACTION_ACCESS_ROLES, and WORKFLOW_CALLABLE_ACTIONS.
-   * Consuming projects must merge core actions (e.g. coreActions from venky-core/server) with their own.
-   */
-  actionRegistry: ActionRegistry;
-  /** Request context provider for cookie/header access. Defaults to Next.js implementation. */
-  requestContextProvider?: RequestContextProvider;
-  /** Server redirect implementation. Defaults to Next.js redirect when not specified. */
-  redirectImplementation?: RedirectImplementation;
-  /**
-   * Optional hook for consuming projects to wire an AI model registry.
-   * Not used in venky-core.
-   */
-  configureModelRegistry?: () => void | Promise<void>;
+    teams: ServerTeam[];
+    validateAccess: (props: {
+        session: Session;
+        headers: Headers;
+    }) => void;
+    validateProfileUpdate: (key: string, value: string | boolean | undefined, user: User) => void;
+    dataSources: Record<string, DataSource<any>>;
+    jobs: JobEntry[];
+    templateCodeGenFunctions?: TemplateCodeGenFunction[];
+    /** Optional chat agent registry for consuming projects with chat features. */
+    chatAgents?: Record<string, ChatAgentServerType>;
+    relayStateProcessors: RelayStateProcessor[];
+    userPropertyCallbacks?: UserPropertyCallbacks;
+    /** AWS ECS deployment configuration per environment */
+    deployConfig?: DeployConfigMap;
+    /** AWS region for deployments (defaults to 'us-east-1') */
+    awsRegion?: string;
+    /** GitHub repository name for GitHub Actions links (e.g., 'uv-venky/metro-one-cop') */
+    gitHubRepoName?: string;
+    /** Subject for new user welcome email (external users). Default: 'Welcome To Metro One Dashboard' */
+    newUserEmailSubject?: string;
+    /** Subject for new user welcome email (internal users). Default: 'Welcome To Metro One Dashboard' */
+    newUserEmailSubjectInternal?: string;
+    /** Optional workflow plugins for consuming projects with workflow features. */
+    workflowPlugins?: WorkflowServerPlugin[];
+    /**
+     * Action registry for server action invocation.
+     * Required: every project must provide ACTIONS, ACTION_ACCESS_ROLES, and WORKFLOW_CALLABLE_ACTIONS.
+     * Consuming projects must merge core actions (e.g. coreActions from venky-core/server) with their own.
+     */
+    actionRegistry: ActionRegistry;
+    /** Request context provider for cookie/header access. Defaults to Next.js implementation. */
+    requestContextProvider?: RequestContextProvider;
+    /** Server redirect implementation. Defaults to Next.js redirect when not specified. */
+    redirectImplementation?: RedirectImplementation;
+    /**
+     * Optional hook for consuming projects to wire an AI model registry.
+     * Not used in venky-core.
+     */
+    configureModelRegistry?: () => void | Promise<void>;
 }
 //# sourceMappingURL=ServerConfig.d.ts.map

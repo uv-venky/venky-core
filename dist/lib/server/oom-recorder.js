@@ -24,112 +24,121 @@ import { isAbortedRequestError } from '../../lib/core/common/error';
  */
 const OOM_DIR = process.env.VENKY_OOM_DIR ?? path.join(os.tmpdir(), 'venky-oom');
 export function getOomDir() {
-  return OOM_DIR;
+    return OOM_DIR;
 }
 function ensureDir() {
-  try {
-    fs.mkdirSync(OOM_DIR, { recursive: true });
-  } catch {
-    // best effort — if /tmp is unwritable there's nothing we can do
-  }
+    try {
+        fs.mkdirSync(OOM_DIR, { recursive: true });
+    }
+    catch {
+        // best effort — if /tmp is unwritable there's nothing we can do
+    }
 }
 // Distinct prefix so it's trivial to grep in CloudWatch:
 //   fields @timestamp, @message | filter @message like /VENKY_OOM_DUMP/
 const STDERR_TAG = 'VENKY_OOM_DUMP';
 function writeCrashSync(dump) {
-  const json = JSON.stringify(dump);
-  // 1. stderr first — on Fargate the container disk dies with the task,
-  // but the awslogs driver flushes stderr to CloudWatch. process.stderr.write
-  // is synchronous on a pipe/file (and stays sync even while exiting), so a
-  // dying process still gets the line out. One line so log shipping doesn't
-  // split it.
-  try {
-    process.stderr.write(`${STDERR_TAG} ${json}\n`);
-  } catch {
-    // exiting anyway
-  }
-  // 2. Disk dump — useful in environments where the filesystem outlives the
-  // process (dev, EC2, persistent volumes). The sampler drains these into
-  // uv_memory_samples on its next run. On Fargate this is best-effort and
-  // typically lost, which is fine because stderr already carried the data.
-  try {
-    const file = path.join(OOM_DIR, `oom-${dump.pid}-${Date.now()}.json`);
-    fs.writeFileSync(file, json, { encoding: 'utf8' });
-  } catch {
-    // exiting anyway
-  }
+    const json = JSON.stringify(dump);
+    // 1. stderr first — on Fargate the container disk dies with the task,
+    // but the awslogs driver flushes stderr to CloudWatch. process.stderr.write
+    // is synchronous on a pipe/file (and stays sync even while exiting), so a
+    // dying process still gets the line out. One line so log shipping doesn't
+    // split it.
+    try {
+        process.stderr.write(`${STDERR_TAG} ${json}\n`);
+    }
+    catch {
+        // exiting anyway
+    }
+    // 2. Disk dump — useful in environments where the filesystem outlives the
+    // process (dev, EC2, persistent volumes). The sampler drains these into
+    // uv_memory_samples on its next run. On Fargate this is best-effort and
+    // typically lost, which is fine because stderr already carried the data.
+    try {
+        const file = path.join(OOM_DIR, `oom-${dump.pid}-${Date.now()}.json`);
+        fs.writeFileSync(file, json, { encoding: 'utf8' });
+    }
+    catch {
+        // exiting anyway
+    }
 }
 function buildDump(reason, error) {
-  return {
-    ts: new Date().toISOString(),
-    pid: process.pid,
-    uptimeSec: Math.round(process.uptime()),
-    reason,
-    error:
-      error instanceof Error
-        ? { message: error.message, stack: error.stack }
-        : typeof error === 'object' && error !== null && 'code' in error
-          ? { code: error.code }
-          : undefined,
-    mem: process.memoryUsage(),
-  };
+    return {
+        ts: new Date().toISOString(),
+        pid: process.pid,
+        uptimeSec: Math.round(process.uptime()),
+        reason,
+        error: error instanceof Error
+            ? { message: error.message, stack: error.stack }
+            : typeof error === 'object' && error !== null && 'code' in error
+                ? { code: error.code }
+                : undefined,
+        mem: process.memoryUsage(),
+    };
 }
 let installed = false;
 export function installOomRecorder() {
-  if (installed) return;
-  installed = true;
-  ensureDir();
-  // 'uncaughtExceptionMonitor' lets us OBSERVE the error without overriding
-  // Node's default behavior. If nothing else handles it Node still terminates
-  // normally with its usual stack trace; if some other layer (e.g. Next.js)
-  // has its own handler the process keeps running as before. Registering
-  // 'uncaughtException' would suppress the default exit and force us to
-  // decide — which we got wrong once already (see git history).
-  process.on('uncaughtExceptionMonitor', (err) => {
-    // Aborted HTTP requests are routine (browser cancelling an in-flight
-    // request on navigation). Skip them or we'd spam uv_memory_samples.
-    if (isAbortedRequestError(err)) return;
-    writeCrashSync(buildDump('uncaughtException', err));
-  });
-  process.on('unhandledRejection', (reason) => {
-    if (isAbortedRequestError(reason)) return;
-    writeCrashSync(buildDump('unhandledRejection', reason));
-  });
-  process.on('exit', (code) => {
-    // Skip clean (0) and signal-induced graceful exits — Node uses 128+N for
-    // signals. 130=SIGINT (Ctrl+C, HMR restart in dev), 143=SIGTERM (Fargate
-    // task stop / docker stop), 129=SIGHUP. These are restarts, not crashes,
-    // and we don't want them polluting the crash count.
-    if (GRACEFUL_EXIT_CODES.has(code)) return;
-    writeCrashSync(buildDump('exit', { code }));
-  });
+    if (installed)
+        return;
+    installed = true;
+    ensureDir();
+    // 'uncaughtExceptionMonitor' lets us OBSERVE the error without overriding
+    // Node's default behavior. If nothing else handles it Node still terminates
+    // normally with its usual stack trace; if some other layer (e.g. Next.js)
+    // has its own handler the process keeps running as before. Registering
+    // 'uncaughtException' would suppress the default exit and force us to
+    // decide — which we got wrong once already (see git history).
+    process.on('uncaughtExceptionMonitor', (err) => {
+        // Aborted HTTP requests are routine (browser cancelling an in-flight
+        // request on navigation). Skip them or we'd spam uv_memory_samples.
+        if (isAbortedRequestError(err))
+            return;
+        writeCrashSync(buildDump('uncaughtException', err));
+    });
+    process.on('unhandledRejection', (reason) => {
+        if (isAbortedRequestError(reason))
+            return;
+        writeCrashSync(buildDump('unhandledRejection', reason));
+    });
+    process.on('exit', (code) => {
+        // Skip clean (0) and signal-induced graceful exits — Node uses 128+N for
+        // signals. 130=SIGINT (Ctrl+C, HMR restart in dev), 143=SIGTERM (Fargate
+        // task stop / docker stop), 129=SIGHUP. These are restarts, not crashes,
+        // and we don't want them polluting the crash count.
+        if (GRACEFUL_EXIT_CODES.has(code))
+            return;
+        writeCrashSync(buildDump('exit', { code }));
+    });
 }
 const GRACEFUL_EXIT_CODES = new Set([0, 129, 130, 143]);
 /** Read and delete all crash dumps. Returns the parsed dumps. */
 export function drainCrashDumps() {
-  let names = [];
-  try {
-    names = fs.readdirSync(OOM_DIR).filter((n) => n.startsWith('oom-') && n.endsWith('.json'));
-  } catch {
-    return [];
-  }
-  const dumps = [];
-  for (const name of names) {
-    const file = path.join(OOM_DIR, name);
+    let names = [];
     try {
-      const raw = fs.readFileSync(file, 'utf8');
-      const parsed = JSON.parse(raw);
-      dumps.push(parsed);
-    } catch {
-      // bad file — leave it for manual cleanup, don't delete blindly
-      continue;
+        names = fs.readdirSync(OOM_DIR).filter((n) => n.startsWith('oom-') && n.endsWith('.json'));
     }
-    try {
-      fs.unlinkSync(file);
-    } catch {
-      // already gone, ok
+    catch {
+        return [];
     }
-  }
-  return dumps;
+    const dumps = [];
+    for (const name of names) {
+        const file = path.join(OOM_DIR, name);
+        try {
+            const raw = fs.readFileSync(file, 'utf8');
+            const parsed = JSON.parse(raw);
+            dumps.push(parsed);
+        }
+        catch {
+            // bad file — leave it for manual cleanup, don't delete blindly
+            continue;
+        }
+        try {
+            fs.unlinkSync(file);
+        }
+        catch {
+            // already gone, ok
+        }
+    }
+    return dumps;
 }
 //# sourceMappingURL=oom-recorder.js.map

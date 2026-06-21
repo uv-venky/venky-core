@@ -8,20 +8,18 @@ import type { UserSettings } from './lib/core/common/types/UserSettings';
  */
 export declare function hashPassword(pwd: string): Promise<string>;
 export interface DBUser extends DBUserActive {
-  user_name: string;
-  password_hash: string;
-  email: string;
-  display_name: string;
-  user_id: number;
-  settings: UserSettings;
-  force_password_change: boolean;
+    user_name: string;
+    password_hash: string;
+    email: string;
+    display_name: string;
+    user_id: number;
+    settings: UserSettings;
+    force_password_change: boolean;
 }
 export declare function getUserRoles(userName: string): Promise<string[]>;
 export declare function cacheAutoLoginSession(): Promise<void>;
 export declare function auth(doNotSetSessionCookie?: boolean): Promise<Session | null>;
-export declare function signIn(
-  provider: string,
-  options?: {
+export declare function signIn(provider: string, options?: {
     userName?: string;
     password?: string;
     token?: string;
@@ -29,8 +27,7 @@ export declare function signIn(
     redirect?: boolean;
     metadata?: unknown;
     isMobile?: boolean;
-  },
-): Promise<MobileAuthSessionData | undefined>;
+}): Promise<MobileAuthSessionData | undefined>;
 export declare function refreshToken(encryptedSessionId: string): Promise<MobileAuthSessionData | null>;
 export declare function signOut(): Promise<string>;
 export declare function clearSessionCache(userName: string): Promise<void>;

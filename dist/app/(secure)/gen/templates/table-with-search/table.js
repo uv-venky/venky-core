@@ -1,5 +1,5 @@
 export default ({ dsName, moduleCode }) => {
-  return `/* Copyright (c) 2024-present Venky Corp. */
+    return `/* Copyright (c) 2024-present Venky Corp. */
 
 'use client';
 

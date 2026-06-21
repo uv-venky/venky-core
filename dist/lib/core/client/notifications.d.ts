@@ -8,41 +8,32 @@
  *   - If no provider is set, defaults to console-based logging (no-op for confirmations)
  */
 export interface ConfirmWithUserArgs {
-  title: string;
-  content: string;
-  cancelButtonLabel?: string;
-  confirmButtonLabel?: string;
-  confirmationText?: string;
+    title: string;
+    content: string;
+    cancelButtonLabel?: string;
+    confirmButtonLabel?: string;
+    confirmationText?: string;
 }
 export interface ConfirmWithUserTwoButtonArgs {
-  title: string;
-  content: string;
-  action1Label: string;
-  action2Label: string;
-  cancelButtonLabel?: string;
+    title: string;
+    content: string;
+    action1Label: string;
+    action2Label: string;
+    cancelButtonLabel?: string;
 }
 export interface NotificationProvider {
-  showError(
-    title: string | Error,
-    props?: {
-      description?: string;
-    },
-  ): void;
-  showSuccess(
-    title: string,
-    props?: {
-      description?: string;
-    },
-  ): void;
-  showWarning(
-    title: string,
-    props?: {
-      description?: string;
-    },
-  ): void;
-  confirmWithUser(args: ConfirmWithUserArgs | ConfirmWithUserTwoButtonArgs): Promise<boolean | string | null>;
-  /** Called on user interaction to reset inactivity timers */
-  touch(): void;
+    showError(title: string | Error, props?: {
+        description?: string;
+    }): void;
+    showSuccess(title: string, props?: {
+        description?: string;
+    }): void;
+    showWarning(title: string, props?: {
+        description?: string;
+    }): void;
+    confirmWithUser(args: ConfirmWithUserArgs | ConfirmWithUserTwoButtonArgs): Promise<boolean | string | null>;
+    /** Called on user interaction to reset inactivity timers */
+    touch(): void;
 }
 /**
  * Set the notification provider for the app.
@@ -62,24 +53,15 @@ export interface NotificationProvider {
 export declare function setNotificationProvider(provider: NotificationProvider): void;
 /** Get the current notification provider */
 export declare function getNotificationProvider(): NotificationProvider;
-export declare function showError(
-  title: string | Error,
-  props?: {
+export declare function showError(title: string | Error, props?: {
     description?: string;
-  },
-): void;
-export declare function showSuccess(
-  title: string,
-  props?: {
+}): void;
+export declare function showSuccess(title: string, props?: {
     description?: string;
-  },
-): void;
-export declare function showWarning(
-  title: string,
-  props?: {
+}): void;
+export declare function showWarning(title: string, props?: {
     description?: string;
-  },
-): void;
+}): void;
 export declare function confirmWithUser(args: ConfirmWithUserArgs): Promise<boolean>;
 export declare function confirmWithUser(args: ConfirmWithUserTwoButtonArgs): Promise<string | null>;
 export declare function touch(): void;

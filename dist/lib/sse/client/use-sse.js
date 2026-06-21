@@ -28,49 +28,49 @@ import { sseManager } from './sse-manager';
  * ```
  */
 export function useSSE(options) {
-  const { channels, onMessage, enabled = true, onStatusChange } = options;
-  const [status, setStatus] = useState('disconnected');
-  // Use refs to avoid re-subscribing when callbacks change
-  const onMessageRef = useRef(onMessage);
-  onMessageRef.current = onMessage;
-  const onStatusChangeRef = useRef(onStatusChange);
-  onStatusChangeRef.current = onStatusChange;
-  // Stable callback that uses refs
-  const handleMessage = useCallback((channel, data) => {
-    onMessageRef.current(channel, data);
-  }, []);
-  // Create a stable key from channels by sorting and joining
-  // This ensures we detect content changes, not just reference changes
-  const channelsKey = useMemo(() => {
-    return [...channels].sort().join(',');
-  }, [channels]);
-  // Memoize sorted channels array based on the stable key
-  // This prevents unnecessary re-renders when channels array reference changes but content is the same
-  // We use channelsKey as the dependency instead of channels to avoid re-memoizing when only the reference changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: channelsKey is computed from channels, so it captures content changes
-  const memoizedChannels = useMemo(() => {
-    return [...channels].sort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelsKey]);
-  const channelsCount = memoizedChannels.length;
-  useEffect(() => {
-    if (!enabled || channelsCount === 0) {
-      setStatus('disconnected');
-      return;
-    }
-    // Subscribe to status changes
-    const unsubscribeStatus = sseManager.onStatusChange((newStatus) => {
-      setStatus(newStatus);
-      onStatusChangeRef.current?.(newStatus);
-    });
-    // Subscribe to channels (memoizedChannels is stable based on channelsKey)
-    const unsubscribeChannels = sseManager.subscribe(memoizedChannels, handleMessage);
-    return () => {
-      unsubscribeStatus();
-      unsubscribeChannels();
-    };
-  }, [channelsKey, channelsCount, enabled, handleMessage, memoizedChannels]);
-  return { status };
+    const { channels, onMessage, enabled = true, onStatusChange } = options;
+    const [status, setStatus] = useState('disconnected');
+    // Use refs to avoid re-subscribing when callbacks change
+    const onMessageRef = useRef(onMessage);
+    onMessageRef.current = onMessage;
+    const onStatusChangeRef = useRef(onStatusChange);
+    onStatusChangeRef.current = onStatusChange;
+    // Stable callback that uses refs
+    const handleMessage = useCallback((channel, data) => {
+        onMessageRef.current(channel, data);
+    }, []);
+    // Create a stable key from channels by sorting and joining
+    // This ensures we detect content changes, not just reference changes
+    const channelsKey = useMemo(() => {
+        return [...channels].sort().join(',');
+    }, [channels]);
+    // Memoize sorted channels array based on the stable key
+    // This prevents unnecessary re-renders when channels array reference changes but content is the same
+    // We use channelsKey as the dependency instead of channels to avoid re-memoizing when only the reference changes
+    // biome-ignore lint/correctness/useExhaustiveDependencies: channelsKey is computed from channels, so it captures content changes
+    const memoizedChannels = useMemo(() => {
+        return [...channels].sort();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [channelsKey]);
+    const channelsCount = memoizedChannels.length;
+    useEffect(() => {
+        if (!enabled || channelsCount === 0) {
+            setStatus('disconnected');
+            return;
+        }
+        // Subscribe to status changes
+        const unsubscribeStatus = sseManager.onStatusChange((newStatus) => {
+            setStatus(newStatus);
+            onStatusChangeRef.current?.(newStatus);
+        });
+        // Subscribe to channels (memoizedChannels is stable based on channelsKey)
+        const unsubscribeChannels = sseManager.subscribe(memoizedChannels, handleMessage);
+        return () => {
+            unsubscribeStatus();
+            unsubscribeChannels();
+        };
+    }, [channelsKey, channelsCount, enabled, handleMessage, memoizedChannels]);
+    return { status };
 }
 /**
  * Hook to get the current SSE connection status without subscribing to channels
@@ -87,11 +87,11 @@ export function useSSE(options) {
  * ```
  */
 export function useSSEStatus() {
-  const [status, setStatus] = useState(() => sseManager.getStatus());
-  useEffect(() => {
-    return sseManager.onStatusChange(setStatus);
-  }, []);
-  return status;
+    const [status, setStatus] = useState(() => sseManager.getStatus());
+    useEffect(() => {
+        return sseManager.onStatusChange(setStatus);
+    }, []);
+    return status;
 }
 /**
  * Hook to get the current SSE connection status and reconnect delay remaining
@@ -111,23 +111,23 @@ export function useSSEStatus() {
  * ```
  */
 export function useSSEStatusWithDelay() {
-  const [status, setStatus] = useState(() => sseManager.getStatus());
-  const [reconnectDelayRemaining, setReconnectDelayRemaining] = useState(() => sseManager.getReconnectDelayRemaining());
-  useEffect(() => {
-    const unsubscribe = sseManager.onStatusChange((newStatus) => {
-      setStatus(newStatus);
-      setReconnectDelayRemaining(sseManager.getReconnectDelayRemaining());
-    });
-    // Poll for reconnect delay updates every second when disconnected/error
-    const interval = setInterval(() => {
-      const delay = sseManager.getReconnectDelayRemaining();
-      setReconnectDelayRemaining(delay);
-    }, 1000);
-    return () => {
-      unsubscribe();
-      clearInterval(interval);
-    };
-  }, []);
-  return { status, reconnectDelayRemaining };
+    const [status, setStatus] = useState(() => sseManager.getStatus());
+    const [reconnectDelayRemaining, setReconnectDelayRemaining] = useState(() => sseManager.getReconnectDelayRemaining());
+    useEffect(() => {
+        const unsubscribe = sseManager.onStatusChange((newStatus) => {
+            setStatus(newStatus);
+            setReconnectDelayRemaining(sseManager.getReconnectDelayRemaining());
+        });
+        // Poll for reconnect delay updates every second when disconnected/error
+        const interval = setInterval(() => {
+            const delay = sseManager.getReconnectDelayRemaining();
+            setReconnectDelayRemaining(delay);
+        }, 1000);
+        return () => {
+            unsubscribe();
+            clearInterval(interval);
+        };
+    }, []);
+    return { status, reconnectDelayRemaining };
 }
 //# sourceMappingURL=use-sse.js.map
