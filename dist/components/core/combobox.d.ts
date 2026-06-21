@@ -1,0 +1,78 @@
+export type ComboboxProps<T> = {
+  bottomGroup?: React.ReactNode;
+  className?: string;
+  dataTestId?: string;
+  disabled?: boolean;
+  emptyText?: string;
+  getLabel: (option: Readonly<T>) => string;
+  renderOption?: (option: Readonly<T>) => React.ReactNode;
+  getOptions?: (filter: string) => Promise<readonly T[]>;
+  getValue: (option: Readonly<T>) => string;
+  groupHeading?: string;
+  id?: string;
+  minSearchLength?: number;
+  onOpenChange?: (open: boolean) => void;
+  onSelect: (value?: string, option?: Readonly<T>) => void;
+  open?: boolean;
+  options?: readonly T[];
+  placeholder?: string;
+  required?: boolean;
+  searchPlaceholder?: string;
+  value?: string | null;
+  isLoading?: boolean;
+  getOptionForValue?: (value: string) => Promise<Readonly<T> | undefined>;
+  helpText?: string;
+  disableSortByLabel?: boolean;
+  getIcon?: (option: Readonly<T>) => React.ReactNode;
+};
+export declare function Combobox<T>(props: ComboboxProps<T>): import('react/jsx-runtime').JSX.Element;
+export type ComboboxFieldProps<T> = Omit<
+  ComboboxProps<T>,
+  'getOptions' | 'onOpenChange' | 'open' | 'bottomGroup' | 'minSearchLength'
+>;
+export declare function ComboboxField<T>({
+  className,
+  dataTestId,
+  disableSortByLabel,
+  disabled,
+  emptyText,
+  getLabel,
+  getValue,
+  getIcon,
+  renderOption,
+  groupHeading,
+  id,
+  isLoading,
+  onSelect,
+  options,
+  placeholder,
+  required,
+  searchPlaceholder,
+  value,
+}: ComboboxFieldProps<T>): import('react/jsx-runtime').JSX.Element;
+export type AsyncComboboxFieldProps<T extends object> = Omit<
+  ComboboxProps<T>,
+  'onOpenChange' | 'open' | 'bottomGroup' | 'options' | 'isLoading'
+>;
+export declare function AsyncComboboxField<T extends object>({
+  className,
+  dataTestId,
+  disabled,
+  emptyText,
+  getIcon,
+  getLabel,
+  getOptions,
+  getValue,
+  renderOption,
+  groupHeading,
+  id,
+  minSearchLength,
+  onSelect,
+  placeholder,
+  required,
+  searchPlaceholder,
+  value,
+  getOptionForValue,
+  disableSortByLabel,
+}: AsyncComboboxFieldProps<T>): import('react/jsx-runtime').JSX.Element;
+//# sourceMappingURL=combobox.d.ts.map

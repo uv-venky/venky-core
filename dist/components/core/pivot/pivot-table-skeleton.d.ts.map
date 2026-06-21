@@ -1,0 +1,1 @@
+{"version":3,"file":"pivot-table-skeleton.d.ts","sourceRoot":"","sources":["../../../../src/components/core/pivot/pivot-table-skeleton.tsx"],"names":[],"mappings":"AAGA,UAAU,uBAAuB;IAC/B,IAAI,CAAC,EAAE,MAAM,CAAC;IACd,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB;AAED,wBAAgB,kBAAkB,CAAC,EAAE,IAAQ,EAAE,OAAW,EAAE,EAAE,uBAAuB,2CA4EpF"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"useRouter.d.ts","sourceRoot":"","sources":["../../../../src/components/core/hooks/useRouter.ts"],"names":[],"mappings":"AAGA;;;;;;;;;;;;GAYG;AAEH,MAAM,WAAW,SAAS;IACxB,IAAI,CAAC,GAAG,EAAE,MAAM,GAAG,IAAI,CAAC;IACxB,OAAO,CAAC,GAAG,EAAE,MAAM,GAAG,IAAI,CAAC;CAC5B;AAaD;;;GAGG;AACH,wBAAgB,uBAAuB,CAAC,MAAM,EAAE,SAAS,GAAG,IAAI,CAE/D;AAED,wBAAgB,SAAS,IAAI,SAAS,CAErC"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"job-summary-cards.d.ts","sourceRoot":"","sources":["../../../../../../../src/app/(secure)/admin/monitoring/jobs/components/job-summary-cards.tsx"],"names":[],"mappings":"AAKA,OAAO,KAAK,EAAE,mBAAmB,EAAE,MAAM,WAAW,CAAC;AAErD,UAAU,oBAAoB;IAC5B,OAAO,EAAE,mBAAmB,CAAC;CAC9B;AA0CD,wBAAgB,eAAe,CAAC,EAAE,OAAO,EAAE,EAAE,oBAAoB,2CAwChE"}

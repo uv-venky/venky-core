@@ -1,0 +1,1 @@
+{"version":3,"file":"page.js","sourceRoot":"","sources":["../../../../src/app/login/sso/page.tsx"],"names":[],"mappings":"AAAA,YAAY,CAAC;AAEb,OAAO,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAE9C,eAAe,YAAY,CAAC","sourcesContent":["'use client';\n\nimport { SSOLoginPage } from './SSOLoginPage';\n\nexport default SSOLoginPage;\n"]}

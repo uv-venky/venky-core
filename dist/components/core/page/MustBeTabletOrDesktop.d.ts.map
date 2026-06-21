@@ -1,0 +1,1 @@
+{"version":3,"file":"MustBeTabletOrDesktop.d.ts","sourceRoot":"","sources":["../../../../src/components/core/page/MustBeTabletOrDesktop.tsx"],"names":[],"mappings":"AAUA,wBAAgB,oBAAoB,YAQnC;AA+BD,MAAM,CAAC,OAAO,UAAU,qBAAqB,CAAC,EAC5C,QAAQ,GACT,EAAE,QAAQ,CAAC;IACV,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;CAC3B,CAAC,2WAQD"}

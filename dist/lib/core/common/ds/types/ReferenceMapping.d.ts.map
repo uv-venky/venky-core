@@ -1,0 +1,1 @@
+{"version":3,"file":"ReferenceMapping.d.ts","sourceRoot":"","sources":["../../../../../../src/lib/core/common/ds/types/ReferenceMapping.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,sCAAsC,CAAC;AAExE,MAAM,MAAM,gBAAgB,CAAC,CAAC,SAAS,MAAM,EAAE,CAAC,SAAS,MAAM,IAAI;IACjE,IAAI,EAAE,WAAW,CAAC,CAAC,CAAC,CAAC;IACrB,OAAO,EAAE,WAAW,CAAC,CAAC,CAAC,CAAC;CACzB,CAAC"}

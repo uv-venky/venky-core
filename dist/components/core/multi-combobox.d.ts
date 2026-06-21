@@ -1,0 +1,74 @@
+export type MultiComboboxProps<T> = {
+  bottomGroup?: React.ReactNode;
+  className?: string;
+  dataTestId?: string;
+  disabled?: boolean;
+  emptyText?: string;
+  getLabel: (option: Readonly<T>) => string;
+  getOptions?: (filter: string) => Promise<readonly T[]>;
+  getValue: (option: Readonly<T>) => string;
+  groupHeading?: string;
+  id?: string;
+  minSearchLength?: number;
+  onOpenChange?: (open: boolean) => void;
+  onSelect: (value: string[], option: readonly T[]) => void;
+  open?: boolean;
+  options?: readonly T[];
+  placeholder?: string;
+  required?: boolean;
+  searchPlaceholder?: string;
+  value: string[];
+  isLoading?: boolean;
+  getOptionsForValue?: (value: string[]) => Promise<readonly T[]>;
+  helpText?: string;
+  disableSortByLabel?: boolean;
+  trigger?: React.ReactNode;
+  topContent?: React.ReactNode;
+};
+export declare function MultiCombobox<T>(props: MultiComboboxProps<T>): import('react/jsx-runtime').JSX.Element;
+export type MultiComboboxFieldProps<T> = Omit<
+  MultiComboboxProps<T>,
+  'getOptions' | 'onOpenChange' | 'open' | 'bottomGroup' | 'minSearchLength'
+>;
+export declare function MultiComboboxField<T>({
+  className,
+  dataTestId,
+  disabled,
+  emptyText,
+  getLabel,
+  getValue,
+  groupHeading,
+  id,
+  onSelect,
+  options,
+  placeholder,
+  required,
+  searchPlaceholder,
+  value,
+  isLoading,
+  disableSortByLabel,
+}: MultiComboboxFieldProps<T>): import('react/jsx-runtime').JSX.Element;
+export type AsyncMultiComboboxFieldProps<T> = Omit<
+  MultiComboboxProps<T>,
+  'onOpenChange' | 'open' | 'bottomGroup' | 'options' | 'isLoading'
+>;
+export declare function AsyncMultiComboboxField<T>({
+  className,
+  dataTestId,
+  disabled,
+  emptyText,
+  getLabel,
+  getOptions,
+  getValue,
+  groupHeading,
+  id,
+  minSearchLength,
+  onSelect,
+  placeholder,
+  required,
+  searchPlaceholder,
+  value,
+  getOptionsForValue,
+  disableSortByLabel,
+}: AsyncMultiComboboxFieldProps<T>): import('react/jsx-runtime').JSX.Element;
+//# sourceMappingURL=multi-combobox.d.ts.map

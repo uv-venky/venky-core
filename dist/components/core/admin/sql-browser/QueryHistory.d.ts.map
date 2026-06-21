@@ -1,0 +1,1 @@
+{"version":3,"file":"QueryHistory.d.ts","sourceRoot":"","sources":["../../../../../src/components/core/admin/sql-browser/QueryHistory.tsx"],"names":[],"mappings":"AAiBA,UAAU,iBAAiB;IACzB,aAAa,EAAE,CAAC,KAAK,EAAE,MAAM,KAAK,IAAI,CAAC;IACvC,gBAAgB,CAAC,EAAE,MAAM,IAAI,CAAC;CAC/B;AAED,MAAM,CAAC,OAAO,UAAU,YAAY,CAAC,EAAE,aAAa,EAAE,gBAAgB,EAAE,EAAE,iBAAiB,2CA6F1F"}

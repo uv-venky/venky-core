@@ -361,6 +361,8 @@
     "dist",
     "migrations",
     "tsconfig.json",
+    "tsconfig.build.json",
+    "scripts/copy-static.mjs",
     "README.md",
     "CONSUMER.md"
   ]

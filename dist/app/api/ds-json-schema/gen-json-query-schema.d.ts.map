@@ -1,0 +1,1 @@
+{"version":3,"file":"gen-json-query-schema.d.ts","sourceRoot":"","sources":["../../../../src/app/api/ds-json-schema/gen-json-query-schema.ts"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,uCAAuC,CAAC;AAGxE,wBAAsB,wBAAwB,CAAC,CAAC,SAAS,MAAM,EAAE,EAAE,EAAE,UAAU,CAAC,CAAC,CAAC,GAAG,OAAO,CAAC,MAAM,CAAC,CAsQnG"}

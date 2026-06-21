@@ -1,0 +1,1 @@
+{"version":3,"file":"ReferenceMetadata.js","sourceRoot":"","sources":["../../../../../../src/lib/core/common/ds/types/ReferenceMetadata.ts"],"names":[],"mappings":"","sourcesContent":["import type { AttributeType } from '@/lib/core/common/ds/types/AttributeType.js';\n\nexport type ReferenceMetadata = {\n  type: AttributeType;\n};\n"]}

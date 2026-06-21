@@ -1,0 +1,1 @@
+{"version":3,"file":"team-switcher.d.ts","sourceRoot":"","sources":["../../../src/components/sidebar/team-switcher.tsx"],"names":[],"mappings":"AAaA,OAAO,KAAK,EAAE,IAAI,EAAE,MAAM,SAAS,CAAC;AAIpC,wBAAgB,YAAY,CAAC,EAC3B,KAAK,EACL,UAAU,EACV,aAAa,GACd,EAAE;IACD,KAAK,EAAE,IAAI,EAAE,CAAC;IACd,UAAU,EAAE,IAAI,CAAC;IACjB,aAAa,EAAE,CAAC,IAAI,EAAE,IAAI,KAAK,IAAI,CAAC;CACrC,2CAsCA"}

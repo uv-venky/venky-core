@@ -1,0 +1,1 @@
+{"version":3,"file":"use-comments.d.ts","sourceRoot":"","sources":["../../src/hooks/use-comments.ts"],"names":[],"mappings":"AAIA,OAAO,KAAK,EAAE,OAAO,EAAE,UAAU,EAAE,MAAM,kBAAkB,CAAC;AAK5D,wBAAgB,WAAW,CAAC,OAAO,EAAE,MAAM,EAAE,SAAS,EAAE,MAAM;;;6BAqEtB,UAAU;;;;gCAQP,MAAM,SAAS,MAAM,GAAG,IAAI,KAAG,OAAO,CAAC,IAAI,CAAC;gCAkB5C,MAAM,SAAS,MAAM,KAAG,OAAO,CAAC,IAAI,CAAC;;EAiE/E"}

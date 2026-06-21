@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../../src/venky-exports/core/server/startup/index.ts"],"names":[],"mappings":"AAAA,oBAAoB;AACpB,OAAO,OAAO,MAAM,2BAA2B,CAAC;AAEhD,eAAe,OAAO,CAAC","sourcesContent":["// Re-export startup\nimport startup from '@/lib/core/server/startup';\n\nexport default startup;\n"]}

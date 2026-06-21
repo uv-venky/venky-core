@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../../src/venky-exports/core/server/init/index.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,gBAAgB,EAAE,SAAS,EAAE,MAAM,0BAA0B,CAAC","sourcesContent":["export { initializeServer, getServer } from '@/lib/core/server/Server';\nexport type { ServerConfig } from '@/lib/core/server/ServerConfig';\n"]}

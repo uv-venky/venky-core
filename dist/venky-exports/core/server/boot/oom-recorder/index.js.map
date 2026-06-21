@@ -1,0 +1,1 @@
+{"version":3,"file":"index.js","sourceRoot":"","sources":["../../../../../../src/venky-exports/core/server/boot/oom-recorder/index.ts"],"names":[],"mappings":"AAAA,4CAA4C;AAE5C,OAAO,EAAE,sBAAsB,EAAE,MAAM,qCAAqC,CAAC","sourcesContent":["/* Copyright (c) 2024-present Venky Corp. */\n\nexport { installCoreOomRecorder } from '@/lib/core/server/boot/oom-recorder';\n"]}

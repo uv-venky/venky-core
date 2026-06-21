@@ -1,0 +1,23 @@
+type RouteHandler = (...args: any[]) => Response | Promise<Response>;
+type RouteNamespace = Record<string, RouteHandler>;
+export declare const dsRoute: RouteNamespace;
+export declare const dsListRoute: RouteNamespace;
+export declare const dsJsonSchemaRoute: RouteNamespace;
+export declare const exportDsRoute: RouteNamespace;
+export declare const activityRoute: RouteNamespace;
+export declare const attributesRoute: RouteNamespace;
+export declare const healthRoute: RouteNamespace;
+export declare const pingRoute: RouteNamespace;
+export declare const logRoute: RouteNamespace;
+export declare const shortenUrlRoute: RouteNamespace;
+export declare const sqlDescribeRoute: RouteNamespace;
+export declare const sqlHistoryRoute: RouteNamespace;
+export declare const sqlHistoryIdRoute: RouteNamespace;
+export declare const sqlRunRoute: RouteNamespace;
+export declare const sqlSchemasRoute: RouteNamespace;
+export declare const statusRoute: RouteNamespace;
+export declare const appsStatusRoute: RouteNamespace;
+export declare const sseStreamRoute: RouteNamespace;
+export declare const integrationTestRoute: RouteNamespace;
+export {};
+//# sourceMappingURL=routes.d.ts.map

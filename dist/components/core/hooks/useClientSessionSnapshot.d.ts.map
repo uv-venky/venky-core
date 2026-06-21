@@ -1,0 +1,1 @@
+{"version":3,"file":"useClientSessionSnapshot.d.ts","sourceRoot":"","sources":["../../../../src/components/core/hooks/useClientSessionSnapshot.ts"],"names":[],"mappings":"AAAA,OAAO,EAAsB,KAAK,WAAW,EAAE,MAAM,qCAAqC,CAAC;AAG3F,KAAK,gBAAgB,GAAG;IACtB,OAAO,EAAE,WAAW,CAAC;CACtB,CAAC;AAEF,eAAO,MAAM,gBAAgB,kBAE3B,CAAC;AAEH,wBAAgB,wBAAwB,IAAI,QAAQ,CAAC,WAAW,CAAC,CAGhE"}

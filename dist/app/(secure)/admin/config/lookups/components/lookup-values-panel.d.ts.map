@@ -1,0 +1,1 @@
+{"version":3,"file":"lookup-values-panel.d.ts","sourceRoot":"","sources":["../../../../../../../src/app/(secure)/admin/config/lookups/components/lookup-values-panel.tsx"],"names":[],"mappings":"AAaA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,wCAAwC,CAAC;AAI1E,UAAU,sBAAsB;IAC9B,UAAU,EAAE,WAAW,GAAG,IAAI,CAAC;CAChC;AAED,wBAAgB,iBAAiB,CAAC,EAAE,UAAU,EAAE,EAAE,sBAAsB,2CAmHvE"}

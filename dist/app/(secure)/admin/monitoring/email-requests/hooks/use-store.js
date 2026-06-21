@@ -1,0 +1,15 @@
+/* Copyright (c) 2024-present Venky Corp. */
+'use client';
+import { useStore } from '../../../../../../lib/core/client/store';
+export function useEmailRequestsStore() {
+  return useStore({
+    datasourceId: 'EmailRequests',
+    page: 'email-requests-page',
+    alias: 'email-requests-all',
+    limit: 20,
+    includeCount: true,
+    autoQuery: true,
+    sort: { requestId: -1 },
+  });
+}
+//# sourceMappingURL=use-store.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"types.js","sourceRoot":"","sources":["../../../../src/components/core/common/types.ts"],"names":[],"mappings":"","sourcesContent":["export type ColumnType = 'Text' | 'TextArray' | 'Number' | 'Date' | 'Boolean' | 'Select' | 'YN' | 'TF';\nexport type DataType = ColumnType;\n\nexport type TableVariant = 'compact' | 'default' | 'roomy' | 'spacious';\n"]}

@@ -1,0 +1,1 @@
+{"version":3,"file":"read-only-select.d.ts","sourceRoot":"","sources":["../../../../src/lib/server/sql/read-only-select.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,IAAI,CAAC;AAInC,wBAAgB,gBAAgB,CAAC,GAAG,EAAE,MAAM,GAAG,MAAM,CA+EpD;AAiED,wBAAgB,oBAAoB,CAAC,GAAG,EAAE,MAAM,GAAG,IAAI,CA2BtD;AAED,wBAAgB,aAAa,CAAC,KAAK,EAAE,QAAQ,GAAG,MAAM,CAuBrD"}

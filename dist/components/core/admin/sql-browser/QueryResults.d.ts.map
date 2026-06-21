@@ -1,0 +1,1 @@
+{"version":3,"file":"QueryResults.d.ts","sourceRoot":"","sources":["../../../../../src/components/core/admin/sql-browser/QueryResults.tsx"],"names":[],"mappings":"AAaA,OAAO,KAAK,EAAE,WAAW,EAAE,MAAM,2CAA2C,CAAC;AAI7E,UAAU,iBAAiB;IACzB,MAAM,EAAE,WAAW,CAAC;IACpB,aAAa,CAAC,EAAE,OAAO,CAAC;CACzB;AAED,MAAM,CAAC,OAAO,UAAU,YAAY,CAAC,EAAE,MAAM,EAAE,aAAoB,EAAE,EAAE,iBAAiB,2CAiJvF"}

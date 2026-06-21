@@ -1,0 +1,1 @@
+{"version":3,"file":"ServerClass.d.ts","sourceRoot":"","sources":["../../../../src/lib/core/server/ServerClass.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAEnD,qBAAa,WAAW;IACtB,MAAM,EAAE,YAAY,CAAC;gBACT,MAAM,EAAE,YAAY;CAGjC;AAED,OAAO,CAAC,MAAM,CAAC;IACb,IAAI,aAAa,EAAE,WAAW,GAAG,SAAS,CAAC;CAC5C"}

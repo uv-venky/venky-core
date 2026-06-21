@@ -1,5 +1,6 @@
 {
-  "*/**/*.{js,jsx,ts,tsx,mjs}": ["biome format", "biome lint"],
+  "src/**/*.{js,jsx,ts,tsx,mjs}": ["biome format", "biome lint"],
   "src/**/*.{ts,tsx}": ["eslint --max-warnings 0"],
-  "*/**/*.{json,jsonc}": ["biome format"]
+  "scripts/**/*.{js,mjs}": ["biome format", "biome lint"],
+  "package.json": ["biome format"]
 }

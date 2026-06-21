@@ -1,0 +1,104 @@
+/* Copyright (c) 2024-present Venky Corp. */
+'use client';
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from 'react/jsx-runtime';
+import { Suspense } from 'react';
+import Suspended from '../../../components/core/common/Suspended';
+import { cn } from '../../../lib/utils';
+import { PageHeaderActions } from './page-header-actions';
+import { Separator } from '../../../components/ui/separator';
+export default function PageLayout({
+  icon,
+  leftSection,
+  mainSection,
+  filterSection,
+  subTitle,
+  title,
+  toolbar,
+  children,
+  transparentMainSection = false,
+  enableShareUrl = false,
+  showThemeToggle = false,
+  showUserProfile = false,
+  enableComments = false,
+  statsSection,
+}) {
+  if (mainSection && children) {
+    throw new Error('mainSection and children cannot both be provided');
+  }
+  return _jsxs('div', {
+    className: 'flex h-full w-full flex-col gap-4 overflow-hidden bg-accent p-4',
+    children: [
+      _jsxs('div', {
+        className: 'flex h-12 w-full shrink-0 items-center gap-2',
+        children: [
+          icon && _jsx('div', { className: 'flex items-center', children: icon }),
+          _jsxs('div', {
+            className: 'flex flex-1 select-none flex-col pl-2',
+            children: [
+              typeof title === 'string'
+                ? _jsx('div', { className: 'font-title-light text-xl', 'data-testid': 'page-title', children: title })
+                : _jsx('div', { className: 'min-w-0', 'data-testid': 'page-title', children: title }),
+              _jsx('div', { className: 'font-light text-sm', 'data-testid': 'page-subtitle', children: subTitle }),
+            ],
+          }),
+          _jsxs('div', {
+            className: 'flex items-center gap-2',
+            children: [
+              toolbar &&
+                _jsxs(_Fragment, {
+                  children: [
+                    _jsx(Suspense, { fallback: _jsx(Suspended, { name: 'Toolbar' }), children: toolbar }),
+                    _jsx(Separator, { orientation: 'vertical', className: 'ml-2 data-[orientation=vertical]:h-8' }),
+                  ],
+                }),
+              _jsx(PageHeaderActions, {
+                enableShareUrl: enableShareUrl,
+                enableComments: enableComments,
+                showThemeToggle: showThemeToggle,
+                showUserProfile: showUserProfile,
+              }),
+            ],
+          }),
+        ],
+      }),
+      statsSection &&
+        _jsx('div', {
+          className: 'shrink-0',
+          children: _jsx(Suspense, { fallback: _jsx(Suspended, { name: 'statsSection' }), children: statsSection }),
+        }),
+      filterSection &&
+        _jsx('div', {
+          className: 'flex min-h-14 shrink-0 items-center rounded-lg border bg-background py-1',
+          children: _jsx(Suspense, { fallback: _jsx(Suspended, { name: 'filterSection' }), children: filterSection }),
+        }),
+      !leftSection
+        ? _jsx('div', {
+            className: cn(
+              'main relative flex flex-1 overflow-hidden',
+              transparentMainSection ? 'bg-transparent' : 'rounded-lg border bg-background',
+            ),
+            children: _jsx(Suspense, {
+              fallback: _jsx(Suspended, { name: 'mainSection1' }),
+              children: mainSection ?? children,
+            }),
+          })
+        : _jsxs('div', {
+            className: 'main2 flex flex-1 gap-4 overflow-hidden',
+            children: [
+              _jsx('div', {
+                className: 'flex max-h-full shrink-0 flex-col gap-4 overflow-auto',
+                children: _jsx(Suspense, { fallback: _jsx(Suspended, { name: 'leftSection' }), children: leftSection }),
+              }),
+              _jsx('div', {
+                className: 'relative flex-1 overflow-hidden rounded-lg border bg-background',
+                children: _jsx(Suspense, {
+                  fallback: _jsx(Suspended, { name: 'mainSection2' }),
+                  children: mainSection ?? children,
+                }),
+              }),
+            ],
+          }),
+    ],
+  });
+}
+//# sourceMappingURL=PageLayout.js.map

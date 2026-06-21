@@ -4,6 +4,7 @@
     "ignoreUnknown": false,
     "includes": [
       "**",
+      "!**/dist",
       "!**/pnpm-lock.yaml",
       "!**/migrations",
       "!**/node_modules",

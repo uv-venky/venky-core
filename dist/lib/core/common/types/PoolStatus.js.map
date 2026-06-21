@@ -1,0 +1,1 @@
+{"version":3,"file":"PoolStatus.js","sourceRoot":"","sources":["../../../../../src/lib/core/common/types/PoolStatus.ts"],"names":[],"mappings":"","sourcesContent":["export interface PoolStatus {\n  idleCount: number;\n  totalCount: number;\n  expiredCount: number;\n  waitingCount: number;\n  listenerCount: number;\n}\n"]}

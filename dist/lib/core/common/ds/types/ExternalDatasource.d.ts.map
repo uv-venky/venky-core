@@ -1,0 +1,1 @@
+{"version":3,"file":"ExternalDatasource.d.ts","sourceRoot":"","sources":["../../../../../../src/lib/core/common/ds/types/ExternalDatasource.ts"],"names":[],"mappings":"AAEA,MAAM,MAAM,kBAAkB,GAAG;IAC/B,YAAY,EAAE,MAAM,CAAC;IACrB,OAAO,CAAC,EAAE,MAAM,CAAC;IACjB,WAAW,CAAC,EAAE,MAAM,CAAC;IACrB,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,OAAO,CAAC,EAAE,MAAM,CAAC;CAClB,CAAC"}

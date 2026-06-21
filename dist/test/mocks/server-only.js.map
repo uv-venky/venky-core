@@ -1,0 +1,1 @@
+{"version":3,"file":"server-only.js","sourceRoot":"","sources":["../../../src/test/mocks/server-only.ts"],"names":[],"mappings":";AAAA,wCAAwC;AACxC,iEAAiE","sourcesContent":["// Mock for server-only package in tests\n// This file is empty because server-only is just a marker import\n\n"]}

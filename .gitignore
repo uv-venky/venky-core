@@ -21,7 +21,7 @@
 
 # production
 /build
-/dist
+# /dist — committed for GitHub consumer installs (see CONSUMER.md)
 
 # misc
 .DS_Store

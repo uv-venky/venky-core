@@ -1,0 +1,1 @@
+{"version":3,"file":"useParams.d.ts","sourceRoot":"","sources":["../../../../src/components/core/hooks/useParams.ts"],"names":[],"mappings":"AAGA;;;;;;;;;GASG;AAEH,MAAM,MAAM,MAAM,GAAG,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,MAAM,EAAE,CAAC,CAAC;AAIvD;;;GAGG;AACH,wBAAgB,uBAAuB,CAAC,IAAI,EAAE,MAAM,MAAM,GAAG,IAAI,CAEhE;AAED,wBAAgB,SAAS,CAAC,CAAC,SAAS,MAAM,GAAG,MAAM,KAAK,CAAC,CAExD"}

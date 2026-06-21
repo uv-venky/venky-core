@@ -1,0 +1,1 @@
+{"version":3,"file":"CsvDownloadButton.d.ts","sourceRoot":"","sources":["../../../src/components/core/CsvDownloadButton.tsx"],"names":[],"mappings":"AAIA,MAAM,CAAC,OAAO,UAAU,iBAAiB,CAAC,EACxC,IAAI,EACJ,QAAuB,GACxB,EAAE;IACD,IAAI,EAAE,MAAM,EAAE,GAAG,CAAC,MAAM,MAAM,EAAE,GAAG,OAAO,CAAC,MAAM,EAAE,CAAC,CAAC,CAAC;IACtD,QAAQ,CAAC,EAAE,MAAM,CAAC;CACnB,2CAoBA"}

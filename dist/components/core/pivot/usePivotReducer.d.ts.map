@@ -1,0 +1,1 @@
+{"version":3,"file":"usePivotReducer.d.ts","sourceRoot":"","sources":["../../../../src/components/core/pivot/usePivotReducer.ts"],"names":[],"mappings":"AAWA,OAAO,KAAK,EAAU,UAAU,EAAE,UAAU,EAAE,MAAM,oCAAoC,CAAC;AA4NzF,MAAM,CAAC,OAAO,UAAU,eAAe,CAAC,UAAU,SAAS,MAAM,EAAE,KAAK,KAAK;IAC3E,UAAU,CAAC,UAAU,EAAE,KAAK,CAAC;IAC7B,UAAU,CAAC,UAAU,EAAE,KAAK,CAAC;CAC9B,CAKA"}

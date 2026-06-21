@@ -1,0 +1,1 @@
+{"version":3,"file":"Base.js","sourceRoot":"","sources":["../../../../../../src/lib/core/common/ds/types/Base.ts"],"names":[],"mappings":"","sourcesContent":["export type ISODateString = string;\nexport type ISOTimeString = string;\nexport type ISODateTimeString = string;\n"]}

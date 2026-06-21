@@ -563,7 +563,14 @@ Add venky-core to `allowBuilds` in `pnpm-workspace.yaml` (see step 4).
 
 ### `venky-core dist is missing`
 
-Re-run `pnpm install`. The post-install script restores `dist/` from cache or builds it. First install can take several minutes.
+GitHub releases **v0.4.4+** include a pre-built `dist/` folder in the package. Use that tag or newer.
+
+After `pnpm clean` or deleting `node_modules/.pnpm`, the post-install cache restore has nothing to copy from. Either:
+
+1. Upgrade to **venky-core v0.4.4+** (dist bundled in the GitHub tarball), then `pnpm install`
+2. Avoid wiping the entire pnpm store — `pnpm install` without `clean` preserves cached dist
+
+Do not rely on building venky-core inside `node_modules` on a clean install; that path fails with TypeScript portability errors in consumer apps.
 
 ### `column "app_id" does not exist`
 

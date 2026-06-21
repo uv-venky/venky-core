@@ -1,0 +1,29 @@
+export declare const zIndex: {
+  ComboBox: number;
+  Menu: number;
+  Modal: number;
+  OnLineIndicator: number;
+  Popover: number;
+  Popup: number;
+  SlideOverPanel: number;
+  ComponentTip: number;
+  AnalyzeDialog: number;
+  DeveloperToolbar: number;
+  WorkflowToolbar: number;
+  DnDTip: number;
+  Header: number;
+  Tooltip: number;
+  Notification: number;
+  ResizeHandler: number;
+  Sidebar: number;
+  AutoCompletePopper: number;
+  Model: number;
+  WFEdgeLabel: number;
+  WFActiveEdgeSvg: number;
+  WFActiveNode: number;
+  WFNode: number;
+  FAB: number;
+  FloatingPanel: number;
+  GridHeader: number;
+};
+//# sourceMappingURL=constants.d.ts.map

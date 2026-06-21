@@ -1,0 +1,1 @@
+{"version":3,"file":"saml.d.ts","sourceRoot":"","sources":["../../src/lib/saml.ts"],"names":[],"mappings":"AAEA,OAAO,aAAa,CAAC;AACrB,OAAO,KAAK,IAAI,MAAM,SAAS,CAAC;AA2BhC,wBAAsB,YAAY,CAAC,GAAG,EAAE,MAAM;;;GAyB7C;AAED,wBAAsB,mBAAmB,CAAC,GAAG,EAAE,MAAM,EAAE,YAAY,EAAE,MAAM,EAAE,YAAY,EAAE,MAAM,mBAOhG"}

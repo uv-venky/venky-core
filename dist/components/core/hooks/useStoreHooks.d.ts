@@ -1,0 +1,76 @@
+import type { DBRow, Filters, Query, Row, SchemaMember, StringKeyof } from '../../../lib/core/common/ds/types/filter';
+import type { ErrorSource, Store } from '../../../lib/core/common/types/Store';
+import { type Snapshot } from 'valtio';
+export declare function useStoreFilters<T extends object>(store: Store<T>): [Filters<T>, (filters: Filters<T>) => void];
+export declare function useRowIds<T extends object>(store: Store<T>): ReadonlyArray<string>;
+export declare function useRows<T extends object>(store: Store<T>): ReadonlyArray<Readonly<Row<T>>>;
+export declare function useDBRows<T extends object>(store: Store<T>): ReadonlyArray<DBRow<T>>;
+export declare function useCurrentRowId<T extends object>(store: Store<T>): string | undefined;
+export declare function useCurrentRow<T extends object>(store: Store<T>): Row<T> | undefined;
+export declare function useCurrentDBRow<T extends object>(store: Store<T>): DBRow<T> | undefined;
+export declare function useCurrentRowIndex<T extends object>(store: Store<T>): number | undefined;
+export declare function useNextRow<T extends object>(store: Store<T>): Row<T> | undefined;
+export declare function usePreviousRow<T extends object>(store: Store<T>): Row<T> | undefined;
+export declare function useCurrentRowSync<T extends object>(store: Store<T>): Row<T> | undefined;
+export declare function useRowValue<T extends object, K extends StringKeyof<T>>(
+  store: Store<T>,
+  rowId: string,
+  key: K,
+): Row<T>[K] | undefined;
+export declare function useValue<T extends object, K extends StringKeyof<T>>(
+  store: Store<T>,
+  key: K,
+): Row<T>[K] | undefined;
+export declare function useRowAtId<T extends object>(store: Store<T>, rowId?: string): Row<T> | undefined;
+export declare function useRow<T extends object>(store: Store<T>): Row<T> | undefined;
+export declare function useValueSetter<T extends object, K extends StringKeyof<T>>(
+  store: Store<T>,
+  key: K,
+): (value: T[K] | undefined) => void;
+export declare function useIsStoreDirty<T extends object>(store: Store<T>): boolean;
+export declare function useIsRowDirty<T extends object>(store: Store<T>, id: string): boolean;
+export declare function useIsRowAttributeDirty<T extends object>(
+  store: Store<T>,
+  id: string,
+  attribute: StringKeyof<T>,
+): boolean;
+export declare function useRowAttributeOriginalValue<T extends object, K extends StringKeyof<T>>(
+  store: Store<T>,
+  id: string,
+  attribute: K,
+): T[K] | undefined;
+export declare function useStoreSize<T extends object>(store: Store<T>): number | undefined;
+export declare function useStoreRowCount<T extends object>(store: Store<T>): number | undefined;
+export declare function useSortState<T extends object>(
+  store: Store<T>,
+  key: StringKeyof<T>,
+): [number, number] | [undefined, undefined];
+export declare function useFullSortState<T extends object>(
+  store: Store<T>,
+): Snapshot<SchemaMember<T, number>> | undefined;
+export declare function useIsStoreBusy<T extends object>(store: Store<T>): boolean;
+export declare function useIsStoreLoading<T extends object>(store: Store<T>): boolean;
+export declare function useIsStorePosting<T extends object>(store: Store<T>): boolean;
+export declare function useStoreError<T extends object>(store: Store<T>): string | undefined;
+export declare function usePreQuery<T extends object>(
+  store: Store<T>,
+  preQueryCallback: (query: Query<T>) => Query<T>,
+): void;
+export declare function useHasMoreRows<T extends object>(store: Store<T>): boolean;
+export declare function useIsRowSelected<T extends object>(store: Store<T>, id: string): boolean;
+export declare function useSelectedRowIds<T extends object>(store: Store<T>): ReadonlyArray<string>;
+export declare function useIsAllSelected<T extends object>(store: Store<T>): boolean;
+export declare function useSelectedRows<T extends object>(store: Store<T>): ReadonlyArray<Row<T>>;
+export declare function useIsHeaderFilterDirty<T extends object>(store: Store<T>, attribute: StringKeyof<T>): boolean;
+export declare function useIsHeaderFilterApplied<T extends object>(store: Store<T>, attribute: StringKeyof<T>): boolean;
+export declare function useIsHeaderFiltersHidden<T extends object>(store?: Store<T>): boolean;
+export declare function useStoreFieldErrors<T extends object>(
+  store: Store<T>,
+): Snapshot<SchemaMember<T, Partial<Record<ErrorSource, string>>>> | undefined;
+export declare function useCellErrors<T extends object>(
+  store: Store<T>,
+  rowId: string,
+  attribute: StringKeyof<T>,
+): string | undefined;
+export declare function useStoreOffset<T extends object>(store: Store<T>): number;
+//# sourceMappingURL=useStoreHooks.d.ts.map

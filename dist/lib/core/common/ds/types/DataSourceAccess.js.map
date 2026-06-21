@@ -1,0 +1,1 @@
+{"version":3,"file":"DataSourceAccess.js","sourceRoot":"","sources":["../../../../../../src/lib/core/common/ds/types/DataSourceAccess.ts"],"names":[],"mappings":"","sourcesContent":["export type DataSourceAccess = {\n  roleCode: string;\n  query?: boolean;\n  insert?: boolean;\n  update?: boolean;\n  delete?: boolean;\n  audit?: boolean;\n  export?: boolean;\n};\n"]}
