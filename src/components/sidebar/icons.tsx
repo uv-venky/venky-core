@@ -213,7 +213,10 @@ export function AppIcon({ icon, className }: { icon: SidebarIcon; className?: st
   if (icon === 'MiniLogo') {
     const LogoComponent = customMiniLogo || MiniLogo;
     return (
-      <LogoComponent className={cn('size-8 shrink-0', className)} fill={theme === 'dark' ? '#ffffff' : '#512eff'} />
+      <LogoComponent
+        className={cn('size-8 shrink-0', className)}
+        fill={theme === 'dark' ? 'var(--sidebar-foreground)' : 'var(--logo)'}
+      />
     );
   }
   const customIcons = customSidebarIcons ?? {};

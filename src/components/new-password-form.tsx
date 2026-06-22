@@ -57,7 +57,7 @@ export function NewPasswordForm({ token }: { token: string }) {
   return (
     <main className="flex flex-1 items-center justify-end pr-24">
       <form action={formAction} className="w-full max-w-sm">
-        <Card className="border-none bg-black/50 text-white backdrop-blur-md">
+        <Card className="border-none bg-login-card text-login-foreground backdrop-blur-md">
           <CardContent className="space-y-4">
             <div className="mb-8 flex items-center justify-center">
               <span className="mx-auto font-title-light text-3xl">Change your password</span>

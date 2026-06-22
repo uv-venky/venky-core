@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-const DEFAULT_FILL = '#512eff';
+const DEFAULT_FILL = 'var(--logo)';
 
 export interface LoginLogoMarkProps {
   className?: string;

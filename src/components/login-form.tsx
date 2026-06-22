@@ -15,11 +15,11 @@ import type { LoginLegalNoticeConfig } from '@/app/login/login-page-types';
 import { LoginLegalNotice } from './login-legal-notice';
 
 export const loginFieldStyles = cn(
-  'h-12 w-full rounded-md border-primary bg-black text-white placeholder:text-white placeholder:opacity-80 focus-visible:border-primary focus-visible:ring-primary/50',
+  'h-12 w-full rounded-md border-primary/60 bg-login-input-bg text-login-foreground placeholder:text-login-muted focus-visible:border-primary focus-visible:ring-primary/50',
 );
 
 export const loginButtonStyles = cn(
-  'h-[70px] w-full rounded-full bg-primary px-3 py-4 text-2xl text-white transition-colors hover:bg-[#4120D9]',
+  'h-[70px] w-full rounded-full bg-primary px-3 py-4 text-2xl text-primary-foreground transition-colors hover:bg-primary-hover',
 );
 
 export function LoginForm({
@@ -67,7 +67,7 @@ export function LoginForm({
   return (
     <form action={dispatch}>
       <input type="hidden" name="sourceUrl" value={sourceUrlRef.current} />
-      <Card className="border-none bg-black/50 text-white backdrop-blur-md">
+      <Card className="border-none bg-login-card text-login-foreground backdrop-blur-md">
         <CardContent className="min-h-[300px] space-y-4">
           <div className={cn('flex flex-col gap-6 rounded', className)} {...props}>
             <div className="flex flex-col gap-6">

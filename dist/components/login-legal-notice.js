@@ -5,6 +5,6 @@ export function LoginLegalNotice({ notice }) {
     if (!termsLink && !privacyLink) {
         return null;
     }
-    return (_jsxs("p", { className: "mb-4 text-white/50 text-xs", children: [prefix ? _jsxs(_Fragment, { children: [prefix, " "] }) : null, termsLink ? (_jsx(Link, { prefetch: false, href: termsLink.href, children: _jsx("u", { className: "cursor-pointer", children: termsLink.label }) })) : null, termsLink && privacyLink ? _jsxs(_Fragment, { children: [" ", conjunction, " "] }) : null, privacyLink ? (_jsx(Link, { prefetch: false, href: privacyLink.href, children: _jsx("u", { className: "cursor-pointer", children: privacyLink.label }) })) : null] }));
+    return (_jsxs("p", { className: "mb-4 text-login-muted text-xs", children: [prefix ? _jsxs(_Fragment, { children: [prefix, " "] }) : null, termsLink ? (_jsx(Link, { prefetch: false, href: termsLink.href, children: _jsx("u", { className: "cursor-pointer", children: termsLink.label }) })) : null, termsLink && privacyLink ? _jsxs(_Fragment, { children: [" ", conjunction, " "] }) : null, privacyLink ? (_jsx(Link, { prefetch: false, href: privacyLink.href, children: _jsx("u", { className: "cursor-pointer", children: privacyLink.label }) })) : null] }));
 }
 //# sourceMappingURL=login-legal-notice.js.map

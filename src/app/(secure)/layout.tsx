@@ -11,7 +11,7 @@ import {
 import { deployConfig, AWS_REGION, GITHUB_REPO_NAME } from '@/lib/config/deploy-config';
 import { cn } from '@/lib/utils';
 
-const CustomMiniLogo = ({ className, fill = '#512eff' }: CustomMiniLogoProps) => (
+const CustomMiniLogo = ({ className, fill = 'var(--logo)' }: CustomMiniLogoProps) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"

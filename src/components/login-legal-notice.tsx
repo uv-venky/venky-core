@@ -9,7 +9,7 @@ export function LoginLegalNotice({ notice }: { notice: LoginLegalNoticeConfig })
   }
 
   return (
-    <p className="mb-4 text-white/50 text-xs">
+    <p className="mb-4 text-login-muted text-xs">
       {prefix ? <>{prefix} </> : null}
       {termsLink ? (
         <Link prefetch={false} href={termsLink.href}>

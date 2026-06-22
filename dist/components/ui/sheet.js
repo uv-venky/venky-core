@@ -16,7 +16,7 @@ function SheetPortal({ ...props }) {
     return _jsx(SheetPrimitive.Portal, { "data-slot": "sheet-portal", ...props });
 }
 function SheetOverlay({ className, ...props }) {
-    return (_jsx(SheetPrimitive.Overlay, { "data-slot": "sheet-overlay", "data-testid": "sheet-overlay", className: cn('data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/80 data-[state=closed]:animate-out data-[state=open]:animate-in', className), ...props }));
+    return (_jsx(SheetPrimitive.Overlay, { "data-slot": "sheet-overlay", "data-testid": "sheet-overlay", className: cn('data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-background/80 backdrop-blur-sm data-[state=closed]:animate-out data-[state=open]:animate-in', className), ...props }));
 }
 function SheetContent({ className, children, side = 'right', ...props }) {
     return (_jsxs(SheetPortal, { children: [_jsx(SheetOverlay, {}), _jsxs(SheetPrimitive.Content, { "data-slot": "sheet-content", className: cn('fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=open]:animate-in data-[state=closed]:duration-300 data-[state=open]:duration-500', side === 'right' &&

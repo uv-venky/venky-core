@@ -81,7 +81,7 @@ export function MultiStepForm({
 
       {/* Progress Steps */}
       {showStepIndicator && (
-        <div className="flex overflow-hidden rounded-xl border border-neutral-200 bg-background shadow-lg dark:border-neutral-800 dark:bg-black">
+        <div className="flex overflow-hidden rounded-xl border border-border bg-background shadow-lg">
           {steps.map((step, index) => {
             const isActive = index === currentStepIndex;
             const isCompleted = completedSteps.includes(step.id);
@@ -142,7 +142,7 @@ export function MultiStepForm({
       )}
 
       {/* Current Step Content */}
-      <Card className="overflow-hidden rounded-xl border-none bg-background py-0 shadow-xl dark:bg-black">
+      <Card className="overflow-hidden rounded-xl border border-border bg-card py-0 shadow-xl">
         <CardContent className="p-8">
           <div className="relative">{currentStep.component}</div>
         </CardContent>
@@ -163,7 +163,10 @@ export function MultiStepForm({
         </Button>
         <Button
           onClick={goToNextStep}
-          className={cn('bg-black px-6 text-white hover:bg-neutral-900', 'transition-all duration-300 ease-out')}
+          className={cn(
+            'bg-primary px-6 text-primary-foreground hover:bg-primary-hover',
+            'transition-all duration-300 ease-out',
+          )}
         >
           {isLastStep ? 'Complete' : 'Next'}
           {!isLastStep && <ChevronRight className="ml-2 h-4 w-4" />}

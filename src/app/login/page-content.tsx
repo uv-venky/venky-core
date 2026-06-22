@@ -20,7 +20,7 @@ const isGoogleOAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'tr
 
 function SsoLoginPanel({ tab }: { tab: LoginTabConfig }) {
   return (
-    <Card className="border-none bg-black/50 text-white backdrop-blur-md">
+    <Card className="border-none bg-login-card text-login-foreground backdrop-blur-md">
       <CardContent className="flex min-h-[300px] flex-col items-center justify-center space-y-4">
         <span data-slot="card-title" className="font-semibold leading-none">
           {tab.ssoTitle ?? 'SSO Login'}
@@ -36,9 +36,9 @@ function SsoLoginPanel({ tab }: { tab: LoginTabConfig }) {
         {isGoogleOAuthEnabled && (
           <>
             <div className="flex w-full items-center gap-3">
-              <div className="h-px flex-1 bg-gray-600" />
-              <span className="text-gray-400 text-xs">or</span>
-              <div className="h-px flex-1 bg-gray-600" />
+              <div className="h-px flex-1 bg-login-muted/40" />
+              <span className="text-login-muted text-xs">or</span>
+              <div className="h-px flex-1 bg-login-muted/40" />
             </div>
             <GoogleSignInButton />
           </>
@@ -71,13 +71,16 @@ function LoginTabs({ tabs, legalNotice }: { tabs: LoginTabConfig[]; legalNotice?
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
       <TabsList
-        className={cn('grid w-full rounded-full bg-gray-800/70 p-1', TAB_GRID_CLASS[tabs.length] ?? 'grid-cols-2')}
+        className={cn(
+          'grid w-full rounded-full bg-login-input-bg/80 p-1',
+          TAB_GRID_CLASS[tabs.length] ?? 'grid-cols-2',
+        )}
       >
         {tabs.map((tab) => (
           <TabsTrigger
             key={tab.id}
             value={tab.id}
-            className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-white"
+            className="rounded-full data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
           >
             {tab.label}
           </TabsTrigger>
@@ -120,7 +123,7 @@ export function LoginPageContent({
       </header>
       <main className="flex flex-1 items-center justify-end pr-24">
         <div className="w-full max-w-md">
-          <div className="flex flex-col self-center rounded-2xl bg-black/40 p-8 shadow-lg backdrop-blur-md">
+          <div className="flex flex-col self-center rounded-2xl bg-login-card/80 p-8 shadow-lg backdrop-blur-md">
             {errorMessage && (
               <div className="mb-4 rounded-md bg-destructive/20 p-3 text-center text-destructive text-sm">
                 {errorMessage}

@@ -49,7 +49,7 @@ export function ResetPasswordForm() {
   return (
     <main className="flex flex-1 items-center justify-end pr-24">
       <form action={formAction} className="w-full max-w-sm">
-        <Card className="border-none bg-black/50 text-white backdrop-blur-md">
+        <Card className="border-none bg-login-card text-login-foreground backdrop-blur-md">
           <CardContent className="min-h-[300px] space-y-4">
             <div className="mb-8 flex items-center justify-center">
               <span className="mx-auto font-title-light text-3xl">Reset Password</span>
@@ -81,7 +81,7 @@ export function ResetPasswordForm() {
             <Link
               prefetch={false}
               href="/login"
-              className="flex items-center justify-center text-primary text-sm hover:text-white hover:underline"
+              className="flex items-center justify-center text-primary text-sm hover:text-login-foreground hover:underline"
             >
               <ArrowLeft className="mr-2 h-4 w-4" /> Back to login
             </Link>

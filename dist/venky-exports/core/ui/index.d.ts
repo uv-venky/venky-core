@@ -58,7 +58,7 @@ export { UserProfilePage } from '../../../app/(secure)/user/profile/user-profile
 export { LoginPageContent } from '../../../app/login/page-content';
 export type { LoginPageContentProps, LoginLogoProps, LoginLogoComponent, LoginTabConfig, LoginTabType, LoginLegalNoticeConfig, LoginLegalLink, } from '../../../app/login/login-page-types';
 export { DEFAULT_LOGIN_TABS, DEFAULT_LOGIN_LEGAL_NOTICE } from '../../../app/login/login-page-types';
-export { DEFAULT_LOGIN_BACKGROUND_CLASS, getLoginPageBackgroundClass, getLoginPageBackgroundStyle } from '../../../app/login/login-page-background';
+export { DEFAULT_LOGIN_BACKGROUND_CLASS, getLoginPageBackgroundClass, getLoginPageBackgroundStyle, } from '../../../app/login/login-page-background';
 export { VenkyLogo, Logo } from '../../../app/login/logo';
 export { MiniLogo } from '../../../app/login/mini-logo';
 export { VenkyLogoMark } from '../../../app/login/venky-logo-mark';

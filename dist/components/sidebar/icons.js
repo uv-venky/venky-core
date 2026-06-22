@@ -103,7 +103,7 @@ export function AppIcon({ icon, className }) {
     const { customMiniLogo, customSidebarIcons } = useAppContext();
     if (icon === 'MiniLogo') {
         const LogoComponent = customMiniLogo || MiniLogo;
-        return (_jsx(LogoComponent, { className: cn('size-8 shrink-0', className), fill: theme === 'dark' ? '#ffffff' : '#512eff' }));
+        return (_jsx(LogoComponent, { className: cn('size-8 shrink-0', className), fill: theme === 'dark' ? 'var(--sidebar-foreground)' : 'var(--logo)' }));
     }
     const customIcons = customSidebarIcons ?? {};
     const customIcon = customIcons[icon];
